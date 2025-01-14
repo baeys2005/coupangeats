@@ -5,6 +5,9 @@ class adImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(padding: EdgeInsets.all(10),child: Image.asset('assets/wowad.jpg'),);
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Image.asset('assets/wowad.jpg',height: 100),
+    );
   }
 }
