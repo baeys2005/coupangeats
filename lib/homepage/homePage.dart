@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 //파일 임포트
 import 'home_search.dart';
+import 'home_fooldtile.dart';
 
 
 class Homepage extends StatefulWidget {
@@ -32,14 +33,8 @@ class _HomepageState extends State<Homepage> {
         slivers: [
           //검색 상자 부분
           SliverToBoxAdapter(child: Search()),
-          SliverGrid(
-            delegate: SliverChildBuilderDelegate(
-                    (c,i) => Container(color: Colors.grey,),// c, i 넣어주기 , Container반환함 .
-                childCount: 8//=itemCount랑 비슷
-            ),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-            //가로에 몇칸
-          )
+          //음식 상자 부분
+          HomeFooldtile()
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
