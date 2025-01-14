@@ -14,7 +14,7 @@ class HomeFooldtile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverGrid(
       delegate: SliverChildBuilderDelegate(
-              (c,i) => Container(color: Colors.grey,),// c, i 넣어주기 , Container반환함 .
+              (c,i) => Image.asset('assets/FT1.jpg'),// c, i 넣어주기 , Container반환함 .
           childCount: 10//=itemCount랑 비슷
       ),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
