@@ -40,6 +40,25 @@ ThemeData(
       )),
 
 
+
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
   useMaterial3: true,
 );
+
+var searchButtonTheme=
+ThemeData(elevatedButtonTheme: ElevatedButtonThemeData(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.white, // 버튼 배경색
+    foregroundColor: Colors.black, // 버튼 텍스트 색상
+    //padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // 내부 여백
+    //textStyle: const TextStyle(
+    //  fontSize: 16,
+    //  fontWeight: FontWeight.bold,
+    //), // 텍스트 스타일
+    minimumSize: Size(200,50),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16), // 버튼 모서리 곡선
+    ),
+    elevation: 1, // 버튼 그림자 높이
+  ),
+),);

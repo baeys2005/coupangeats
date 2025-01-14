@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
+//페이지 임포트
 import 'package:coupangeats/homepage/homePage.dart';
+import 'theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme:
+      theme: theme,
       home: const Homepage(),
     );
   }
