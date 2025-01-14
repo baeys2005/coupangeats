@@ -28,11 +28,18 @@ class _HomepageState extends State<Homepage> {
           Icon(Icons.notifications)
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+      body: CustomScrollView(
+        slivers: [
           //검색 상자 부분
-          Search()
+          SliverToBoxAdapter(child: Search()),
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+                    (c,i) => Container(color: Colors.grey,),// c, i 넣어주기 , Container반환함 .
+                childCount: 8//=itemCount랑 비슷
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+            //가로에 몇칸
+          )
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
