@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 //파일 임포트
 import 'home_search.dart';
 import 'home_fooldtile.dart';
+import 'home_wowad.dart';
 
 
 class Homepage extends StatefulWidget {
@@ -34,7 +35,8 @@ class _HomepageState extends State<Homepage> {
           //검색 상자 부분
           SliverToBoxAdapter(child: Search()),
           //음식 상자 부분
-          HomeFooldtile()
+          HomeFooldtile(),
+          SliverToBoxAdapter(child: adImage())
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

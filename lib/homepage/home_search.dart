@@ -6,7 +6,7 @@ class Search extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+      padding: EdgeInsets.fromLTRB(40, 0, 40, 10),
       child: ElevatedButton(
 
           onPressed: (){}, child: Row(children: [

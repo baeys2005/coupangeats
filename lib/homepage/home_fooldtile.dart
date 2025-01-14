@@ -9,21 +9,30 @@ class HomeFooldtile extends StatelessWidget {
         (index) => 'assets/FT${index + 1}.jpg',
   );
 
+  final List<String> imageName = ['피자','찜/탕','커피/차','도시락','회/해물'
+  ,'한식','치킨','분식','돈까스','더보기'];//더보기 나중에 수정 필요
+
 
   @override
   Widget build(BuildContext context) {
-    return SliverGrid(
-      delegate: SliverChildBuilderDelegate(
-              (c,i) => Column(
-                children: [
-                  Image.asset(imagePaths[i]),
-                  Text('dd')
-                ],
-              ),// c, i 넣어주기 , Container반환함 .
-          childCount: 10//=itemCount랑 비슷
+    return SliverPadding(
+      padding: const EdgeInsets.all(8.0),
+      sliver: SliverGrid(
+        delegate: SliverChildBuilderDelegate(
+                (c,i) =>
+                    Container(
+                      child: Column(
+                                      children: [
+                      Image.asset(imagePaths[i],width: 70,height: 70,),
+                      Text(imageName[i])
+                                      ],
+                                    ),
+                    ),// c, i 넣어주기 , Container반환함 .
+            childCount: 10//=itemCount랑 비슷
+        ),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
+        //가로에 몇칸
       ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
-      //가로에 몇칸
     );
   }
 }
