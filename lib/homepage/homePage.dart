@@ -21,7 +21,7 @@ class _HomepageState extends State<Homepage> {
       appBar: AppBar(
         //홈메인 앱바
         leading: Icon(Icons.location_on_outlined,color: Colors.yellow,),
-          title: Text('서울특별시 강남구 한남자이 뭐시기 '),
+          title: Text('서울특별시 강남구 한남자이 뭐시기 ',),
         actions: [
           Icon(Icons.expand_more,color: Colors.blue),
           Icon(Icons.search),
