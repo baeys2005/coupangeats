@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 
 
+//기본 앱 제목, 부제목 글자설정.
+var title1=TextStyle(fontSize: 15,fontWeight: FontWeight.bold);
+//기본 버튼, 설명 글자 설정
+var body1=TextStyle(fontSize: 15,fontWeight: FontWeight.bold);
+
+//기본 패딩 단위(옆쪽)
+const double padding1=8.0;
+
 var theme =
 ThemeData(
   scaffoldBackgroundColor: Colors.white,
+
   appBarTheme: AppBarTheme(
       backgroundColor: Colors.white
   ),
@@ -11,7 +20,7 @@ ThemeData(
 //기본 글자 색 설정
   textTheme: TextTheme(
       bodyLarge: TextStyle(color: Colors.black),
-      bodyMedium: TextStyle(color: Colors.black),
+      bodyMedium: TextStyle(color: Colors.black,fontSize: 15),
       bodySmall: TextStyle(color: Colors.black)
   ),
 
@@ -29,12 +38,12 @@ ThemeData(
       // 선택되지 않은 아이템 아이콘 크기
 //바텀바 라벨 설정
       selectedLabelStyle: TextStyle(
-        fontSize: 14,
+        fontSize: 10,
         fontWeight: FontWeight.bold,
         color: Colors.blue, // 선택된 라벨 색상
       ),
       unselectedLabelStyle: TextStyle(
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: FontWeight.normal,
         color: Colors.grey, // 선택되지 않은 라벨 색상
       )),

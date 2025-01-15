@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:coupangeats/theme.dart';
+
 class HomeFooldtile extends StatelessWidget {
    HomeFooldtile({super.key});
 
@@ -16,7 +18,7 @@ class HomeFooldtile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(5),
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate(
                 (c,i) =>

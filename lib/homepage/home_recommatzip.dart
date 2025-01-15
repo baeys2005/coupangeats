@@ -1,3 +1,4 @@
+import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
 
 class HomeRecommatzip extends StatefulWidget {
@@ -19,7 +20,11 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
           scrollDirection: Axis.horizontal,
           itemCount: 10,
           itemBuilder: (c, i) {
-            return matzipBox(index: i, bW: boxWidth, bH: boxHeight);
+            return
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: padding1),
+                child: matzipBox(index: i, bW: boxWidth, bH: boxHeight),
+              );
           }),
     );
   }

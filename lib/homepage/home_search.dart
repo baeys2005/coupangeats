@@ -10,7 +10,7 @@ class Search extends StatelessWidget {
       child: ElevatedButton(
 
           onPressed: (){}, child: Row(children: [
-        Icon(Icons.search),
+        Icon(Icons.search,size: 25,color: Colors.black,),
         SizedBox(width: 30),
         Text('오늘 치킨 ㄱㄱ')
       ],),
