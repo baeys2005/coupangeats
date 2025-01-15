@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'home_search.dart';
 import 'home_fooldtile.dart';
 import 'home_wowad.dart';
-
-
+import 'home_recommatzip.dart';
+import 'home_gollamukmatzip.dart';
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
@@ -22,7 +22,7 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(
         //홈메인 앱바
-        leading: Icon(Icons.location_on_outlined,color: Colors.yellow,),
+        leading: Icon(Icons.near_me,color: Colors.yellow,),
           title: Text('서울특별시 강남구 한남자이 뭐시기 ',),
         actions: [
           Icon(Icons.expand_more,color: Colors.blue),
@@ -36,7 +36,22 @@ class _HomepageState extends State<Homepage> {
           SliverToBoxAdapter(child: Search()),
           //음식 상자 부분
           HomeFooldtile(),
-          SliverToBoxAdapter(child: adImage())
+          SliverToBoxAdapter(child: adImage()),
+          SliverToBoxAdapter(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '이츠 추천 맛집',
+                  style: TextStyle(fontSize: 20),
+                ),
+                Icon(Icons.navigate_next)
+              ],
+            ),
+          ),
+          SliverToBoxAdapter(child: HomeRecommatzip()),
+          SliverToBoxAdapter(child: Container(child: Text('골라먹는맛집'),),),
+          HomeGollamukmatzip()
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
