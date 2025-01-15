@@ -58,7 +58,7 @@ class _matzipBoxState extends State<matzipBox> {
             restimagePaths[widget.index],
             width: widget.bW,
             height: widget.bH,
-            
+              fit: BoxFit.cover
           ),
         ),
         Row(
