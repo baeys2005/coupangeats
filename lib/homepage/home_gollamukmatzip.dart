@@ -12,7 +12,7 @@ class GollamukmatzipBar extends StatefulWidget {
 class _GollamukmatzipBarState extends State<GollamukmatzipBar> {
   @override
   Widget build(BuildContext context) {
-    return Row(children: [Icon(Icons.check_box_outline_blank),
+    return Row(children: [Icon(Icons.check_box_outline_blank,size: 30,),
       Text('wow+즉시할인'),
         TextButton(onPressed: () {}, child: Text('추천순')),
         TextButton(onPressed: () {}, child: Text('필터'))

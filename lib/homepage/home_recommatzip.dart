@@ -10,7 +10,7 @@ class HomeRecommatzip extends StatefulWidget {
 
 class _HomeRecommatzipState extends State<HomeRecommatzip> {
   double boxWidth = 300;
-  double boxHeight = 200;
+  double boxHeight = 230;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,8 @@ class _matzipBoxState extends State<matzipBox> {
           ),
         ),
         Row(
-          children: [Text('네네치킨 태평복정점'), Text('wow+즉시할인')],
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [Text('네네치킨 태평복정점',style: title1), Text('wow+즉시할인',style: TextStyle(color: Colors.blue),)],
         ),
         Row(
           children: [

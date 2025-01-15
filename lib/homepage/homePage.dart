@@ -45,15 +45,18 @@ class _HomepageState extends State<Homepage> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: padding1*2.5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '이츠 추천 맛집',
-                    style: title1,
-                  ),
-                  Icon(Icons.navigate_next)
-                ],
+              child: SizedBox(
+                height: 50,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '이츠 추천 맛집',
+                      style: title1,
+                    ),
+                    Icon(Icons.navigate_next)
+                  ],
+                ),
               ),
             ),
           ),
