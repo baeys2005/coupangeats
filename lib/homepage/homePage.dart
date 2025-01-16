@@ -1,3 +1,4 @@
+import 'package:coupangeats/myeatspage/myeatsPage.dart';
 import 'package:flutter/material.dart';
 //하연수정중 ~
 
@@ -83,17 +84,39 @@ class _HomepageState extends State<Homepage> {
         ],
       ),
       bottomNavigationBar:
-          BottomNavigationBar(type: BottomNavigationBarType.fixed, items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: '홈',
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border), label: '즐겨찾기'),
-        BottomNavigationBarItem(icon: Icon(Icons.menu), label: '주문내역'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My 이츠'),
-      ]),
+          HomeBottomBar(),
+    );
+  }
+}
+
+class HomeBottomBar extends StatefulWidget {
+  const HomeBottomBar({super.key});
+
+  @override
+  State<HomeBottomBar> createState() => _HomeBottomBarState();
+}
+
+class _HomeBottomBarState extends State<HomeBottomBar> {
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(type: BottomNavigationBarType.fixed, items: [
+      BottomNavigationBarItem(
+        icon: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.home)),
+        label: '홈',
+      ),
+      BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.favorite_border), label: '즐겨찾기'),
+      BottomNavigationBarItem(icon: Icon(Icons.menu), label: '주문내역'),
+      BottomNavigationBarItem(icon: IconButton(onPressed: (){
+        Navigator.push(context,
+            MaterialPageRoute(builder: (c){
+              return myeatsPage();
+            }
+            )
+        );
+      }, icon: Icon(Icons.person)), label: 'My 이츠'),
+    ]
     );
   }
 }

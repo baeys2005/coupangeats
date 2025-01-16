@@ -26,7 +26,7 @@ class HomeFooldtile extends StatelessWidget {
                       child: Column(
                                       children: [
                       Image.asset(imagePaths[i],width: 70,height: 70,),
-                      Text(imageName[i])
+                      Text(imageName[i],style: body2,)
                                       ],
                                     ),
                     ),// c, i 넣어주기 , Container반환함 .

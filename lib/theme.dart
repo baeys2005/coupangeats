@@ -5,6 +5,14 @@ import 'package:flutter/material.dart';
 var title1=TextStyle(fontSize: 15,fontWeight: FontWeight.bold);
 //기본 버튼, 설명 글자 설정
 var body1=TextStyle(fontSize: 15,fontWeight: FontWeight.bold);
+var body2=TextStyle(fontSize: 12, );
+
+//페이지속 큰글씨 제목
+var pagetitle1=TextStyle(fontSize: 25,fontWeight: FontWeight.bold);
+//페이지속 본문 큰글씨
+var pagebody1=TextStyle(fontSize: 15);
+
+double iconsize1=30;
 
 //기본 패딩 단위(옆쪽)
 const double padding1=8.0;
@@ -32,7 +40,7 @@ ThemeData(
       // 선택된 아이템의 색상
       unselectedItemColor: Colors.black45,
       // 선택되지 않은 아이템의 색상
-      selectedIconTheme: IconThemeData(size: 30),
+      selectedIconTheme: IconThemeData(size: 24),
       // 선택된 아이템 아이콘 크기
       unselectedIconTheme: IconThemeData(size: 24),
       // 선택되지 않은 아이템 아이콘 크기
