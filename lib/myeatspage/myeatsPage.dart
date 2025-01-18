@@ -2,6 +2,7 @@ import 'package:flutter/material.dart'; //fgggggg
 
 import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
+import 'package:coupangeats/myeatspage/storeownerPage.dart';
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});
@@ -76,6 +77,26 @@ class _myeatsPageState extends State<myeatsPage> {
             ),
             title: Text(
               '설정',
+              style: pagebody1,
+            ),
+          ),
+          ListTile(
+            leading: Padding(
+              padding: const EdgeInsets.only(left: padding1*2),
+              child: IconButton(onPressed: (){
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (c){
+                      return Storeownerpage();
+                    }
+                    )
+                );
+              }, icon: Icon(
+                Icons.store_mall_directory_outlined,
+                size: iconsize1,
+              ),)
+            ),
+            title: Text(
+              '사장님페이지',
               style: pagebody1,
             ),
           ),
