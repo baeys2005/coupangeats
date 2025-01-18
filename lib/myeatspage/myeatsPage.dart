@@ -5,6 +5,8 @@ import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/storeownerPage.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
+import 'package:provider/provider.dart';
+import 'package:coupangeats/datastore/storeData.dart';
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});
@@ -16,6 +18,8 @@ class myeatsPage extends StatefulWidget {
 class _myeatsPageState extends State<myeatsPage> {
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       body: ListView(
         children: [
