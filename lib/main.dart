@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 
 import 'package:coupangeats/theme.dart';
 
+import 'datastore/storeData.dart';
+
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -18,7 +20,7 @@ void main()async {
         storageBucket: "coupangeats-5897c.firebasestorage.app",
       ),
     );
-    runApp(const MyApp());
+    runApp(MultiProvider(providers: [ChangeNotifierProvider(create: (_) => UserProvider())],child: const MyApp()));
   } catch (e) {
     print("Firebase initialization error: $e");
   }

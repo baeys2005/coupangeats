@@ -11,7 +11,7 @@ class UserProvider extends ChangeNotifier{
   // 현재 사용자 정보 getter
   User? get user => _user;
 
-  AuthProvider() {
+  UserProvider() {
     // 앱 시작 시 현재 로그인된 사용자 가져오기
     _user = auth.currentUser;
   }
