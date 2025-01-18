@@ -5,8 +5,6 @@ import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/storeownerPage.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
-import 'package:provider/provider.dart';
-import 'package:coupangeats/datastore/storeData.dart';
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});
@@ -18,8 +16,6 @@ class myeatsPage extends StatefulWidget {
 class _myeatsPageState extends State<myeatsPage> {
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-
     return Scaffold(
       body: ListView(
         children: [
@@ -44,26 +40,20 @@ class _myeatsPageState extends State<myeatsPage> {
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 1)),
                 ),
-                Row(
-                  children: [
-                    TextButton(
-                        onPressed: () async {
-                          await memberLogin;
-                        },
-                        child: Text('로그인')),
-                    TextButton(
-                        onPressed: () async {
-                          await memberRegistration;
-                        },
-                        child: Text('회원가입'))
-                  ],
-                )
+                Row(children: [
+                  TextButton(onPressed: ()async{
+
+                  await memberLogin;}, child: Text('로그인')),
+                  TextButton(onPressed: () async{
+                    await memberRegistration();
+                  }, child: Text('회원가입'))
+                ],)
               ],
             ),
           ),
           ListTile(
             leading: Padding(
-              padding: const EdgeInsets.only(left: padding1 * 2),
+              padding: const EdgeInsets.only(left: padding1*2),
               child: Icon(
                 Icons.list_alt,
                 size: iconsize1,
@@ -76,7 +66,7 @@ class _myeatsPageState extends State<myeatsPage> {
           ),
           ListTile(
             leading: Padding(
-              padding: const EdgeInsets.only(left: padding1 * 2),
+              padding: const EdgeInsets.only(left: padding1*2),
               child: Icon(
                 Icons.favorite_border,
                 size: iconsize1,
@@ -89,7 +79,7 @@ class _myeatsPageState extends State<myeatsPage> {
           ),
           ListTile(
             leading: Padding(
-              padding: const EdgeInsets.only(left: padding1 * 2),
+              padding: const EdgeInsets.only(left: padding1*2),
               child: Icon(
                 Icons.settings,
                 size: iconsize1,
@@ -102,18 +92,19 @@ class _myeatsPageState extends State<myeatsPage> {
           ),
           ListTile(
             leading: Padding(
-                padding: const EdgeInsets.only(left: padding1 * 2),
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (c) {
+              padding: const EdgeInsets.only(left: padding1*2),
+              child: IconButton(onPressed: (){
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (c){
                       return Storeownerpage();
-                    }));
-                  },
-                  icon: Icon(
-                    Icons.store_mall_directory_outlined,
-                    size: iconsize1,
-                  ),
-                )),
+                    }
+                    )
+                );
+              }, icon: Icon(
+                Icons.store_mall_directory_outlined,
+                size: iconsize1,
+              ),)
+            ),
             title: Text(
               '사장님페이지',
               style: pagebody1,
@@ -131,9 +122,7 @@ var myeatsbutton = Column(children: [
     '1',
     style: pagetitle1,
   ),
-  Text(
-    '내가남긴리뷰',
-  )
+  Text('내가남긴리뷰',)
 ]);
 var myeatsbutton2 = Column(children: [
   Text(

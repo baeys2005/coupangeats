@@ -17,13 +17,9 @@ class _StoreownerpageState extends State<Storeownerpage> {
   @override
   Widget build(BuildContext context) {
 
-    final authProvider = Provider.of<UserProvider>(context);
-    final user = authProvider.user;
-
-
     return Scaffold(
       body: Column(children: [
-        Text('Logged in as: ${authProvider.user!.email}')//여기서 오류남 긍아ㅏ앙ㄱ
+        Text('dfsds')//여기서 오류남 긍아ㅏ앙ㄱ
       ],),
     );
   }
