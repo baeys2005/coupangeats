@@ -6,7 +6,8 @@ import'package:firebase_auth/firebase_auth.dart';
 
 final auth = FirebaseAuth.instance;
 
-getData() async {
+//회원가입코드
+memberRegistration() async {
   try {
     var result = await auth.createUserWithEmailAndPassword(
       email: "kim@test.com",
@@ -15,6 +16,18 @@ getData() async {
     print(result.user);
   } catch(e){
     print(e); //이 코드를 통해 왜 가입이 거절됐는지와 같은 메세지 발생
+  }
+}
+
+//로그인 코드
+memberLogin() async {
+  try{
+    await auth.signInWithEmailAndPassword(
+      email: 'kim@test.com',
+      password: '12345dddd',
+    );
+  } catch(e) {
+    print(e);
   }
 }
 
