@@ -7,7 +7,20 @@ import 'package:coupangeats/theme.dart';
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp(
+      options: FirebaseOptions(//엥이게 왜됨 수동 설정인데
+        apiKey: "AIzaSyCPKtaK1ERoSOtEZAmJUWhzQQtH-YYi9ts",
+        appId: "1:839797760219:android:73c0ea4e58ff61f165ecfe",
+        messagingSenderId: "839797760219",
+        projectId: "coupangeats-5897c",
+        storageBucket: "coupangeats-5897c.firebasestorage.app",
+      ),
+    );
+    runApp(const MyApp());
+  } catch (e) {
+    print("Firebase initialization error: $e");
+  }
   runApp(const MyApp());
 }
 

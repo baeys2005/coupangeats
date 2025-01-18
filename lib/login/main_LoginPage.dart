@@ -10,7 +10,7 @@ getData() async {
   try {
     var result = await auth.createUserWithEmailAndPassword(
       email: "kim@test.com",
-      password: "12345",
+      password: "12345dddd",
     );
     print(result.user);
   } catch(e){
