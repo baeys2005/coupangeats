@@ -1,8 +1,10 @@
+import 'package:coupangeats/login/main_LoginPage.dart';
 import 'package:flutter/material.dart'; //fgggggg
 
 import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
-import 'package:coupangeats/myeatspage/storeownerPage.dart';
+import 'package:coupangeats/storeownerPage.dart';
+import 'package:coupangeats/login/main_LoginPage.dart';
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});
@@ -37,7 +39,18 @@ class _myeatsPageState extends State<myeatsPage> {
                   child: Center(child: Text('자세히보기')),
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.black, width: 1)),
-                )
+                ),
+                Row(children: [
+                  TextButton(onPressed: (){Navigator.push(context,
+                      MaterialPageRoute(builder: (c){
+                        return MainLoginpage();
+                      }
+                      )
+                  );}, child: Text('로그인')),
+                  TextButton(onPressed: () async{
+                    await getData();
+                  }, child: Text('회원가입'))
+                ],)
               ],
             ),
           ),
