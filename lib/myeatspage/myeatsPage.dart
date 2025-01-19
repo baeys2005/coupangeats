@@ -3,7 +3,7 @@ import 'package:flutter/material.dart'; //fgggggg
 
 import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
-import 'package:coupangeats/storeownerPage.dart';
+import 'package:coupangeats/ownerpage/storeownerPage.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
 
 class myeatsPage extends StatefulWidget {
