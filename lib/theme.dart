@@ -56,7 +56,12 @@ ThemeData(
         color: Colors.grey, // 선택되지 않은 라벨 색상
       )),
 
-
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white, // 버튼 배경색 흰색
+      foregroundColor: Colors.black, // 버튼 글자색 검정
+      textStyle: TextStyle()
+    )),
 
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
   useMaterial3: true,
