@@ -47,6 +47,7 @@ class OwnerMenu extends StatefulWidget {
 }
 
 class _OwnerMenuState extends State<OwnerMenu> {
+
   //선택된 카테고리
   String _selectedCategory = '식사';
 
@@ -171,6 +172,68 @@ class _OwnerMenuState extends State<OwnerMenu> {
     );
   }
 
+  void fetchMenusFromFirebase() async {
+    try {
+      print('Fetching menus from Firebase...');
+      final storeId = 'store123'; // 고정된 가게 ID
+      final storeRef = FirebaseFirestore.instance.collection('stores').doc('store123');
+
+      // 가게 데이터 확인
+      final storeSnapshot = await storeRef.get();
+      if (!storeSnapshot.exists) {
+        print('Store with ID $storeId does not exist in Firestore.');
+        return;
+      }
+
+      final categoriesSnapshot = await storeRef.collection('categories').get();
+
+      // 카테고리 초기화
+      categories.clear();
+      menuItems.clear();
+
+      print('Categories fetched: ${categoriesSnapshot.docs.length} categories found.');
+
+      // 각 카테고리 데이터를 읽어옴
+      for (var categoryDoc in categoriesSnapshot.docs) {
+        final categoryId = categoryDoc.id;
+        final categoryName = categoryDoc.data()['name'];
+        print('Processing category: $categoryName (ID: $categoryId)');
+
+        // 카테고리 추가
+        categories.add(categoryName);
+
+        // 해당 카테고리의 메뉴 가져오기
+        final menuSnapshot = await categoryDoc.reference.collection('menus').get();
+        print('Menus fetched for category $categoryName: ${menuSnapshot.docs.length} items found.');
+
+        final menus = menuSnapshot.docs.map((menuDoc) {
+          final menuData = menuDoc.data();
+          print('Menu item: ${menuData['name']} - ${menuData['price']}원');
+          return MenuItem(
+            name: menuData['name'],
+            price: menuData['price'],
+          );
+        }).toList();
+
+        // 메뉴 추가
+        menuItems[categoryName] = menus;
+      }
+
+      // 상태 업데이트
+      print('Categories and menus successfully loaded into local state.');
+      print('Categories: $categories');
+      print('Menu Items: $menuItems');
+      setState(() {});
+    } catch (e) {
+      print('Failed to fetch menus: $e');
+    }
+  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchMenusFromFirebase();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
