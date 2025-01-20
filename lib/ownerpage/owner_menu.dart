@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+
+//firebase에 메뉴 저장 함수
+class FirestoreService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> addMenuToFirestore({
+    required String storeId,
+    required String categoryId,
+    required MenuItem menuItem,
+  }) async {
+    try {
+      final categoryRef = _firestore
+          .collection('stores')
+          .doc(storeId)
+          .collection('categories')
+          .doc(categoryId);
+
+      // 메뉴 추가
+      await categoryRef.collection('menus').add({
+        'name': menuItem.name,
+        'price': menuItem.price,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      print('Menu added successfully.');
+    } catch (e) {
+      print('Failed to add menu: $e');
+    }
+  }
+}
 class MenuItem {
   final String name; // 메뉴 이름
   final int price; // 메뉴 가격
@@ -89,7 +121,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
               child: const Text('닫기'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final String menuName = menuNameController.text;
                 final int? menuPrice = int.tryParse(menuPriceController.text);
 
@@ -100,6 +132,9 @@ class _OwnerMenuState extends State<OwnerMenu> {
                 print('Selected Category for Addition: $_selectedCategory');
 
                 if (menuName.isNotEmpty && menuPrice != null) {
+                  //메뉴리스트를 하나의 변수에 넣어 전달(메뉴정보 묶어서 전달)
+                  final newMenuItem = MenuItem(name: menuName, price: menuPrice);
+
                   setState(() {
                     // 선택된 카테고리에 메뉴 추가
                     menuItems[_selectedCategory]?.add(
@@ -112,7 +147,15 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     for (var menu in menuItems[_selectedCategory]!) {
                       print('- ${menu.name}: ${menu.price}원');
                     }
-                  });
+                  }
+                  );
+                  // Firebase Firestore에 메뉴 저장
+                  await FirestoreService().addMenuToFirestore(
+                    storeId: 'store123', // 가게 ID (여기서 고정값, 실제로는 동적으로 설정 필요)
+                    categoryId: _selectedCategory, // 선택된 카테고리
+                    menuItem: newMenuItem,
+                  );
+
                   Navigator.of(context).pop(); // Dialog 닫기
                 } else {
                   // 입력값이 비어있거나 유효하지 않을 경우 디버깅 출력
@@ -139,8 +182,19 @@ class _OwnerMenuState extends State<OwnerMenu> {
             child: Container(
               child: Center(
                   child: ListView.builder(
-                      itemCount: categories.length,
-                      itemBuilder: (c, i) {
+                    itemCount: categories.length + 1, // +1로 항목 추가
+                    itemBuilder: (c, i) {
+                      if (i == categories.length) {
+                        // 마지막 항목 (categories.length+1)
+                        return ListTile(
+                          title: const Icon(Icons.add),
+                          
+                          onTap: () {
+                            print('fddd'); // 마지막 항목 클릭 시 실행될 함수 호출
+                          },
+                        );
+                      } else {
+                        // 일반 카테고리 항목
                         return ListTile(
                           title: Text(categories[i]),
                           selected: _selectedCategory == categories[i],
@@ -151,7 +205,10 @@ class _OwnerMenuState extends State<OwnerMenu> {
                             });
                           },
                         );
-                      })),
+                      }
+                    },
+                  ),
+              ),
             ),
           ),
           Expanded(
