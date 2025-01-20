@@ -15,17 +15,17 @@ class OwnerMenu extends StatefulWidget {
 }
 
 class _OwnerMenuState extends State<OwnerMenu> {
-
   //선택된 카테고리
-  String _selectedCategory= '식사';
+  String _selectedCategory = '식사';
 
   //카테고리
-  final List<String> categories=[
+  final List<String> categories = [
     'Category 1',
     'Category 2',
     'Category 3',
     'Category 4',
   ];
+
   // 메뉴 데이터 (카테고리별)
   final Map<String, List<MenuItem>> menuItems = {
     'Category 1': [
@@ -49,8 +49,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
       MenuItem(name: 'Dessert', price: 10000),
     ],
   };
-  //각메뉴 정보 저장 .
 
+  //각메뉴 정보 저장 .
 
   // 메뉴 추가 Dialog 함수.
   void _showAddMenuDialog() {
@@ -61,7 +61,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(' $_selectedCategory에 메뉴추가'),
+          title: Text('$_selectedCategory에 메뉴 추가'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -69,9 +69,14 @@ class _OwnerMenuState extends State<OwnerMenu> {
                 controller: menuNameController,
                 decoration: InputDecoration(labelText: '메뉴 이름'),
               ),
+              SizedBox(height: 30),
               TextField(
                 controller: menuPriceController,
-                decoration: InputDecoration(labelText: '가격'),
+                decoration: InputDecoration(labelText: '가격',
+                  hintText: 'ex) 10000', // 회색 글씨로 표시되는 힌트
+                  suffixText: '원', // 오른쪽에 표시되는 텍스트
+                  border: OutlineInputBorder(), // 테두리 추가 (옵션)
+                   ),
                 keyboardType: TextInputType.number,
               ),
             ],
@@ -86,17 +91,33 @@ class _OwnerMenuState extends State<OwnerMenu> {
             ElevatedButton(
               onPressed: () {
                 final String menuName = menuNameController.text;
-                final String menuPrice = menuPriceController.text;
+                final int? menuPrice = int.tryParse(menuPriceController.text);
 
-                if (menuName.isNotEmpty && menuPrice.isNotEmpty) {
+                // 입력값 디버깅
+                print('Entered Menu Name: $menuName');
+                print('Entered Menu Price: ${menuPriceController.text}');
+                print('Parsed Menu Price: $menuPrice');
+                print('Selected Category for Addition: $_selectedCategory');
+
+                if (menuName.isNotEmpty && menuPrice != null) {
                   setState(() {
-                    // 메뉴 추가
-                    menuItems[_selectedCategory]?.add({
-                      'name': menuName,
-                      'price': menuPrice,
-                    } as String);
+                    // 선택된 카테고리에 메뉴 추가
+                    menuItems[_selectedCategory]?.add(
+                      MenuItem(name: menuName, price: menuPrice),
+                    );
+
+                    // 추가된 메뉴 디버깅
+                    print('Added Menu: $menuName, $menuPrice원');
+                    print('Updated Menus in $_selectedCategory:');
+                    for (var menu in menuItems[_selectedCategory]!) {
+                      print('- ${menu.name}: ${menu.price}원');
+                    }
                   });
                   Navigator.of(context).pop(); // Dialog 닫기
+                } else {
+                  // 입력값이 비어있거나 유효하지 않을 경우 디버깅 출력
+                  print(
+                      'Invalid input: Menu Name or Price is missing or incorrect.');
                 }
               },
               child: const Text('저장'),
@@ -112,38 +133,41 @@ class _OwnerMenuState extends State<OwnerMenu> {
     return Scaffold(
       appBar: AppBar(),
       body: Row(
-        children: [Expanded(
-        flex: 1, // 비율 3
-        child: Container(
-
-          child: Center(
-            child: ListView.builder(itemCount: categories.length,itemBuilder: (c,i){
-
-              return ListTile(
-                title: Text(categories[i]),
-                selected: _selectedCategory == categories[i],
-                selectedTileColor: Colors.blue.shade300,
-                onTap: (){
-                  setState(() {
-                    _selectedCategory=categories[i];
-                  });
-                },
-              );
-            })
+        children: [
+          Expanded(
+            flex: 1, // 비율 3
+            child: Container(
+              child: Center(
+                  child: ListView.builder(
+                      itemCount: categories.length,
+                      itemBuilder: (c, i) {
+                        return ListTile(
+                          title: Text(categories[i]),
+                          selected: _selectedCategory == categories[i],
+                          selectedTileColor: Colors.blue.shade300,
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = categories[i];
+                            });
+                          },
+                        );
+                      })),
             ),
           ),
-        ),
-
-      Expanded(
-        flex: 3, // 비율 2
-        child: Container(
-          color: Colors.grey.shade300,
-          child: ListView.builder(itemCount: menuItems[_selectedCategory]?.length ?? 0
-              ,itemBuilder: (c,i){
-            return ListTile(title: Text(menuItems[_selectedCategory]![i]));
-              })
-        ),
-      )
+          Expanded(
+            flex: 3, // 비율 2
+            child: Container(
+                color: Colors.grey.shade300,
+                child: ListView.builder(
+                    itemCount: menuItems[_selectedCategory]?.length ?? 0,
+                    itemBuilder: (c, i) {
+                      final menu = menuItems[_selectedCategory]![i];
+                      return ListTile(
+                        title: Text(menu.name),
+                        subtitle: Text('${menu.price}원'),
+                      );
+                    })),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
