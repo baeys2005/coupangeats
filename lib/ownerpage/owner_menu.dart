@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+class MenuItem {
+  final String name; // 메뉴 이름
+  final int price; // 메뉴 가격
+
+  MenuItem({required this.name, required this.price});
+}
+
 class OwnerMenu extends StatefulWidget {
   const OwnerMenu({super.key});
 
@@ -20,12 +27,30 @@ class _OwnerMenuState extends State<OwnerMenu> {
     'Category 4',
   ];
   // 메뉴 데이터 (카테고리별)
-  final Map<String, List<String>> menuItems = {
-    'Category 1': ['Item 1-1', 'Item 1-2', 'Item 1-3'],
-    'Category 2': ['Item 2-1', 'Item 2-2', 'Item 2-3'],
-    'Category 3': ['Item 3-1', 'Item 3-2', 'Item 3-3'],
-    'Category 4': ['Item 4-1', 'Item 4-2', 'Item 4-3'],
+  final Map<String, List<MenuItem>> menuItems = {
+    'Category 1': [
+      MenuItem(name: 'Curry', price: 10000),
+      MenuItem(name: 'Rice', price: 8000),
+      MenuItem(name: 'Soup', price: 7000),
+    ],
+    'Category 2': [
+      MenuItem(name: 'Pizza', price: 15000),
+      MenuItem(name: 'Pasta', price: 12000),
+      MenuItem(name: 'Salad', price: 9000),
+    ],
+    'Category 3': [
+      MenuItem(name: 'Burger', price: 11000),
+      MenuItem(name: 'Fries', price: 5000),
+      MenuItem(name: 'Shake', price: 6000),
+    ],
+    'Category 4': [
+      MenuItem(name: 'Steak', price: 20000),
+      MenuItem(name: 'Wine', price: 30000),
+      MenuItem(name: 'Dessert', price: 10000),
+    ],
   };
+  //각메뉴 정보 저장 .
+
 
   // 메뉴 추가 Dialog 함수.
   void _showAddMenuDialog() {
