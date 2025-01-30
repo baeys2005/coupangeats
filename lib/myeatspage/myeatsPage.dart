@@ -1,10 +1,9 @@
-import 'package:coupangeats/login/main_LoginPage.dart';
+
 import 'package:flutter/material.dart'; //fgggggg
 
 import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/ownerpage/storeownerPage.dart';
-import 'package:coupangeats/login/main_LoginPage.dart';
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});
@@ -41,11 +40,10 @@ class _myeatsPageState extends State<myeatsPage> {
                       border: Border.all(color: Colors.black, width: 1)),
                 ),
                 Row(children: [
-                  TextButton(onPressed: ()async{
+                  TextButton(onPressed: (){
 
-                  await memberLogin;}, child: Text('로그인')),
-                  TextButton(onPressed: () async{
-                    await memberRegistration();
+                   }, child: Text('로그인')),
+                  TextButton(onPressed: () {
                   }, child: Text('회원가입'))
                 ],)
               ],

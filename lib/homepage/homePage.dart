@@ -12,7 +12,6 @@ import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/myeatspage/myeatsPage.dart';
 
 import 'package:provider/provider.dart';
-import 'package:coupangeats/datastore/storeData.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});

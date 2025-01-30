@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/theme.dart';
 
-import 'package:coupangeats/datastore/storeData.dart';
-import 'package:coupangeats/login/main_LoginPage.dart';
 
 //사장님페이지
 
