@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+//FirestoreService: 파이어베이스에 메뉴 저장
+//class MenuItem : 메뉴 저장용 class
+//
+//
+//
+//fetchMenusFromFirebase: 데이터 가져오기
 
 //firebase에 메뉴 저장 함수
 class FirestoreService {
@@ -195,16 +200,16 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
       // 각 카테고리 데이터를 읽어옴
       for (var categoryDoc in categoriesSnapshot.docs) {
-        final categoryId = categoryDoc.id;
+        final categoryId = categoryDoc.id;//엥 이게 카테고리 이름인데
         final categoryName = categoryDoc.data()['name'];
-        print('Processing category: $categoryName (ID: $categoryId)');
+        print('Processing category: $categoryId (ID: $categoryId)');//카테고리 이름
 
         // 카테고리 추가
-        categories.add(categoryName);
+        categories.add(categoryId);
 
         // 해당 카테고리의 메뉴 가져오기
         final menuSnapshot = await categoryDoc.reference.collection('menus').get();
-        print('Menus fetched for category $categoryName: ${menuSnapshot.docs.length} items found.');
+        print('Menus fetched for category $categoryId: ${menuSnapshot.docs.length} items found.');
 
         final menus = menuSnapshot.docs.map((menuDoc) {
           final menuData = menuDoc.data();
@@ -216,7 +221,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
         }).toList();
 
         // 메뉴 추가
-        menuItems[categoryName] = menus;
+        menuItems[categoryId] = menus;
       }
 
       // 상태 업데이트
