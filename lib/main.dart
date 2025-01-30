@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';// firebase_options.dart 파일에서 Firebase 설정을 가져옵니다.
 import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
+import 'firebase_options.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 이 줄은 반드시 가장 먼저 실행되어야 합니다
+
   try {
-    // Firebase 초기화 전에 이미 초기화된 앱이 있는지 확인
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp( // 자동 설정된 Firebase 옵션 사용
-      );
-    }
-    runApp(const MyApp());
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform, // Firebase 옵션 추가
+    );
   } catch (e) {
     print("Firebase initialization error: $e");
   }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(scaffoldBackgroundColor: Colors.white),
       title: 'coupangeats',
       initialRoute: '/signup',
