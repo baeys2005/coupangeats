@@ -10,7 +10,7 @@ class HomeRecommatzip extends StatefulWidget {
 
 class _HomeRecommatzipState extends State<HomeRecommatzip> {
   double boxWidth = 300;
-  double boxHeight = 230;
+  double boxHeight = 200;
 
   @override
   Widget build(BuildContext context) {
@@ -50,28 +50,31 @@ class _matzipBoxState extends State<matzipBox> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.asset(
-            restimagePaths[widget.index],
-            width: widget.bW,
-            height: widget.bH,
-              fit: BoxFit.cover
+    return Container(
+      width: widget.bW,
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              restimagePaths[widget.index],
+              width: widget.bW,
+              height: widget.bH,
+                fit: BoxFit.cover
+            ),
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [Text('네네치킨 태평복정점',style: title1), Text('wow+즉시할인',style: TextStyle(color: Colors.blue),)],
-        ),
-        Row(
-          children: [
-            Icon(Icons.star, color: Colors.yellow),
-            Text('5.0(251) · 0.8km · 30분'),
-          ],
-        )
-      ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [Text('네네치킨 태평복정점',style: title1), Text('wow+즉시할인',style: TextStyle(color: Colors.blue),)],
+          ),
+          Row(
+            children: [
+              Icon(Icons.star, color: Colors.yellow),
+              Text('5.0(251) · 0.8km · 30분'),
+            ],
+          )
+        ],
+      ),
     );
   }
 }

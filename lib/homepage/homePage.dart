@@ -9,6 +9,9 @@ import 'home_wowad.dart';
 import 'home_recommatzip.dart';
 import 'home_gollamukmatzip.dart';
 import 'package:coupangeats/theme.dart';
+import 'package:coupangeats/myeatspage/myeatsPage.dart';
+
+import 'package:provider/provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
