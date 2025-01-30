@@ -233,6 +233,79 @@ class _OwnerMenuState extends State<OwnerMenu> {
       print('Failed to fetch menus: $e');
     }
   }
+  /// 새 카테고리 추가 다이얼로그
+  void _showAddCategoryDialog() {
+    final TextEditingController categoryNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('새 카테고리 생성'),
+          content: TextField(
+            controller: categoryNameController,
+            decoration: const InputDecoration(
+              labelText: '카테고리 이름',
+              hintText: '예) 음료, 식사 등',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('닫기'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final storeId = 'store123';
+                final newCategoryName = categoryNameController.text.trim();
+
+                if (newCategoryName.isNotEmpty) {
+                  try {
+                    // Firestore에 새 카테고리 문서를 "사용자 입력값"으로 ID를 지정하여 생성
+                    final storeRef = FirebaseFirestore.instance
+                        .collection('stores')
+                        .doc(storeId);
+
+                    // doc(카테고리이름)을 그대로 문서 ID로 사용
+                    final newCategoryDoc = storeRef
+                        .collection('categories')
+                        .doc(newCategoryName);
+
+                    await newCategoryDoc.set({
+                      'createdAt': FieldValue.serverTimestamp(),
+                      // 필요에 따라 다른 필드도 저장 가능
+                      // 'someOtherField': ...,
+                    });
+
+                    // 생성된 문서의 ID(=newCategoryName)
+                    final newCategoryId = newCategoryName;
+
+                    print('New category created with ID: $newCategoryId');
+
+                    // 로컬 상태에도 카테고리 추가
+                    setState(() {
+                      categories.add(newCategoryId);
+                      // 해당 카테고리의 메뉴 리스트도 초기화
+                      menuItems[newCategoryId] = [];
+                      // 새로 생성한 카테고리를 현재 선택 상태로 변경
+                      _selectedCategory = newCategoryId;
+                    });
+
+                    Navigator.of(context).pop(); // 다이얼로그 닫기
+                  } catch (e) {
+                    print('Failed to create category: $e');
+                  }
+                } else {
+                  print('Category name is empty!');
+                }
+              },
+              child: const Text('생성'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -257,9 +330,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
                         return ListTile(
                           title: const Icon(Icons.add),
                           
-                          onTap: () {
-                            print('fddd'); // 마지막 항목 클릭 시 실행될 함수 호출
-                          },
+                          onTap: _showAddCategoryDialog,
                         );
                       } else {
                         // 일반 카테고리 항목
