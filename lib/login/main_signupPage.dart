@@ -72,7 +72,7 @@ class _SignupPageState extends State<SignupPage> {
               const SizedBox(height: 60),
               Center(
                 child: Image.asset(
-                  '/Users/baeys/coupangeats/assets/coupanglogo.png',
+                  'assets/coupanglogo.png',
                   height: 40,
                 ),
               ),
