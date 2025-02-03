@@ -1,4 +1,7 @@
+import 'package:coupangeats/ownerpage/owner_menu_UI.dart';
+import 'package:coupangeats/ownerpage/owner_menu_edit.dart';
 import 'package:flutter/material.dart';
+import 'package:coupangeats/theme.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -324,11 +327,17 @@ class _OwnerMenuState extends State<OwnerMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.white,),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          "메뉴추가",
+          style: title1,
+        ),
+      ),
       body: Row(
         children: [
           Expanded(
-            flex: 1, // 비율 3
+            flex: 3, // 비율 3
             child: Container(
               child: Center(
                 child: ListView.builder(
@@ -343,7 +352,10 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     } else {
                       // 일반 카테고리 항목
                       return ListTile(
-                        title: Text(categories[i]),
+                        title: Text(
+                          categories[i],
+                          style: title1,
+                        ),
                         selected: _selectedCategory == categories[i],
                         selectedTileColor: Colors.blue.shade300,
                         onTap: () {
@@ -359,7 +371,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
             ),
           ),
           Expanded(
-            flex: 3, // 비율 2
+            flex: 7, // 비율 2
             child: Container(
                 color: Colors.white,
                 child: ListView.builder(
@@ -367,39 +379,32 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     itemBuilder: (c, i) {
                       final menu = menuItems[_selectedCategory]![i];
                       return Container(
-                        margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                        padding: EdgeInsets.all(3),
-                        child: ListTile(
+                          margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                          padding: EdgeInsets.all(3),
+                          child: ListTile(
+                            leading: imgAddButton,
+                            title: Text(menu.name),
+                            subtitle: Text('${menu.price}원'),
+                            onTap: () {
 
-                          leading: Container(
-                            width: 60,
-                            height: 60,
-                            child: Icon(Icons.add),
-                            decoration: BoxDecoration(color: Colors.black26,borderRadius: BorderRadius.circular(10)),
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (c) {
+                                return OwnerMenuEdit(
+                                  menuName: menu.name,  // 🔥 메뉴 이름 전달
+                                  menuPrice: menu.price, // 🔥 메뉴 가격 전달
+                                );
+                              }));
+                            },
                           ),
-                          title: Text(menu.name),
-                          subtitle: Text('${menu.price}원'),
-                        ),
-                        decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12, // 그림)자 색상 및 투명도
-                                spreadRadius: 2, // 그림자 확산 정도
-                                blurRadius: 5, // 흐림 효과
-                                offset: Offset(2, 4), // 그림자의 위치 (x, y)
-                              ),
-                            ],
-
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.white),
-                      );
+                          decoration: menuTileDecoration);
                     })),
           )
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddMenuDialog,
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
+        child: FABchild,
       ),
     );
   }
