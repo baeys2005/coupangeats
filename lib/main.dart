@@ -5,6 +5,7 @@ import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
 import 'firebase_options.dart';
 
+//머지할떄 메인 지우기
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 이 줄은 반드시 가장 먼저 실행되어야 합니다
 
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(scaffoldBackgroundColor: Colors.white),
       title: 'coupangeats',
-      initialRoute: '/signup',
+      initialRoute: '/',
       routes: {
         '/' :(context) => const Homepage(),
         '/signup': (context) => const SignupPage(),

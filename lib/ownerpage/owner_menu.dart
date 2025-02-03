@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 //FirestoreService: 파이어베이스에 메뉴 저장
 //class MenuItem : 메뉴 저장용 class
 //
@@ -37,6 +38,7 @@ class FirestoreService {
     }
   }
 }
+
 class MenuItem {
   final String name; // 메뉴 이름
   final int price; // 메뉴 가격
@@ -52,7 +54,6 @@ class OwnerMenu extends StatefulWidget {
 }
 
 class _OwnerMenuState extends State<OwnerMenu> {
-
   //선택된 카테고리
   String _selectedCategory = '식사';
 
@@ -110,11 +111,12 @@ class _OwnerMenuState extends State<OwnerMenu> {
               SizedBox(height: 30),
               TextField(
                 controller: menuPriceController,
-                decoration: InputDecoration(labelText: '가격',
+                decoration: InputDecoration(
+                  labelText: '가격',
                   hintText: 'ex) 10000', // 회색 글씨로 표시되는 힌트
                   suffixText: '원', // 오른쪽에 표시되는 텍스트
                   border: OutlineInputBorder(), // 테두리 추가 (옵션)
-                   ),
+                ),
                 keyboardType: TextInputType.number,
               ),
             ],
@@ -139,7 +141,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
                 if (menuName.isNotEmpty && menuPrice != null) {
                   //메뉴리스트를 하나의 변수에 넣어 전달(메뉴정보 묶어서 전달)
-                  final newMenuItem = MenuItem(name: menuName, price: menuPrice);
+                  final newMenuItem =
+                      MenuItem(name: menuName, price: menuPrice);
 
                   setState(() {
                     // 선택된 카테고리에 메뉴 추가
@@ -153,8 +156,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     for (var menu in menuItems[_selectedCategory]!) {
                       print('- ${menu.name}: ${menu.price}원');
                     }
-                  }
-                  );
+                  });
                   // Firebase Firestore에 메뉴 저장
                   await FirestoreService().addMenuToFirestore(
                     storeId: 'store123', // 가게 ID (여기서 고정값, 실제로는 동적으로 설정 필요)
@@ -181,7 +183,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
     try {
       print('Fetching menus from Firebase...');
       final storeId = 'store123'; // 고정된 가게 ID
-      final storeRef = FirebaseFirestore.instance.collection('stores').doc('store123');
+      final storeRef =
+          FirebaseFirestore.instance.collection('stores').doc('store123');
 
       // 가게 데이터 확인
       final storeSnapshot = await storeRef.get();
@@ -196,20 +199,23 @@ class _OwnerMenuState extends State<OwnerMenu> {
       categories.clear();
       menuItems.clear();
 
-      print('Categories fetched: ${categoriesSnapshot.docs.length} categories found.');
+      print(
+          'Categories fetched: ${categoriesSnapshot.docs.length} categories found.');
 
       // 각 카테고리 데이터를 읽어옴
       for (var categoryDoc in categoriesSnapshot.docs) {
-        final categoryId = categoryDoc.id;//엥 이게 카테고리 이름인데
+        final categoryId = categoryDoc.id; //엥 이게 카테고리 이름인데
         final categoryName = categoryDoc.data()['name'];
-        print('Processing category: $categoryId (ID: $categoryId)');//카테고리 이름
+        print('Processing category: $categoryId (ID: $categoryId)'); //카테고리 이름
 
         // 카테고리 추가
         categories.add(categoryId);
 
         // 해당 카테고리의 메뉴 가져오기
-        final menuSnapshot = await categoryDoc.reference.collection('menus').get();
-        print('Menus fetched for category $categoryId: ${menuSnapshot.docs.length} items found.');
+        final menuSnapshot =
+            await categoryDoc.reference.collection('menus').get();
+        print(
+            'Menus fetched for category $categoryId: ${menuSnapshot.docs.length} items found.');
 
         final menus = menuSnapshot.docs.map((menuDoc) {
           final menuData = menuDoc.data();
@@ -233,9 +239,11 @@ class _OwnerMenuState extends State<OwnerMenu> {
       print('Failed to fetch menus: $e');
     }
   }
+
   /// 새 카테고리 추가 다이얼로그
   void _showAddCategoryDialog() {
-    final TextEditingController categoryNameController = TextEditingController();
+    final TextEditingController categoryNameController =
+        TextEditingController();
 
     showDialog(
       context: context,
@@ -267,9 +275,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
                         .doc(storeId);
 
                     // doc(카테고리이름)을 그대로 문서 ID로 사용
-                    final newCategoryDoc = storeRef
-                        .collection('categories')
-                        .doc(newCategoryName);
+                    final newCategoryDoc =
+                        storeRef.collection('categories').doc(newCategoryName);
 
                     await newCategoryDoc.set({
                       'createdAt': FieldValue.serverTimestamp(),
@@ -306,61 +313,85 @@ class _OwnerMenuState extends State<OwnerMenu> {
       },
     );
   }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     fetchMenusFromFirebase();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(backgroundColor: Colors.white,),
       body: Row(
         children: [
           Expanded(
             flex: 1, // 비율 3
             child: Container(
               child: Center(
-                  child: ListView.builder(
-                    itemCount: categories.length + 1, // +1로 항목 추가
-                    itemBuilder: (c, i) {
-                      if (i == categories.length) {
-                        // 마지막 항목 (categories.length+1)
-                        return ListTile(
-                          title: const Icon(Icons.add),
-                          
-                          onTap: _showAddCategoryDialog,
-                        );
-                      } else {
-                        // 일반 카테고리 항목
-                        return ListTile(
-                          title: Text(categories[i]),
-                          selected: _selectedCategory == categories[i],
-                          selectedTileColor: Colors.blue.shade300,
-                          onTap: () {
-                            setState(() {
-                              _selectedCategory = categories[i];
-                            });
-                          },
-                        );
-                      }
-                    },
-                  ),
+                child: ListView.builder(
+                  itemCount: categories.length + 1, // +1로 항목 추가
+                  itemBuilder: (c, i) {
+                    if (i == categories.length) {
+                      // 마지막 항목 (categories.length+1)
+                      return ListTile(
+                        title: const Icon(Icons.add),
+                        onTap: _showAddCategoryDialog,
+                      );
+                    } else {
+                      // 일반 카테고리 항목
+                      return ListTile(
+                        title: Text(categories[i]),
+                        selected: _selectedCategory == categories[i],
+                        selectedTileColor: Colors.blue.shade300,
+                        onTap: () {
+                          setState(() {
+                            _selectedCategory = categories[i];
+                          });
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ),
           Expanded(
             flex: 3, // 비율 2
             child: Container(
-                color: Colors.grey.shade300,
+                color: Colors.white,
                 child: ListView.builder(
                     itemCount: menuItems[_selectedCategory]?.length ?? 0,
                     itemBuilder: (c, i) {
                       final menu = menuItems[_selectedCategory]![i];
-                      return ListTile(
-                        title: Text(menu.name),
-                        subtitle: Text('${menu.price}원'),
+                      return Container(
+                        margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                        padding: EdgeInsets.all(3),
+                        child: ListTile(
+
+                          leading: Container(
+                            width: 60,
+                            height: 60,
+                            child: Icon(Icons.add),
+                            decoration: BoxDecoration(color: Colors.black26,borderRadius: BorderRadius.circular(10)),
+                          ),
+                          title: Text(menu.name),
+                          subtitle: Text('${menu.price}원'),
+                        ),
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12, // 그림)자 색상 및 투명도
+                                spreadRadius: 2, // 그림자 확산 정도
+                                blurRadius: 5, // 흐림 효과
+                                offset: Offset(2, 4), // 그림자의 위치 (x, y)
+                              ),
+                            ],
+
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.white),
                       );
                     })),
           )
