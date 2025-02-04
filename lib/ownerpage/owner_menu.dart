@@ -70,8 +70,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
   // 메뉴 데이터 (카테고리별)
   final Map<String, List<MenuItem>> menuItems = {
-    '카테고리 로딩중': [
-    ],
+    '카테고리 로딩중': [],
   };
 
   // 메뉴 ID를 따로 저장하는 맵 추가
@@ -213,8 +212,6 @@ class _OwnerMenuState extends State<OwnerMenu> {
             price: menuData['price'],
           );
         }).toList();
-
-
 
         // 메뉴 추가
         menuItems[categoryId] = menus;
@@ -375,10 +372,14 @@ class _OwnerMenuState extends State<OwnerMenu> {
                             title: Text(menu.name),
                             subtitle: Text('${menu.price}원'),
                             onTap: () {
-
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (c) {
-                                return OwnerMenuEdit(menuId: menuId,menuName: menu.name,menuPrice: menu.price);
+                                return OwnerMenuEdit(
+                                    storeId: 'store123',
+                                    categoryId: _selectedCategory,
+                                    menuId: menuId,
+                                    menuName: menu.name,
+                                    menuPrice: menu.price);
                               }));
                             },
                           ),

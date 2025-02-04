@@ -11,11 +11,15 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // 📌 Firestore 추가;
 class OwnerMenuEdit extends StatefulWidget {
   const OwnerMenuEdit({
     super.key,
+    required this.storeId,
+    required this.categoryId,
     this.menuName,
     this.menuPrice,
     this.menuId,
   });
 
+  final String storeId;
+  final String categoryId;
   final menuId;
   final menuName;
   final menuPrice;
@@ -95,18 +99,20 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
   /// 📌 Firestore에 이미지 URL 저장 (필드가 없으면 추가, 있으면 업데이트)
   Future<void> _saveImageUrlToFirestore(String imageUrl) async {
     try {
-      final docRef = FirebaseFirestore.instance.collection('menus').doc(widget.menuId);
-      final docSnapshot = await docRef.get(); // 🔥 문서 가져오기
+      final docRef = FirebaseFirestore.instance
+          .collection('stores')
+          .doc(widget.storeId)
+          .collection('categories')
+          .doc(widget.categoryId)
+          .collection('menus')
+          .doc(widget.menuId);
 
-      if (docSnapshot.exists && docSnapshot.data()!.containsKey('foodimgurl')) {
-        // ✅ foodimgurl 필드가 존재하면 업데이트
-        await docRef.update({'foodimgurl': imageUrl});
-        debugPrint("✅ Firestore 업데이트 성공! 메뉴 ID: ${widget.menuId}, 저장된 URL: $imageUrl");
-      } else {
-        // ✅ foodimgurl 필드가 없으면 새로 추가 (문서가 없으면 생성됨)
-        await docRef.set({'foodimgurl': imageUrl}, SetOptions(merge: true));
-        debugPrint("✅ Firestore 필드 추가 성공! 메뉴 ID: ${widget.menuId}, 저장된 URL: $imageUrl");
-      }
+      await docRef.set(
+        {'foodimgurl': imageUrl},
+        SetOptions(merge: true),
+      );
+
+      debugPrint("✅ Firestore 이미지 URL 저장 성공! ID: ${widget.menuId}, URL: $imageUrl");
     } catch (e) {
       debugPrint("❌ Firestore 저장 실패: $e");
     }
