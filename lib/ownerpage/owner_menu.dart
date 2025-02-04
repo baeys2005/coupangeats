@@ -70,30 +70,12 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
   // 메뉴 데이터 (카테고리별)
   final Map<String, List<MenuItem>> menuItems = {
-    'Category 1': [
-      MenuItem(name: 'Curry', price: 10000),
-      MenuItem(name: 'Rice', price: 8000),
-      MenuItem(name: 'Soup', price: 7000),
-    ],
-    'Category 2': [
-      MenuItem(name: 'Pizza', price: 15000),
-      MenuItem(name: 'Pasta', price: 12000),
-      MenuItem(name: 'Salad', price: 9000),
-    ],
-    'Category 3': [
-      MenuItem(name: 'Burger', price: 11000),
-      MenuItem(name: 'Fries', price: 5000),
-      MenuItem(name: 'Shake', price: 6000),
-    ],
-    'Category 4': [
-      MenuItem(name: 'Steak', price: 20000),
-      MenuItem(name: 'Wine', price: 30000),
-      MenuItem(name: 'Dessert', price: 10000),
+    '카테고리 로딩중': [
     ],
   };
 
-  //각메뉴 정보 저장 .
-
+  // 메뉴 ID를 따로 저장하는 맵 추가
+  final Map<String, List<String>> menuIds = {}; // 📌 카테고리별 메뉴 ID 저장ㅊ
   // 메뉴 추가 Dialog 함수.
   void _showAddMenuDialog() {
     final TextEditingController menuNameController = TextEditingController();
@@ -201,6 +183,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
       // 카테고리 초기화
       categories.clear();
       menuItems.clear();
+      menuIds.clear();
 
       print(
           'Categories fetched: ${categoriesSnapshot.docs.length} categories found.');
@@ -219,18 +202,23 @@ class _OwnerMenuState extends State<OwnerMenu> {
             await categoryDoc.reference.collection('menus').get();
         print(
             'Menus fetched for category $categoryId: ${menuSnapshot.docs.length} items found.');
-
+        final menuIdList = <String>[];
         final menus = menuSnapshot.docs.map((menuDoc) {
           final menuData = menuDoc.data();
           print('Menu item: ${menuData['name']} - ${menuData['price']}원');
+
+          menuIdList.add(menuDoc.id);
           return MenuItem(
             name: menuData['name'],
             price: menuData['price'],
           );
         }).toList();
 
+
+
         // 메뉴 추가
         menuItems[categoryId] = menus;
+        menuIds[categoryId] = menuIdList;
       }
 
       // 상태 업데이트
@@ -378,6 +366,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     itemCount: menuItems[_selectedCategory]?.length ?? 0,
                     itemBuilder: (c, i) {
                       final menu = menuItems[_selectedCategory]![i];
+                      final menuId = menuIds[_selectedCategory]![i];
                       return Container(
                           margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                           padding: EdgeInsets.all(3),
@@ -389,10 +378,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (c) {
-                                return OwnerMenuEdit(
-                                  menuName: menu.name,  // 🔥 메뉴 이름 전달
-                                  menuPrice: menu.price, // 🔥 메뉴 가격 전달
-                                );
+                                return OwnerMenuEdit(menuId: menuId,menuName: menu.name,menuPrice: menu.price);
                               }));
                             },
                           ),
