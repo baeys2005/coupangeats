@@ -104,13 +104,6 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
   }
 }
 
-//구분선
-var dividerLine = Divider(
-  color: Colors.black12, // 선 색상
-  thickness: 1, // 선 두께
-  height: 20, // 위아래 여백
-);
 
-//테두리 있는 상자
-var BorderBox =
-    BoxDecoration(border: Border.all(color: Colors.black12, width: 1));
+
+

@@ -11,6 +11,16 @@ var body2=TextStyle(fontSize: 12, );
 var pagetitle1=TextStyle(fontSize: 25,fontWeight: FontWeight.bold);
 //페이지속 본문 큰글씨
 var pagebody1=TextStyle(fontSize: 15);
+//테두리 있는 상자
+var BorderBox =
+BoxDecoration(border: Border.all(color: Colors.black12, width: 1));
+
+//구분선
+var dividerLine = Divider(
+  color: Colors.black12, // 선 색상
+  thickness: 1, // 선 두께
+  height: 20, // 위아래 여백
+);
 
 double iconsize1=30;
 

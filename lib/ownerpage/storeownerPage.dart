@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/theme.dart';
 
-
 //사장님페이지
 
 class Storeownerpage extends StatefulWidget {
@@ -19,11 +18,12 @@ class _StoreownerpageState extends State<Storeownerpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        margin: EdgeInsets.all(20),
+        height: 500,
         width: double.infinity,
-        padding: EdgeInsets.all(50),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: [SizedBox(height: 50,),
             Column(
               children: [
                 Text(
@@ -59,47 +59,42 @@ class _StoreownerpageState extends State<Storeownerpage> {
               ],
             ),
             Expanded(
-                child: Container(
+                child: Container(padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
               width: double.infinity,
-              color: Colors.black26,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.black12, width: 1)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                      onPressed: () { Navigator.push(context,
-                          MaterialPageRoute(builder: (c){
-                            return OwnerMenu();
-                          }
-                          )
-                      );},
-                      child: Column(
-                        children: [
-                          Icon(Icons.menu_book),
-                          Text('메뉴관리'),
-                        ],
-                      ),
-                      style: buttonsizefix),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child:
-                    Column(
-                      children: [
-                        Icon(Icons.monetization_on_outlined),
-                        Text('수익관리'),
-                      ],
-                    ),
-                    style: buttonsizefix,
+                  GestureDetector(onTap: (){
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (c) {
+                          return OwnerMenu();
+                        }));
+                  },
+                    child: Column(children: [Icon(Icons.menu_book),
+                      Text('메뉴관리'),],),
                   ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: Column(
-                      children: [
-                        Icon(Icons.store_mall_directory_outlined),
-                        Text('가게설정'),
-                      ],
-                    ),
-                    style: buttonsizefix,
-                  )
+                  GestureDetector(onTap: (){
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (c) {
+                          return OwnerMenu();
+                        }));
+                  },
+                    child: Column(children: [Icon(Icons.monetization_on_outlined),
+                      Text('수익관리'),],),
+                  ),GestureDetector(onTap: (){
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (c) {
+                          return OwnerMenu();
+                        }));
+                  },
+                    child: Column(children: [ Icon(Icons.store_mall_directory_outlined),
+                      Text('가게설정'),],),
+                  ),
+
                 ],
               ),
             ))
@@ -111,7 +106,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
 }
 
 var buttonsizefix = ElevatedButton.styleFrom(
-  fixedSize: Size(100, 100), // 정사각형 크기
+  fixedSize: Size(60, 60), // 정사각형 크기
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(5), // 모서리를 각지게 설정
   ),
