@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:imgbb_uploader/imgbb.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart'; // 📌 Firestore 추가;
 
@@ -16,6 +15,7 @@ class OwnerMenuEdit extends StatefulWidget {
     this.menuPrice,
     this.menuId,
   });
+
   final menuId;
   final menuName;
   final menuPrice;
@@ -65,9 +65,11 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
       _uploadImage(_image!);
     }
   }
+
   // 📌 ImgBB에 이미지 업로드
   Future<void> _uploadImage(File imageFile) async {
-    final uri = Uri.parse("https://api.imgbb.com/1/upload?key=6ceb0f5b3409f424c1d15591ecf215c3");
+    final uri = Uri.parse(
+        "https://api.imgbb.com/1/upload?key=6ceb0f5b3409f424c1d15591ecf215c3");
     final request = http.MultipartRequest("POST", uri)
       ..files.add(await http.MultipartFile.fromPath('image', imageFile.path));
 
@@ -82,22 +84,31 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
         _imageUrl = imageUrl;
       });
 
-      print("업로드된 이미지 URL: $_imageUrl"); // 📌 이미지 URL 출력
+      debugPrint("업로드된 이미지 URL: $_imageUrl"); // 📌 이미지 URL 출력
       // 📌 업로드 후 Firestore 저장 실행
       _saveImageUrlToFirestore(imageUrl);
     } else {
-      print("이미지 업로드 실패: ${response.statusCode}");
+      debugPrint("이미지 업로드 실패: ${response.statusCode}");
     }
   }
-  /// 📌 Firestore에 이미지 URL 저장
+
+  /// 📌 Firestore에 이미지 URL 저장 (필드가 없으면 추가, 있으면 업데이트)
   Future<void> _saveImageUrlToFirestore(String imageUrl) async {
     try {
       final docRef = FirebaseFirestore.instance.collection('menus').doc(widget.menuId);
-      await docRef.update({'foodimgurl': imageUrl});
+      final docSnapshot = await docRef.get(); // 🔥 문서 가져오기
 
-      print("✅ Firestore 저장 성공! 메뉴 ID: ${widget.menuId}, 저장된 URL: $imageUrl");
+      if (docSnapshot.exists && docSnapshot.data()!.containsKey('foodimgurl')) {
+        // ✅ foodimgurl 필드가 존재하면 업데이트
+        await docRef.update({'foodimgurl': imageUrl});
+        debugPrint("✅ Firestore 업데이트 성공! 메뉴 ID: ${widget.menuId}, 저장된 URL: $imageUrl");
+      } else {
+        // ✅ foodimgurl 필드가 없으면 새로 추가 (문서가 없으면 생성됨)
+        await docRef.set({'foodimgurl': imageUrl}, SetOptions(merge: true));
+        debugPrint("✅ Firestore 필드 추가 성공! 메뉴 ID: ${widget.menuId}, 저장된 URL: $imageUrl");
+      }
     } catch (e) {
-      print("❌ Firestore 저장 실패: $e");
+      debugPrint("❌ Firestore 저장 실패: $e");
     }
   }
 
@@ -131,7 +142,12 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.add_a_photo, color: Colors.grey, size: 50),
-                          Text("사진 추가", style: TextStyle(color: Colors.grey)),
+                          Text(
+                            "사진 추가",
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
                         ],
                       ),
               ),
@@ -147,8 +163,8 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
               padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
               height: 50,
               alignment: Alignment.centerLeft,
-              child: Text(widget.menuName.toString()),
               decoration: BorderBox,
+              child: Text(widget.menuName.toString()),
             ),
             Row(
               children: [
@@ -162,6 +178,7 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
                   margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
                   width: 100,
                   height: 50,
+                  decoration: BorderBox,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -172,7 +189,6 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
                       )
                     ],
                   ),
-                  decoration: BorderBox,
                 ),
               ],
             ),

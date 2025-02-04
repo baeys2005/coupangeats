@@ -1,7 +1,7 @@
 import 'package:coupangeats/login/main_signupPage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';// firebase_options.dart 파일에서 Firebase 설정을 가져옵니다.
-import 'package:coupangeats/homepage/homePage.dart';
+import 'package:coupangeats/homepage/home_page.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
 import 'firebase_options.dart';
 
