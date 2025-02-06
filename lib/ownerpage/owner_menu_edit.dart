@@ -117,7 +117,38 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
       debugPrint("❌ Firestore 저장 실패: $e");
     }
   }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadImageFromFirestore();
+  }
+  Future<void> _loadImageFromFirestore() async {
+    try {
+      final docRef = FirebaseFirestore.instance
+          .collection('stores')
+          .doc(widget.storeId)
+          .collection('categories')
+          .doc(widget.categoryId)
+          .collection('menus')
+          .doc(widget.menuId);
 
+      final docSnap = await docRef.get();
+      if (docSnap.exists) {
+        final data = docSnap.data();
+        if (data != null && data.containsKey('foodimgurl')) {
+          final existingUrl = data['foodimgurl'] as String?;
+          if (existingUrl != null && existingUrl.isNotEmpty) {
+            setState(() {
+              _imageUrl = existingUrl; // Firestore에서 가져온 URL 저장
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Firestore 이미지 로드 실패: $e");
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,14 +162,15 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("메뉴사진", style: title1),
+            SizedBox(height: 10,),
             Center(
               child: GestureDetector(
                 onTap: _showImagePicker,
-                child: _image != null
+                child: _imageUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(5),
-                        child: Image.file(
-                          _image!,
+                        child: Image.network(
+                          _imageUrl!,
                           width: 250,
                           height: 160,
                           fit: BoxFit.cover,
@@ -158,6 +190,7 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
                       ),
               ),
             ),
+            SizedBox(height: 5,),
             dividerLine,
             Text(
               "메뉴정보",
