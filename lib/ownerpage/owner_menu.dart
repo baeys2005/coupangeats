@@ -43,10 +43,15 @@ class FirestoreService {
 }
 
 class MenuItem {
-  final String name; // 메뉴 이름
-  final int price; // 메뉴 가격
+  final String name;       // 메뉴 이름
+  final int price;         // 메뉴 가격
+  final String? imageUrl;  // 🔶 메뉴 이미지 URL (Null 가능)
 
-  MenuItem({required this.name, required this.price});
+  MenuItem({
+    required this.name,
+    required this.price,
+    this.imageUrl,
+  });
 }
 
 class OwnerMenu extends StatefulWidget {
@@ -204,12 +209,14 @@ class _OwnerMenuState extends State<OwnerMenu> {
         final menuIdList = <String>[];
         final menus = menuSnapshot.docs.map((menuDoc) {
           final menuData = menuDoc.data();
+          final imageUrl = menuData['foodimgurl'] as String? ?? '';
           print('Menu item: ${menuData['name']} - ${menuData['price']}원');
 
           menuIdList.add(menuDoc.id);
           return MenuItem(
             name: menuData['name'],
             price: menuData['price'],
+            imageUrl: imageUrl.isNotEmpty ? imageUrl : null, // 빈 문자열일 경우 null로 처리
           );
         }).toList();
 
@@ -368,7 +375,21 @@ class _OwnerMenuState extends State<OwnerMenu> {
                           margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                           padding: EdgeInsets.all(3),
                           child: ListTile(
-                            leading: imgAddButton,
+                            leading: (menu.imageUrl != null && menu.imageUrl!.isNotEmpty)
+                                ? ClipRRect(
+                              borderRadius: BorderRadius.circular(4.0), // 필요하면 모서리 둥글게
+                              child: Image.network(
+                                menu.imageUrl!,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  // URL이 잘못되었거나 로딩 실패 시 대체
+                                  return Icon(Icons.broken_image, color: Colors.grey);
+                                },
+                              ),
+                            )
+                                : imgAddButton, // 이미지가 없으면 기존 아이콘 버튼
                             title: Text(menu.name),
                             subtitle: Text('${menu.price}원'),
                             onTap: () {

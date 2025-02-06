@@ -19,24 +19,50 @@ class _StoreownerpageState extends State<Storeownerpage> {
     return Scaffold(
       body: Container(
         margin: EdgeInsets.all(20),
-        height: 500,
+
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [SizedBox(height: 50,),
+          children: [
+            SizedBox(
+              height: 50,
+            ),
             Column(
               children: [
-                Text(
-                  '배윤선 사장님',
-                  style: pagetitle1,
+                Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    // 1) 배경 이미지
+                    Image.network(
+                      'https://i.ibb.co/JwCxP9br/1000007044.jpg',
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: 200,
+                    ),
+
+                    // 2) 텍스트만큼만 폭을 차지하며, 아래쪽에 위치
+                    Positioned(
+                      bottom: 0,
+                      child: Container(
+                        color: Colors.white.withOpacity(0.9),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Text(
+                          '배윤선 사장님',
+                          style: pagetitle1,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                //여기서 오류남 긍아ㅏ앙ㄱ
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  '맛있는카레집',
-                  style: pagetitle1,
+                Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+
+                  child: Text(
+                    '맛있는카레집',
+                    style: pagetitle1,
+                  ),
                 ),
                 //여기서 오류남 긍아ㅏ앙ㄱ
                 SizedBox(
@@ -59,45 +85,59 @@ class _StoreownerpageState extends State<Storeownerpage> {
               ],
             ),
             Expanded(
-                child: Container(padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.black12, width: 1)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(onTap: (){
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (c) {
+              child: Container(
+                padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.black12, width: 1)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
                           return OwnerMenu();
                         }));
-                  },
-                    child: Column(children: [Icon(Icons.menu_book),
-                      Text('메뉴관리'),],),
-                  ),
-                  GestureDetector(onTap: (){
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (c) {
+                      },
+                      child: Column(
+                        children: [
+                          Icon(Icons.menu_book),
+                          Text('메뉴관리'),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
                           return OwnerMenu();
                         }));
-                  },
-                    child: Column(children: [Icon(Icons.monetization_on_outlined),
-                      Text('수익관리'),],),
-                  ),GestureDetector(onTap: (){
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (c) {
+                      },
+                      child: Column(
+                        children: [
+                          Icon(Icons.monetization_on_outlined),
+                          Text('수익관리'),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (c) {
                           return OwnerMenu();
                         }));
-                  },
-                    child: Column(children: [ Icon(Icons.store_mall_directory_outlined),
-                      Text('가게설정'),],),
-                  ),
-
-                ],
+                      },
+                      child: Column(
+                        children: [
+                          Icon(Icons.store_mall_directory_outlined),
+                          Text('가게설정'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ))
+            )
           ],
         ),
       ),

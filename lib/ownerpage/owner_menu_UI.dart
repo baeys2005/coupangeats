@@ -6,7 +6,7 @@ var imgAddButton = Container(
   width: 60,
   height: 60,
   child: Icon(Icons.add),
-  decoration: BoxDecoration(color: Colors.black26,borderRadius: BorderRadius.circular(10)),
+  decoration: BoxDecoration(color: Colors.black26,borderRadius: BorderRadius.circular(4)),
 );
 
 var menuTileDecoration =  BoxDecoration(
