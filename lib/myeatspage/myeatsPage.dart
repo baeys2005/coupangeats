@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart'; //fgggggg
-
 import 'package:coupangeats/homepage/homePage.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/ownerpage/storeownerPage.dart';
@@ -16,123 +14,126 @@ class _myeatsPageState extends State<myeatsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: [
-          Container(
-            height: 200,
-            child: Column(
-              children: [
-                Text(
-                  '이하연',
-                  style: pagetitle1,
-                ),
-                Text("010-****-****"),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [myeatsbutton, myeatsbutton2, myeatsbutton3],
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10),
-                  padding: EdgeInsets.all(8),
-                  width: 400,
-                  child: Center(child: Text('자세히보기')),
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 1)),
-                ),
-                Row(children: [
-                  TextButton(onPressed: (){
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              child: Column(
+                children: [
+                  Text('이하연', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Text('010-****-6028', style: TextStyle(color: Colors.grey[600])),
+                  SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStatItem('1', '내가 남긴 리뷰'),
+                      _buildStatItem('0', '도움이 됐어요'),
+                      _buildStatItem('0', '즐겨찾기'),
+                    ],
+                  ),
+                  SizedBox(height: 24),
+                  OutlinedButton(
+                    onPressed: () {},
+                    child: Container(
+                      width: double.infinity,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Text('자세히 보기', style: TextStyle(color: Colors.blue)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.blue),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-                   }, child: Text('로그인')),
-                  TextButton(onPressed: () {
-                  }, child: Text('회원가입'))
-                ],)
-              ],
+            _buildListTile('주소 관리', Icons.list_alt),
+            _buildListTile('즐겨찾기', Icons.favorite_border),
+            _buildListTile('할인쿠폰', Icons.local_offer_outlined),
+            _buildListTileWithTag('진행중인 이벤트', Icons.event, 'NEW'),
+            _buildListTileWithButton('친구 초대', Icons.person_add, '5,000원 쿠폰받기'),
+            _buildListTileWithButton('이츠 몰펫', Icons.card_giftcard, '가입하고 쿠폰받기'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String count, String label) {
+    return Column(
+      children: [
+        Text(
+          count,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListTile(String title, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, size: 24),
+      title: Text(title),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20),
+    );
+  }
+
+  Widget _buildListTileWithTag(String title, IconData icon, String tag) {
+    return ListTile(
+      leading: Icon(icon, size: 24),
+      title: Row(
+        children: [
+          Text(title),
+          SizedBox(width: 8),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-          ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.only(left: padding1*2),
-              child: Icon(
-                Icons.list_alt,
-                size: iconsize1,
-              ),
-            ),
-            title: Text(
-              '주소관리',
-              style: pagebody1,
-            ),
-          ),
-          ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.only(left: padding1*2),
-              child: Icon(
-                Icons.favorite_border,
-                size: iconsize1,
-              ),
-            ),
-            title: Text(
-              '즐겨찾기',
-              style: pagebody1,
-            ),
-          ),
-          ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.only(left: padding1*2),
-              child: Icon(
-                Icons.settings,
-                size: iconsize1,
-              ),
-            ),
-            title: Text(
-              '설정',
-              style: pagebody1,
-            ),
-          ),
-          ListTile(
-            leading: Padding(
-              padding: const EdgeInsets.only(left: padding1*2),
-              child: IconButton(onPressed: (){
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (c){
-                      return Storeownerpage();
-                    }
-                    )
-                );
-              }, icon: Icon(
-                Icons.store_mall_directory_outlined,
-                size: iconsize1,
-              ),)
-            ),
-            title: Text(
-              '사장님페이지',
-              style: pagebody1,
+            child: Text(
+              tag,
+              style: TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: HomeBottomBar(),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20),
+    );
+  }
+
+  Widget _buildListTileWithButton(String title, IconData icon, String buttonText) {
+    return ListTile(
+      leading: Icon(icon, size: 24),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              buttonText,
+              style: TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 20),
     );
   }
 }
-
-var myeatsbutton = Column(children: [
-  Text(
-    '1',
-    style: pagetitle1,
-  ),
-  Text('내가남긴리뷰',)
-]);
-var myeatsbutton2 = Column(children: [
-  Text(
-    '0',
-    style: pagetitle1,
-  ),
-  Text('도움이 됐어요')
-]);
-var myeatsbutton3 = Column(children: [
-  Text(
-    '3',
-    style: pagetitle1,
-  ),
-  Text('즐겨찾기')
-]);

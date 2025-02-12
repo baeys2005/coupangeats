@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,11 +12,19 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _key = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pwdController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _numController = TextEditingController();
+
   bool _isLoading = true;
   bool _isValidEmail = false;
   bool _isValidPassword = false;
+  bool _isValidname = false;
+  bool _isValidnum = false;
 
   @override
   void initState() {
@@ -49,6 +58,37 @@ class _SignupPageState extends State<SignupPage> {
     } catch (e) {
       print('Firebase initialization error in SignupPage: $e');
     }
+
+    Future<void> _signup() async {
+      if (_key.currentState!.validate()) {
+        try {
+          final userCredential = await _auth.createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _pwdController.text.trim());
+
+          await _firestore
+              .collection('signup')
+              .doc(userCredential.user!.uid)
+              .set({
+            'name': _nameController.text.trim(),
+            'num': _numController.text.trim(),
+            'email': _emailController.text.trim(),
+            'createAt': DateTime.now(),
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('회원가입 성공!')),
+            );
+            Navigator.pushNamed(context, '/');
+          }
+        } on FirebaseAuthException catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.message}')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -72,11 +112,11 @@ class _SignupPageState extends State<SignupPage> {
               const SizedBox(height: 60),
               Center(
                 child: Image.asset(
-                  '/Users/baeys/coupangeats/assets/coupanglogo.png',
+                  'assets/coupanglogo.png',
                   height: 40,
                 ),
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 47),
               Padding(
                 padding: const EdgeInsets.only(left: 3),
                 child: const Text(
@@ -115,6 +155,31 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                       ],
                     ),
+                    const SizedBox(height: 43),
+                    //이름이랑 전화번호 입력하는 칸
+                    Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        nameInput(),
+                        if (_isValidname)
+                          const Padding(
+                            padding: EdgeInsets.only(right: 12),
+                            child: Icon(Icons.check_circle, color: Colors.blue),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        numInput(),
+                        if (_isValidnum)
+                          const Padding(
+                            padding: EdgeInsets.only(right: 12),
+                            child: Icon(Icons.check_circle, color: Colors.blue),
+                          ),
+                      ],
+                    ),
                     const SizedBox(height: 40),
                     submitButton(),
                   ],
@@ -139,7 +204,8 @@ class _SignupPageState extends State<SignupPage> {
         ),
         hintText: '이메일을 입력하세요',
         prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (val) {
         if (val!.isEmpty) {
@@ -163,13 +229,91 @@ class _SignupPageState extends State<SignupPage> {
         ),
         hintText: '비밀번호를 입력하세요',
         prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (val) {
         if (val!.isEmpty) {
           return '비밀번호를 입력해주세요';
         }
         return null;
+      },
+    );
+  }
+
+  //사용자 이름 입력하기
+  TextFormField nameInput() {
+    return TextFormField(
+      controller: _nameController,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        hintText: '이름을 입력하세요',
+        prefixIcon: const Icon(Icons.person, color: Colors.grey),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      validator: (val) {
+       if(val == null || val.isEmpty){
+         return '이름을 입력해주세요';
+       }
+       if (val.length<2){
+         return '이름을 2글자 이상이어야 합니다';
+       }
+       setState(() {
+         _isValidname = true;
+       });
+       return null;
+      },
+      onChanged: (value){
+        setState(() {
+          _isValidname = value.length >= 2;
+        });
+      },
+    );
+  }
+
+  //사용자 전화번호 입력하기
+  TextFormField numInput() {
+    return TextFormField(
+      controller: _numController,
+      keyboardType: TextInputType.phone, //숫자 키패드 나오게
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        hintText: '전화번호를 입력하세요',
+        prefixIcon: const Icon(Icons.phone, color: Colors.grey),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      validator: (val) {
+        if(val == null || val.isEmpty){
+          return '전화번호를 입력해주세요';
+        }
+        final numberRegExp = RegExp(r'^[0-9]+$');
+        if (!numberRegExp.hasMatch(val)){
+          return '숫자만 입력해주세요';
+        }
+        if (val.length<10||val.length>11){
+          return '올바른 전화번호 형식이 아닙니다';
+        }
+        setState(() {
+          _isValidnum = true;
+        });
+        return null;
+      },
+      onChanged: (value){
+        setState(() {
+          _isValidnum = value.length >=10 && value.length<= 11;
+        });
       },
     );
   }
@@ -181,10 +325,21 @@ class _SignupPageState extends State<SignupPage> {
         onPressed: () async {
           if (_key.currentState!.validate()) {
             try {
+              //파베 authentication으로 사용자 계정 생성
               final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                 email: _emailController.text.trim(),
                 password: _pwdController.text,
               );
+              //파베에 사용자 이름이랑 전번 저장
+              await FirebaseFirestore.instance
+              .collection('signup')
+              .doc(userCredential.user!.uid)
+              .set({
+                'name': _nameController.text.trim(),
+                'num' : _numController.text.trim(),
+                'email' : _emailController.text.trim(),
+                'createAt' : DateTime.now(),
+              });
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('회원가입 성공!')),
@@ -221,6 +376,8 @@ class _SignupPageState extends State<SignupPage> {
   void dispose() {
     _emailController.dispose();
     _pwdController.dispose();
+    _nameController.dispose();
+    _numController.dispose();
     super.dispose();
   }
 }
