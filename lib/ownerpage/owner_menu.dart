@@ -35,17 +35,17 @@ class FirestoreService {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      print('Menu added successfully.');
+      debugPrint('Menu added successfully.');
     } catch (e) {
-      print('Failed to add menu: $e');
+      debugPrint('Failed to add menu: $e');
     }
   }
 }
 
 class MenuItem {
-  final String name;       // 메뉴 이름
-  final int price;         // 메뉴 가격
-  final String? imageUrl;  // 🔶 메뉴 이미지 URL (Null 가능)
+  final String name; // 메뉴 이름
+  final int price; // 메뉴 가격
+  final String? imageUrl; // 🔶 메뉴 이미지 URL (Null 가능)
 
   MenuItem({
     required this.name,
@@ -89,13 +89,40 @@ class _OwnerMenuState extends State<OwnerMenu> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('$_selectedCategory에 메뉴 추가'),
+          backgroundColor: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '$_selectedCategory', // 선택된 카테고리
+                  style: modaltitle1.copyWith(color: Colors.blue.shade200), // 회색 스타일 적용
+                ),
+                TextSpan(
+                  text: '에 메뉴 추가', // 나머지 텍스트
+                  style: modaltitle1, // 기존 스타일 유지
+                ),
+              ],
+            ),
+          ),
+
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: menuNameController,
-                decoration: InputDecoration(labelText: '메뉴 이름'),
+                decoration: InputDecoration(
+                  labelText: '메뉴 이름',
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black), // 기본(비활성) 밑줄 색상
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.blue, width: 2), // 포커스(클릭 시) 밑줄 색상
+                  ),
+                ),
               ),
               SizedBox(height: 30),
               TextField(
@@ -104,7 +131,15 @@ class _OwnerMenuState extends State<OwnerMenu> {
                   labelText: '가격',
                   hintText: 'ex) 10000', // 회색 글씨로 표시되는 힌트
                   suffixText: '원', // 오른쪽에 표시되는 텍스트
-                  border: OutlineInputBorder(), // 테두리 추가 (옵션)
+                    // 기본 테두리 색상 (비활성 상태)
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black, width: 1), // 기본 검은색 테두리
+                    ),
+
+                    // 포커스된 상태 (클릭 시) 테두리 색상 설정
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2), // 포커스 시 파란색 테두리
+                    ), // 테두리 추가 (옵션)
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -115,18 +150,21 @@ class _OwnerMenuState extends State<OwnerMenu> {
               onPressed: () {
                 Navigator.of(context).pop(); // Dialog 닫기
               },
-              child: const Text('닫기'),
+              child: const Text('닫기',
+                  style: TextStyle(color: Colors.blue, fontSize: 16)),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () async {
                 final String menuName = menuNameController.text;
                 final int? menuPrice = int.tryParse(menuPriceController.text);
 
                 // 입력값 디버깅
-                print('Entered Menu Name: $menuName');
-                print('Entered Menu Price: ${menuPriceController.text}');
-                print('Parsed Menu Price: $menuPrice');
-                print('Selected Category for Addition: $_selectedCategory');
+                debugPrint('Entered Menu Name: $menuName');
+                debugPrint('Entered Menu Price: ${menuPriceController.text}');
+                debugPrint('Parsed Menu Price: $menuPrice');
+                debugPrint(
+                    'Selected Category for Addition: $_selectedCategory');
 
                 if (menuName.isNotEmpty && menuPrice != null) {
                   //메뉴리스트를 하나의 변수에 넣어 전달(메뉴정보 묶어서 전달)
@@ -140,10 +178,10 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     );
 
                     // 추가된 메뉴 디버깅
-                    print('Added Menu: $menuName, $menuPrice원');
-                    print('Updated Menus in $_selectedCategory:');
+                    debugPrint('Added Menu: $menuName, $menuPrice원');
+                    debugPrint('Updated Menus in $_selectedCategory:');
                     for (var menu in menuItems[_selectedCategory]!) {
-                      print('- ${menu.name}: ${menu.price}원');
+                      debugPrint('- ${menu.name}: ${menu.price}원');
                     }
                   });
                   // Firebase Firestore에 메뉴 저장
@@ -156,11 +194,14 @@ class _OwnerMenuState extends State<OwnerMenu> {
                   Navigator.of(context).pop(); // Dialog 닫기
                 } else {
                   // 입력값이 비어있거나 유효하지 않을 경우 디버깅 출력
-                  print(
+                  debugPrint(
                       'Invalid input: Menu Name or Price is missing or incorrect.');
                 }
               },
-              child: const Text('저장'),
+              child: const Text(
+                '저장',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
           ],
         );
@@ -170,7 +211,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
   void fetchMenusFromFirebase() async {
     try {
-      print('Fetching menus from Firebase...');
+      debugPrint('Fetching menus from Firebase...');
       final storeId = 'store123'; // 고정된 가게 ID
       final storeRef =
           FirebaseFirestore.instance.collection('stores').doc('store123');
@@ -178,7 +219,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
       // 가게 데이터 확인
       final storeSnapshot = await storeRef.get();
       if (!storeSnapshot.exists) {
-        print('Store with ID $storeId does not exist in Firestore.');
+        debugPrint('Store with ID $storeId does not exist in Firestore.');
         return;
       }
 
@@ -189,14 +230,15 @@ class _OwnerMenuState extends State<OwnerMenu> {
       menuItems.clear();
       menuIds.clear();
 
-      print(
+      debugPrint(
           'Categories fetched: ${categoriesSnapshot.docs.length} categories found.');
 
       // 각 카테고리 데이터를 읽어옴
       for (var categoryDoc in categoriesSnapshot.docs) {
         final categoryId = categoryDoc.id; //엥 이게 카테고리 이름인데
         final categoryName = categoryDoc.data()['name'];
-        print('Processing category: $categoryId (ID: $categoryId)'); //카테고리 이름
+        debugPrint(
+            'Processing category: $categoryId (ID: $categoryId)'); //카테고리 이름
 
         // 카테고리 추가
         categories.add(categoryId);
@@ -204,19 +246,20 @@ class _OwnerMenuState extends State<OwnerMenu> {
         // 해당 카테고리의 메뉴 가져오기
         final menuSnapshot =
             await categoryDoc.reference.collection('menus').get();
-        print(
+        debugPrint(
             'Menus fetched for category $categoryId: ${menuSnapshot.docs.length} items found.');
         final menuIdList = <String>[];
         final menus = menuSnapshot.docs.map((menuDoc) {
           final menuData = menuDoc.data();
           final imageUrl = menuData['foodimgurl'] as String? ?? '';
-          print('Menu item: ${menuData['name']} - ${menuData['price']}원');
+          debugPrint('Menu item: ${menuData['name']} - ${menuData['price']}원');
 
           menuIdList.add(menuDoc.id);
           return MenuItem(
             name: menuData['name'],
             price: menuData['price'],
-            imageUrl: imageUrl.isNotEmpty ? imageUrl : null, // 빈 문자열일 경우 null로 처리
+            imageUrl:
+                imageUrl.isNotEmpty ? imageUrl : null, // 빈 문자열일 경우 null로 처리
           );
         }).toList();
 
@@ -226,12 +269,12 @@ class _OwnerMenuState extends State<OwnerMenu> {
       }
 
       // 상태 업데이트
-      print('Categories and menus successfully loaded into local state.');
-      print('Categories: $categories');
-      print('Menu Items: $menuItems');
+      debugPrint('Categories and menus successfully loaded into local state.');
+      debugPrint('Categories: $categories');
+      debugPrint('Menu Items: $menuItems');
       setState(() {});
     } catch (e) {
-      print('Failed to fetch menus: $e');
+      debugPrint('Failed to fetch menus: $e');
     }
   }
 
@@ -244,18 +287,36 @@ class _OwnerMenuState extends State<OwnerMenu> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('새 카테고리 생성'),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          title: const Text('새 카테고리 생성',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              )),
           content: TextField(
+            style: TextStyle(color: Colors.black),
             controller: categoryNameController,
             decoration: const InputDecoration(
               labelText: '카테고리 이름',
+              labelStyle: TextStyle(color: Colors.black),
               hintText: '예) 음료, 식사 등',
+              hintStyle: TextStyle(color: Colors.black12),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.black), // 기본(비활성) 밑줄 색상
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide:
+                    BorderSide(color: Colors.blue, width: 2), // 포커스(클릭 시) 밑줄 색상
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('닫기'),
+              child: const Text('닫기',
+                  style: TextStyle(fontSize: 16, color: Colors.blue)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -282,7 +343,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     // 생성된 문서의 ID(=newCategoryName)
                     final newCategoryId = newCategoryName;
 
-                    print('New category created with ID: $newCategoryId');
+                    debugPrint('New category created with ID: $newCategoryId');
 
                     // 로컬 상태에도 카테고리 추가
                     setState(() {
@@ -295,13 +356,19 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
                     Navigator.of(context).pop(); // 다이얼로그 닫기
                   } catch (e) {
-                    print('Failed to create category: $e');
+                    debugPrint('Failed to create category: $e');
                   }
                 } else {
-                  print('Category name is empty!');
+                  debugPrint('Category name is empty!');
                 }
               },
-              child: const Text('생성'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: const Text(
+                '생성',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
           ],
         );
@@ -375,20 +442,24 @@ class _OwnerMenuState extends State<OwnerMenu> {
                           margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                           padding: EdgeInsets.all(3),
                           child: ListTile(
-                            leading: (menu.imageUrl != null && menu.imageUrl!.isNotEmpty)
+                            leading: (menu.imageUrl != null &&
+                                    menu.imageUrl!.isNotEmpty)
                                 ? ClipRRect(
-                              borderRadius: BorderRadius.circular(4.0), // 필요하면 모서리 둥글게
-                              child: Image.network(
-                                menu.imageUrl!,
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  // URL이 잘못되었거나 로딩 실패 시 대체
-                                  return Icon(Icons.broken_image, color: Colors.grey);
-                                },
-                              ),
-                            )
+                                    borderRadius: BorderRadius.circular(4.0),
+                                    // 필요하면 모서리 둥글게
+                                    child: Image.network(
+                                      menu.imageUrl!,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        // URL이 잘못되었거나 로딩 실패 시 대체
+                                        return Icon(Icons.broken_image,
+                                            color: Colors.grey);
+                                      },
+                                    ),
+                                  )
                                 : imgAddButton, // 이미지가 없으면 기존 아이콘 버튼
                             title: Text(menu.name),
                             subtitle: Text('${menu.price}원'),
