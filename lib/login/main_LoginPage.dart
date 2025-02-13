@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MainLoginpage extends StatefulWidget {
   const MainLoginpage({super.key});
@@ -8,12 +9,21 @@ class MainLoginpage extends StatefulWidget {
 }
 
 class _MainLoginpageState extends State<MainLoginpage> {
+  final _key = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _pwdController = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+
+        ),
       ),
 
     );
