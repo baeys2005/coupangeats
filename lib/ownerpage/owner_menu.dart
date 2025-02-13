@@ -97,7 +97,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
               children: [
                 TextSpan(
                   text: '$_selectedCategory', // 선택된 카테고리
-                  style: modaltitle1.copyWith(color: Colors.blue.shade200), // 회색 스타일 적용
+                  style: modaltitle1.copyWith(
+                      color: Colors.blue.shade200), // 회색 스타일 적용
                 ),
                 TextSpan(
                   text: '에 메뉴 추가', // 나머지 텍스트
@@ -106,7 +107,6 @@ class _OwnerMenuState extends State<OwnerMenu> {
               ],
             ),
           ),
-
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -129,17 +129,21 @@ class _OwnerMenuState extends State<OwnerMenu> {
                 controller: menuPriceController,
                 decoration: InputDecoration(
                   labelText: '가격',
-                  hintText: 'ex) 10000', // 회색 글씨로 표시되는 힌트
-                  suffixText: '원', // 오른쪽에 표시되는 텍스트
-                    // 기본 테두리 색상 (비활성 상태)
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 1), // 기본 검은색 테두리
-                    ),
+                  hintText: 'ex) 10000',
+                  // 회색 글씨로 표시되는 힌트
+                  suffixText: '원',
+                  // 오른쪽에 표시되는 텍스트
+                  // 기본 테두리 색상 (비활성 상태)
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black, width: 1), // 기본 검은색 테두리
+                  ),
 
-                    // 포커스된 상태 (클릭 시) 테두리 색상 설정
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2), // 포커스 시 파란색 테두리
-                    ), // 테두리 추가 (옵션)
+                  // 포커스된 상태 (클릭 시) 테두리 색상 설정
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.blue, width: 2), // 포커스 시 파란색 테두리
+                  ), // 테두리 추가 (옵션)
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -392,6 +396,10 @@ class _OwnerMenuState extends State<OwnerMenu> {
           "메뉴추가",
           style: title1,
         ),
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
+          IconButton(onPressed: () {}, icon: Icon(Icons.delete))
+        ],
       ),
       body: Row(
         children: [
