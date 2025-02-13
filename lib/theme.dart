@@ -11,6 +11,16 @@ var body2=TextStyle(fontSize: 12, );
 var pagetitle1=TextStyle(fontSize: 25,fontWeight: FontWeight.bold);
 //페이지속 본문 큰글씨
 var pagebody1=TextStyle(fontSize: 15);
+//테두리 있는 상자
+var BorderBox =
+BoxDecoration(border: Border.all(color: Colors.black12, width: 1));
+
+//구분선
+var dividerLine = Divider(
+  color: Colors.black12, // 선 색상
+  thickness: 1, // 선 두께
+  height: 20, // 위아래 여백
+);
 
 double iconsize1=30;
 
@@ -63,8 +73,24 @@ ThemeData(
       textStyle: TextStyle()
     )),
 
+  //떠있는 버튼 테마 설정 .
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    backgroundColor: Colors.blue, // FAB 배경색
+    foregroundColor: Colors.white, // FAB 내부 아이콘/텍스트 색상
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12), // FAB 모양 변경
+    ),
+    sizeConstraints: BoxConstraints.tightFor(
+      width: 100, // FAB 가로 크기
+      height: 100, // FAB 세로 크기
+    ),
+  ),
+
+
   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
   useMaterial3: true,
+
+
 );
 
 var searchButtonTheme=ElevatedButton.styleFrom(
