@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart';
 
 //FirestoreService: 파이어베이스에 메뉴 저장
 //class MenuItem : 메뉴 저장용 class
@@ -460,6 +461,18 @@ class _OwnerMenuState extends State<OwnerMenu> {
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.cover,
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
                                       errorBuilder:
                                           (context, error, stackTrace) {
                                         // URL이 잘못되었거나 로딩 실패 시 대체

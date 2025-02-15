@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/theme.dart';
+import 'package:shimmer/shimmer.dart';
 
 import 'storeowner_images_util.dart';
 
@@ -396,25 +397,65 @@ class _StoreownerpageState extends State<Storeownerpage> {
                           height: 200,
                           child: _storeImageUrls.isNotEmpty
                               ? Image.network(
-                                  _storeImageUrls[0],
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.network(
-                                  'https://i.ibb.co/JwCxP9br/1000007044.jpg',
-                                  fit: BoxFit.cover,
+                            _storeImageUrls[0],
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 200,
+                                  color: Colors.white,
                                 ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.network(
+                                'https://i.ibb.co/JwCxP9br/1000007044.jpg',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                              : Image.network(
+                            'https://i.ibb.co/JwCxP9br/1000007044.jpg',
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 200,
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(child: Icon(Icons.broken_image, size: 50));
+                            },
+                          ),
                         ),
                         SizedBox(height: 50,)
                       ],
                     ),
                     Positioned(
                         right: 10,
-                        bottom: 16,
+                        top: 20,
                         child: IconButton(
-                            onPressed: () {
-                              _openImageManagementBottomSheet();
-                            },
-                            icon: Icon(Icons.image,color: Colors.white,size: 40,))),
+                          onPressed: () {
+                            _openImageManagementBottomSheet();
+                          },
+                          icon: Material(
+                            elevation: 5.0, // 그림자 높이
+                            shape: CircleBorder(), // 아이콘 버튼이 원형이라면 CircleBorder 사용
+                            shadowColor: Colors.black, // 그림자 색상
+                            color: Colors.transparent, // 배경을 투명하게 유지
+                            child: Icon(Icons.image, color: Colors.white, size: 30),
+                          ),
+                        ),),
                     // 2) 텍스트만큼만 폭을 차지하며, 아래쪽에 위치
                     Positioned(
                       bottom: 0,
