@@ -6,7 +6,8 @@ import 'package:coupangeats/theme.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:cloud_firestore/cloud_firestore.dart'; // 📌 Firestore 추가;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart'; // 📌 Firestore 추가;
 
 class OwnerMenuEdit extends StatefulWidget {
   const OwnerMenuEdit({
@@ -174,6 +175,22 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
                           width: 250,
                           height: 160,
                           fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return  Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 250,
+                                height: 160,
+                                color: Colors.white,
+                              ),
+                            );
+                          },
+                          errorBuilder:  (context, error, stackTrace) {
+                            return Container(width: 250,
+                                height: 160,child: Center(child: Icon(Icons.broken_image, size: 50)));
+                          },
                         ),
                       )
                     : Column(

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coupangeats/ownerpage/owner_menu.dart';
+import 'package:coupangeats/ownerpage/owner_setting.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,6 +32,12 @@ class _StoreownerpageState extends State<Storeownerpage> {
   /// Firestore 상의 storeId (예: 현재 로그인 유저와 연결, 또는 이미 알고있는 storeId)
   /// 실제로는 인증 로직이나 다른 방식으로 storeId를 구해야 합니다.
   final String _storeId = "store123";
+
+  /// PageController - PageView에 사용
+  final PageController _pageController = PageController();
+
+  /// 현재 보고있는 페이지 인덱스 (슬라이더 인디케이터를 위해 사용)
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -229,6 +236,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
                             ),
                           ),
                         ),
+                        Center(child: Text("사진추가시 기존에 저장된 이미지는 삭제됩니다.",style: TextStyle(color: Colors.grey),)),
 
 
                         // (B) 버튼들: 갤러리 / 카메라
@@ -367,7 +375,28 @@ class _StoreownerpageState extends State<Storeownerpage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: imgUrl != null
-            ? Image.network(imgUrl, fit: BoxFit.cover)
+            ? Image.network(
+          imgUrl,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(Icons.broken_image, size: 50, color: Colors.grey);
+          },
+        )
             : Image.file(file!, fit: BoxFit.cover),
       ),
     );
@@ -392,54 +421,96 @@ class _StoreownerpageState extends State<Storeownerpage> {
                     // 1) 배경 이미지
                     Column(
                       children: [
-                        Container(
-                          width: double.infinity,
+                        // (1) 이미지 슬라이더 PageView
+                        SizedBox(
                           height: 200,
-                          child: _storeImageUrls.isNotEmpty
-                              ? Image.network(
-                            _storeImageUrls[0],
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 200,
-                                  color: Colors.white,
-                                ),
-                              );
+                          width: double.infinity,
+                          child: PageView.builder(
+                            controller: _pageController,
+                            itemCount: _storeImageUrls.isNotEmpty
+                                ? _storeImageUrls.length
+                                : 1, // 최소 1장(기본이미지)
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentPage = index;
+                              });
                             },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.network(
-                                'https://i.ibb.co/JwCxP9br/1000007044.jpg',
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          )
-                              : Image.network(
-                            'https://i.ibb.co/JwCxP9br/1000007044.jpg',
-                            fit: BoxFit.cover,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 200,
-                                  color: Colors.white,
-                                ),
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              return Center(child: Icon(Icons.broken_image, size: 50));
+                            itemBuilder: (context, index) {
+                              if (_storeImageUrls.isNotEmpty) {
+                                // 실제 저장된 이미지를 보여줍니다
+                                final imageUrl = _storeImageUrls[index];
+                                return Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.network(
+                                      'https://i.ibb.co/JwCxP9br/1000007044.jpg',
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                );
+                              } else {
+                                // 저장된 이미지가 없을 때는 기본이미지 1장을 보여줍니다
+                                return Image.network(
+                                  'https://i.ibb.co/JwCxP9br/1000007044.jpg',
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Center(
+                                        child: Icon(Icons.broken_image, size: 50));
+                                  },
+                                );
+                              }
                             },
                           ),
                         ),
                         SizedBox(height: 50,)
                       ],
+                    ),
+                    Positioned(
+                      bottom: 100,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _storeImageUrls.isNotEmpty
+                              ? _storeImageUrls.length
+                              : 1, // 이미지가 없으면 1개짜리 인디케이터
+                              (index) {
+                            bool isActive = (index == _currentPage);
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              width: isActive ? 10 : 8,
+                              height: isActive ? 10 : 8,
+                              decoration: BoxDecoration(
+                                color: isActive ? Colors.white : Colors.grey,
+                                shape: BoxShape.circle,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                     Positioned(
                         right: 10,
@@ -555,13 +626,13 @@ class _StoreownerpageState extends State<Storeownerpage> {
                     GestureDetector(
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return OwnerMenu();
+                          return OwnerSetting();
                         }));
                       },
                       child: Column(
                         children: [
-                          Icon(Icons.monetization_on_outlined),
-                          Text('수익관리'),
+                          Icon(Icons.store_mall_directory_outlined),
+                          Text('가게설정'),
                         ],
                       ),
                     ),
@@ -573,11 +644,12 @@ class _StoreownerpageState extends State<Storeownerpage> {
                       },
                       child: Column(
                         children: [
-                          Icon(Icons.store_mall_directory_outlined),
-                          Text('가게설정'),
+                          Icon(Icons.monetization_on_outlined),
+                          Text('수익관리'),
                         ],
                       ),
                     ),
+
                   ],
                 ),
               ),
