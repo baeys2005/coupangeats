@@ -438,7 +438,7 @@ class _OwnerMenuEditState extends State<OwnerMenuEdit> {
               child: Row(
                 children: const [
                   Icon(Icons.add),
-                  Text("가격추가", style: TextStyle(fontSize: 16)),
+                  Text("가격추가", style: TextStyle(fontSize: 16,color: Colors.blue)),
                 ],
               ),
             ),
