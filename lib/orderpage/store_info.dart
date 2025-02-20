@@ -1,4 +1,6 @@
+import 'package:coupangeats/orderpage/storePage.dart';
 import 'package:coupangeats/orderpage/store_info_delivery.dart';
+import 'package:coupangeats/orderpage/store_info_takeout.dart';
 import 'package:flutter/material.dart';
 
 class StoreInfo extends StatefulWidget {
@@ -16,21 +18,28 @@ class StoreInfo extends StatefulWidget {
 }
 
 class _StoreInfoState extends State<StoreInfo> {
+
+  int _selectedContent = 0; // 0: 배달, 1: 포장
+
+  void _changeContent(int index) {
+    setState(() {
+      _selectedContent = index;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
 
       color: Colors.white,
-      height: 200,
+      height: flexibleSpace*0.5,//가게정보 본문 할당공간,300이 flexible 공간 안에서 할수있는 최대...
       width: double.infinity,
       child: Column(
         children: [
           Container(
-            height: 100,
+            height: 40,
             width: MediaQuery.of(context).size.width ,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200, // 전체 배경색
-              borderRadius: BorderRadius.circular(25),
+              color: Colors.grey.shade200,
             ),
             child: Stack(
               children: [
@@ -50,13 +59,19 @@ class _StoreInfoState extends State<StoreInfo> {
                 ),
                 Row(
                   children: [
-                    _buildTabButton('정보', 0),
-                    _buildTabButton('리뷰', 1),
+                    _buildTabButton('배달', 0),
+                    _buildTabButton('포장', 1),
                   ],
                 ),
+
+                // ✅ 선택된 내용에 따라 동적 렌더링
+
               ],
+
             ),
+
           ),
+          _selectedContent == 0 ? const StoreInfoDelivery() : const StoreInfoTakeout(),
         ],
       ),
     );
@@ -65,7 +80,7 @@ class _StoreInfoState extends State<StoreInfo> {
   Widget _buildTabButton(String title, int index) {
     return Expanded(
       child: InkWell(
-        onTap: () => StoreInfoDelivery(),
+        onTap: () => _changeContent(index),
         child: Container(
           height: 40,
           alignment: Alignment.center,

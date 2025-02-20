@@ -79,7 +79,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               pinned: true,
-              expandedHeight: 500.0,
+              expandedHeight: flexibleSpace,//flexibleSpace의 영역할당
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
                   alignment: Alignment.bottomCenter,
@@ -87,7 +87,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
                     Column(
                       children: [
                         SizedBox(
-                          height: 220,
+                          height: 220,//배경사진 높이
                           width: double.infinity,
                           child: Container(color: Colors.blue),
                         ),
@@ -133,7 +133,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
                         child: Container(
                           color: Colors.white,
                           width: 300,
-                          height: 120,
+                          height: 120,//글자상자 높이
                           child: Center(
                             child: Text(
                               '두찜 성남태평점',
@@ -188,7 +188,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
   Widget _buildMenuSection(GlobalKey key, String title, Color color) {
     return Container(
       key: key,
-      height: 400,
+      height: 400,//가게 하나당 할당공간
       color: color,
       child: Center(child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
     );
@@ -219,3 +219,5 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
+
+double flexibleSpace= 600;
