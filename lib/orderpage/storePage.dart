@@ -91,7 +91,7 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
                           width: double.infinity,
                           child: Container(color: Colors.blue),
                         ),
-                        const SizedBox(height: 50),
+                        const SizedBox(height: 100),
 
                         StoreInfo( // ✅ StoreInfo 위젯으로 변경
                           selectedContent: _selectedContent,
