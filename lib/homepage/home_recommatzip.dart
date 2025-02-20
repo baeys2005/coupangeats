@@ -88,7 +88,7 @@ class _matzipBoxState extends State<matzipBox> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Storepage(),
+            builder: (context) => StorePage(),
           ),
         );
       },
