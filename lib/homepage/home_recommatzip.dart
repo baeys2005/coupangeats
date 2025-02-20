@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:coupangeats/homepage/resturantPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../orderpage/storePage.dart';
+
 class HomeRecommatzip extends StatefulWidget {
   const HomeRecommatzip({super.key});
 
@@ -78,10 +80,6 @@ class matzipBox extends StatefulWidget {
 }
 
 class _matzipBoxState extends State<matzipBox> {
-  final List<String> restimagePaths = List.generate(
-    10,
-        (index) => 'assets/rest${index + 1}.png',
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +88,7 @@ class _matzipBoxState extends State<matzipBox> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RestaurantPage(index: widget.index),
+            builder: (context) => Storepage(),
           ),
         );
       },
