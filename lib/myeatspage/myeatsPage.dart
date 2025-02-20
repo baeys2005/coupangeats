@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart'; //fgggggg
 import 'package:coupangeats/homepage/home_page.dart';
 import 'package:coupangeats/theme.dart';
@@ -11,6 +13,36 @@ class myeatsPage extends StatefulWidget {
 }
 
 class _myeatsPageState extends State<myeatsPage> {
+
+  String _userName = ''; //변수들임
+  String _userPhone = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void>_loadUserData()async{
+    try{
+      final user = FirebaseAuth.instance.currentUser;
+      if(user != null){
+        final userData=  await FirebaseFirestore.instance.collection('signup').doc(user.uid).get();
+
+        if(userData.exists){
+          setState(() {
+            _userName = userData.data()?['name']??'';
+            _userPhone = userData.data()?['num']??'';
+          });
+        }
+      }
+    } catch (e){
+      print('Error loading user data: $e');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,9 +53,9 @@ class _myeatsPageState extends State<myeatsPage> {
               padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
               child: Column(
                 children: [
-                  Text('이하연', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text(_userName, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
-                  Text('010-****-6028', style: TextStyle(color: Colors.grey[600])),
+                  Text(_formatPhoneNumber(_userPhone), style: TextStyle(color: Colors.grey[600])),
                   SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -63,6 +95,12 @@ class _myeatsPageState extends State<myeatsPage> {
         ),
       ),
     );
+  }
+  
+  String _formatPhoneNumber(String phone){
+    if (phone.length>= 10){
+      return phone.replaceRange(3, 7, '****');
+    } return phone;
   }
 
   Widget _buildStatItem(String count, String label) {
