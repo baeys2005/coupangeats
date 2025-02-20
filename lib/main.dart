@@ -29,10 +29,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(scaffoldBackgroundColor: Colors.white),
       title: 'coupangeats',
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
         '/' :(context) => const Homepage(),
         '/signup': (context) => const SignupPage(),
+        '/login' : (context) => const MainLoginpage(),
         '/MainLoginpage': (context) => const MainLoginpage(),
       },
     );
