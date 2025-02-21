@@ -1,3 +1,5 @@
+import 'package:coupangeats/login/login_bottom_sheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'home_search.dart';
 import 'home_fooldtile.dart';
@@ -7,6 +9,7 @@ import 'home_gollamukmatzip.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/myeatspage/myeatsPage.dart';
 import 'package:coupangeats/homepage/home_search.dart';
+import 'package:coupangeats/login/login_bottom_sheet.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -17,6 +20,14 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
+
+  Widget get _currentPage{
+    if (_currentIndex == 4 && FirebaseAuth.instance.currentUser == null){
+      return Homepage();
+    } return _pages[_currentIndex];
+  }
+
+
   final List<Widget> _pages = [
     HomeContent(),
     SearchPage(),
@@ -24,6 +35,25 @@ class _HomepageState extends State<Homepage> {
     OrderHistoryPage(),
     myeatsPage(),
   ];
+
+  void _handleTabTap (int index){
+    if (index == 4){
+      final user = FirebaseAuth.instance.currentUser;
+      if(user == null){
+        showModalBottomSheet(
+            context: context,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(10))
+            ),
+            builder: (context) => LoginBottomSheet());
+        return;
+      }
+    }
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +67,14 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
       home: Scaffold(
-        body: _pages[_currentIndex],
+        body: _currentPage,
         bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.grey,
           backgroundColor: Colors.white,
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+          onTap: _handleTabTap,
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
             BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
