@@ -91,6 +91,42 @@ class _myeatsPageState extends State<myeatsPage> {
             _buildListTileWithTag('진행중인 이벤트', Icons.event, 'NEW'),
             _buildListTileWithButton('친구 초대', Icons.person_add, '5,000원 쿠폰받기'),
             _buildListTileWithButton('이츠 몰펫', Icons.card_giftcard, '가입하고 쿠폰받기'),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('로그아웃'),
+              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+              onTap: (){
+                showDialog(
+                    context: context, 
+                    builder: (BuildContext context){
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width*0.9,
+                        height: 500,
+                        child: AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                          backgroundColor: Colors.white,
+                          content: Padding(
+                            padding: const EdgeInsets.only(top: 18.0),
+                            child: Text('정말로 로그아웃 하시겠습니까?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+                          ),
+                          actions: [
+                            TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('취소', style: TextStyle(color: Colors.blue),)),
+                            TextButton(
+                                onPressed: ()async{
+                                  await FirebaseAuth.instance.signOut(); //로그아웃
+                                  if (mounted){
+                                    Navigator.pop(context); //그냥 다이얼로그 닫는 거
+                                    Navigator.pushReplacementNamed(context, '/'); //홈페이지로 돌아가기
+                                  }
+                                }, child: Text('로그아웃', style: TextStyle(color: Colors.blue),))
+                          ],
+                        ),
+                      );
+                    });
+              },
+            )
           ],
         ),
       ),
