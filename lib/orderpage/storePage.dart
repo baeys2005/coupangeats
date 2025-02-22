@@ -1,4 +1,4 @@
-import 'package:coupangeats/orderpage/store_info.dart';
+import 'package:coupangeats/orderpage/store_appBar.dart';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
@@ -172,12 +172,36 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
           ],
           body: ListView(
             controller: _scrollController,
-            padding: const EdgeInsets.all(16),
             children: [
-              _buildMenuSection(_sectionKeys[0], '인기메뉴', Colors.red.shade100),
-              _buildMenuSection(_sectionKeys[1], '두찜 스페셜메뉴', Colors.green.shade100),
-              _buildMenuSection(_sectionKeys[2], '반마리찜닭', Colors.blue.shade100),
-              _buildMenuSection(_sectionKeys[3], '한마리찜닭', Colors.orange.shade100),
+              _buildMenuSection(
+                _sectionKeys[0], '인기메뉴', Colors.red.shade100,
+                [
+                  {'name': '떡국', 'price': '9000'},
+                  {'name': '떡 만두국', 'price': '9000'},
+                  {'name': '떡볶이', 'price': '7000'},
+                ],
+              ),
+              _buildMenuSection(
+                _sectionKeys[1], '두찜 스페셜메뉴', Colors.green.shade100,
+                [
+                  {'name': '매콤찜닭', 'price': '25000'},
+                  {'name': '간장찜닭', 'price': '24000'},
+                ],
+              ),
+              _buildMenuSection(
+                _sectionKeys[2], '반마리찜닭', Colors.blue.shade100,
+                [
+                  {'name': '반마리 매운찜닭', 'price': '13000'},
+                  {'name': '반마리 간장찜닭', 'price': '12500'},
+                ],
+              ),
+              _buildMenuSection(
+                _sectionKeys[3], '한마리찜닭', Colors.orange.shade100,
+                [
+                  {'name': '한마리 매운찜닭', 'price': '25000'},
+                  {'name': '한마리 간장찜닭', 'price': '24000'},
+                ],
+              ),
             ],
           ),
         ),
@@ -185,12 +209,55 @@ class _StorePageState extends State<StorePage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildMenuSection(GlobalKey key, String title, Color color) {
+  Widget _buildMenuSection(GlobalKey key, String title, Color color, List<Map<String, String>> items) {
     return Container(
       key: key,
-      height: 400,//가게 하나당 할당공간
-      color: color,
-      child: Center(child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+      height: 400, // 가게 하나당 할당 공간
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,//카테고리 제목
+            style: const TextStyle(fontSize: 20, ),
+          ),
+          Text(
+            "메뉴 사진은 연출된 이미지 입니다 ",//카테고리 제목
+            style: const TextStyle(fontSize: 15, ),
+          ),
+          const SizedBox(height: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: items.map((item) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    dividerLine,
+                    Text(
+                      item['name']!, // ✅ 메뉴 이름
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4), // 간격 추가
+                    Text(
+                      '${item['price']}원', // ✅ 가격
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+      Divider(
+      color: Colors.blueGrey.withOpacity(0.1), // 선 색상
+      thickness: 7, // 선 두께
+      height: 20, // 위아래 여백
+    )
+        ],
+      ),
     );
   }
 }

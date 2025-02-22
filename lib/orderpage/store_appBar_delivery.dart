@@ -1,3 +1,4 @@
+import 'package:coupangeats/orderpage/store_appBar.dart';
 import 'package:flutter/material.dart';
 
 import '../homepage/home_wowad.dart';
@@ -10,14 +11,19 @@ class StoreInfoDelivery extends StatelessWidget {
     return Container(
       child: Column(
         children: [
-          Text("도착까지 약 27분"),
+          Row(
+            children: [
+              Icon(Icons.access_time_outlined),
+              Text("도착까지 약 27분"),
+              TextButton(onPressed: ()=>StoreInfo, child: Text("매장,원산지정보 >"))
+            ],
+          ),
           Text("최소주문 20000원"),
           Text("배달비"),
           AspectRatio(
             aspectRatio: 16 / 5,
             child: adImage(),
           ),
-
         ],
       ),
     );
