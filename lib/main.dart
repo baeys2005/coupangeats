@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(scaffoldBackgroundColor: Colors.white),
       title: 'coupangeats',
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
         '/' :(context) => const Homepage(),
         '/signup': (context) => const SignupPage(),
