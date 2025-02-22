@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';// firebase_options.dart 파�
 import 'package:coupangeats/homepage/home_page.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
 import 'firebase_options.dart';
+import 'package:provider/provider.dart';
 
 //머지할떄 메인 지우기
 Future<void> main() async {

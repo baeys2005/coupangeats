@@ -1,5 +1,6 @@
 import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
+import '../orderpage/storePage.dart';
 import 'home_recommatzip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -166,7 +167,14 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
     final hasAtLeastOne = displayedImages.isNotEmpty;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StorePage(),
+          ),
+        );
+      },
       child: Container(
         width: widget.bW,
         child: Column(
