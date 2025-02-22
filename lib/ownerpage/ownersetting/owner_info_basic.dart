@@ -1,4 +1,5 @@
 // owner_basic_info_tab.dart
+//가게정보를 불러오는 파일입니다 .
 import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
