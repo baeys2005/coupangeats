@@ -9,7 +9,7 @@ class LoginBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -37,7 +37,7 @@ class LoginBottomSheet extends StatelessWidget {
                 backgroundColor: Colors.lightBlue,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
               ),
               child: const Text(
@@ -60,10 +60,10 @@ class LoginBottomSheet extends StatelessWidget {
                 Navigator.pushNamed(context, '/signup');
               },
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: Colors.lightBlue),
+                side: BorderSide(color: Colors.black38),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(0),
                 ),
               ),
               child: const Text(
@@ -71,7 +71,7 @@ class LoginBottomSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.lightBlue,
+                  color: Colors.black38,
                 ),
               ),
             ),
