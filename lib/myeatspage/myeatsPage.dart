@@ -14,6 +14,8 @@ class myeatsPage extends StatefulWidget {
 
 class _myeatsPageState extends State<myeatsPage> {
 
+  bool _isChecked = false;
+
   String _userName = ''; //변수들임
   String _userPhone = '';
 
@@ -46,11 +48,25 @@ class _myeatsPageState extends State<myeatsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        actions: [
+          Switch(
+              value: _isChecked,
+              onChanged: (value){
+                setState(() {
+                  _isChecked = false;
+                });
+              },
+          activeColor: Colors.blue,
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
                   Text(_userName, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
