@@ -57,16 +57,7 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
-        ),
-      ),
-      home: Scaffold(
+    return Scaffold(
         body: _currentPage,
         bottomNavigationBar: BottomNavigationBar(
           selectedItemColor: Colors.black,
@@ -83,7 +74,6 @@ class _HomepageState extends State<Homepage> {
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My 이츠'),
           ],
         ),
-      ),
     );
   }
 }
@@ -92,36 +82,40 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leadingWidth: 40,
-        leading: Padding(
-          padding: EdgeInsets.only(left: padding1),
-          child: Icon(Icons.near_me, color: Colors.yellow, size: 20),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                '경기도 성남시 수정구 성담대로1390번길',
-                style: title1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Icon(Icons.expand_more, color: Colors.blue, size: 30),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: padding1),
-            child: Icon(Icons.notifications_none_outlined, size: 30),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
+            // 기존 AppBar를 SliverAppBar로 변경
+            SliverAppBar(
+              floating: true, // 스크롤 시 앱바가 사라졌다가 위로 스크롤하면 다시 나타남
+              snap: true,     // 스크롤을 조금만 해도 앱바가 완전히 나타나거나 사라짐
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leadingWidth: 40,
+              leading: Padding(
+                padding: EdgeInsets.only(left: padding1),
+                child: Icon(Icons.near_me, color: Colors.yellow, size: 20),
+              ),
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '경기도 성남시 수정구 성담대로1390번길',
+                      style: title1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Icon(Icons.expand_more, color: Colors.blue, size: 30),
+                ],
+              ),
+              actions: [
+                Padding(
+                  padding: EdgeInsets.only(right: padding1),
+                  child: Icon(Icons.notifications_none_outlined, size: 30),
+                ),
+              ],
+            ),
+            // 나머지 컨텐츠는 그대로 유지
             SliverToBoxAdapter(child: Search()),
             HomeFooldtile(),
             SliverToBoxAdapter(
@@ -173,6 +167,7 @@ class HomeContent extends StatelessWidget {
     );
   }
 }
+
 
 class FavoritesPage extends StatelessWidget {
   @override
