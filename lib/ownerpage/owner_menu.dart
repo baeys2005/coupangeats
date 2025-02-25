@@ -393,6 +393,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
         title: Text(
           "메뉴추가",
           style: title1,

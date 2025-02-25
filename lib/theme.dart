@@ -38,7 +38,10 @@ ThemeData(
   scaffoldBackgroundColor: Colors.white,
 
   appBarTheme: AppBarTheme(
-      backgroundColor: Colors.white
+      backgroundColor: Colors.white,
+    iconTheme: IconThemeData(
+      color: Colors.black54, // 투명한 검정 (0.54 불투명도)
+    ),
   ),
 
 //기본 글자 색 설정

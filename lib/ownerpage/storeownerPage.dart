@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../providers/store_info_provider.dart';
 import 'storeowner_images_util.dart';
 
 //사장님페이지
@@ -44,6 +45,10 @@ class _StoreownerpageState extends State<Storeownerpage> {
     // TODO: implement initState
     super.initState();
     _loadStoreImagesFromFirestore();
+
+    //provider 파일에서 가게정보 불러오기
+    final storeProv = Provider.of<StoreProvider>(context, listen: false);
+    storeProv.loadStoreData("store123");
   }
 
   /// Firestore에 저장된 storeImages 불러오기
@@ -404,7 +409,10 @@ class _StoreownerpageState extends State<Storeownerpage> {
 
   @override
   Widget build(BuildContext context) {
+    final storeProv = Provider.of<StoreProvider>(context);
+
     return Scaffold(
+
       body: Container(
         width: double.infinity,
         child: Column(
@@ -544,35 +552,17 @@ class _StoreownerpageState extends State<Storeownerpage> {
                                 blurRadius: 7,
                               ),
                         ],),
-                        child: Column(
-                          children: [
-                            Container(
-
-                              color: Colors.white,
-                              width: 250,
-                              height: 40,
-                              child: Center(
-                                child: Text(
-                                  '배윤선 사장님',
-                                  style: pagetitle1,
-                                ),
-                              ),
-
-                            ),
-                            Container(
-                              color: Colors.white,
-                              width: 250,
-                              height: 50,
-                              child: Center(
-                                child: Text(
-                                  '맛있는카레집',
-                                  style: pagetitle1,
-                                ),
+                        child: Container(
+                            color: Colors.white,
+                            width: 300,
+                            height: 120, //글자상자 높이
+                            child: Center(
+                              child: Text(
+                                storeProv.storeName,
+                                style: pagetitle1,
                               ),
                             ),
-
-                          ],
-                        ),
+                          ),
                       ),
                     ),
                   ],

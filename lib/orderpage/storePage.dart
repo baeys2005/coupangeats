@@ -1,6 +1,6 @@
 import 'package:coupangeats/orderpage/store_appBar.dart';
-import 'package:coupangeats/orderpage/storeproviders/store_info_provider.dart';
-import 'package:coupangeats/orderpage/storeproviders/store_menus_provider.dart';
+import 'package:coupangeats/providers/store_info_provider.dart';
+import 'package:coupangeats/providers/store_menus_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';

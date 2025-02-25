@@ -6,8 +6,8 @@ import 'package:coupangeats/homepage/home_page.dart';
 import 'package:coupangeats/login/main_LoginPage.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
-import 'orderpage/storeproviders/store_info_provider.dart';
-import 'orderpage/storeproviders/store_menus_provider.dart';
+import 'providers/store_info_provider.dart';
+import 'providers/store_menus_provider.dart';
 
 //머지할떄 메인 지우기
 Future<void> main() async {
