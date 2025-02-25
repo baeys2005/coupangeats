@@ -1,9 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart'; //fgggggg
+import 'package:flutter/material.dart';
 import 'package:coupangeats/homepage/home_page.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/ownerpage/storeownerPage.dart';
+import 'package:coupangeats/myeatspage/owner_page_button.dart';
+import 'package:coupangeats/myeatspage/owner_registration_dialog.dart';
+import 'package:coupangeats/myeatspage/userRole.dart';
+import 'package:flutter/cupertino.dart';
+
+
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});
@@ -13,6 +19,9 @@ class myeatsPage extends StatefulWidget {
 }
 
 class _myeatsPageState extends State<myeatsPage> {
+
+  bool _isChecked = false; //딸깍버튼 상태
+  bool _isOwner = false; // 사장님인지아닌지
 
   String _userName = ''; //변수들임
   String _userPhone = '';
@@ -24,7 +33,7 @@ class _myeatsPageState extends State<myeatsPage> {
     _loadUserData();
   }
 
-  Future<void>_loadUserData()async{
+  Future<void>_loadUserData()async{ //파베에서 사용자 데이터 가져오는 함수
     try{
       final user = FirebaseAuth.instance.currentUser;
       if(user != null){
@@ -34,6 +43,7 @@ class _myeatsPageState extends State<myeatsPage> {
           setState(() {
             _userName = userData.data()?['name']??'';
             _userPhone = userData.data()?['num']??'';
+            _isOwner = UserRole.isOwner(userData.data()?['role']); //사장님 여부 추가
           });
         }
       }
@@ -42,15 +52,47 @@ class _myeatsPageState extends State<myeatsPage> {
     }
   }
 
+  void _showOwnerDialog(){ //사장님 페이지 등록 다이얼로그 표시하는 함수
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return OwnerRegistrationDialog(
+            onOwnershipChanged: (bool isOwner){
+              setState(() {
+                _isOwner = isOwner;
+              });
+            }
+          );
+        });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        actions: [
+          CupertinoSwitch(
+              value: _isChecked,
+              onChanged: (value){
+                setState(() {
+                  _isChecked = value;
+                  if (value){
+                    _showOwnerDialog(); //딸각버튼 누르면 다이얼로그 표시
+                  }
+                });
+              },
+          activeColor: Colors.blue,
+
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
                   Text(_userName, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
@@ -126,7 +168,8 @@ class _myeatsPageState extends State<myeatsPage> {
                       );
                     });
               },
-            )
+            ),
+            if (_isOwner) const OwnerPageButton(), //사장님 ㅇㅋ면 사장님 페이지 버튼 표시
           ],
         ),
       ),

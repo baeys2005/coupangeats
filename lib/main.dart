@@ -42,13 +42,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(scaffoldBackgroundColor: Colors.white),
+      theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: AppBarTheme(
+              backgroundColor: Colors.white,
+              iconTheme: IconThemeData(color: Colors.white),
+          surfaceTintColor: Colors.white)),
       title: 'coupangeats',
       initialRoute: '/owner',
       routes: {
         '/': (context) => const Homepage(),
         '/signup': (context) => const SignupPage(),
-        '/login' : (context) => const MainLoginpage(),
+        '/login': (context) => const MainLoginpage(),
         '/MainLoginpage': (context) => const MainLoginpage(),
         '/owner': (context) => const Storeownerpage()
       },
