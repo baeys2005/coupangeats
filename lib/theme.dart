@@ -12,6 +12,12 @@ var pagetitle1=TextStyle(fontSize: 25,fontWeight: FontWeight.bold);
 //페이지속 본문 큰글씨
 var pagebody1=TextStyle(fontSize: 15);
 //테두리 있는 상자
+var modaltitle1=TextStyle(
+fontSize: 25,
+fontWeight: FontWeight.bold,
+);
+
+
 var BorderBox =
 BoxDecoration(border: Border.all(color: Colors.black12, width: 1));
 

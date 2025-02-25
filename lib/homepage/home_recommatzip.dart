@@ -1,6 +1,9 @@
 import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:coupangeats/homepage/resturantPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../orderpage/storePage.dart';
 
 class HomeRecommatzip extends StatefulWidget {
   const HomeRecommatzip({super.key});
@@ -14,19 +17,43 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 300,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: padding1),
-            child: matzipBox(
-              index: index,
-              bW: MediaQuery.of(context).size.width * 0.7,
-              bH: 200,
-            ),
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('stores').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            // 아직 데이터를 못 불러왔으면 로딩 표시
+            return const Center(child: CircularProgressIndicator());
+          }
+          // store 문서 목록
+          final docs = snapshot.data!.docs;
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final doc = docs[index];
+              final data = doc.data() as Map<String, dynamic>;
+
+              // storeName, storeImages 필드 꺼내기
+              final storeName = data['storeName'] ?? '이름없는 가게';
+              final storeImages = data['storeImages'] as List<dynamic>? ?? [];
+
+              // 첫 번째 이미지 (없으면 null)
+              final firstImage = storeImages.isNotEmpty
+                  ? storeImages[0].toString()
+                  : null;
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: padding1),
+                child: matzipBox(
+                  index: index,
+                  bW: MediaQuery.of(context).size.width * 0.7,
+                  bH: MediaQuery.of(context).size.width * 0.4,
+                  storeName: storeName,
+                  storeImage: firstImage,
+                ),
+              );
+            },
           );
-        },
+        }
       ),
     );
   }
@@ -36,12 +63,16 @@ class matzipBox extends StatefulWidget {
   final int index;
   final double bW;
   final double bH;
+  final String storeName;
+  final String? storeImage;
 
   const matzipBox({
     super.key,
     required this.index,
     required this.bH,
     required this.bW,
+    required this.storeName,
+    required this.storeImage,
   });
 
   @override
@@ -49,10 +80,6 @@ class matzipBox extends StatefulWidget {
 }
 
 class _matzipBoxState extends State<matzipBox> {
-  final List<String> restimagePaths = List.generate(
-    10,
-        (index) => 'assets/rest${index + 1}.png',
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +88,7 @@ class _matzipBoxState extends State<matzipBox> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => RestaurantPage(index: widget.index),
+            builder: (context) => StorePage(),
           ),
         );
       },
@@ -75,11 +102,24 @@ class _matzipBoxState extends State<matzipBox> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    restimagePaths[widget.index],
+                  child:  widget.storeImage != null
+                      ? Image.network(
+                    widget.storeImage!,
                     width: widget.bW,
                     height: widget.bH,
                     fit: BoxFit.cover,
+                    errorBuilder: (ctx, error, stack) => Container(
+                      width: widget.bW,
+                      height: widget.bH,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.broken_image),
+                    ),
+                  )
+                      : Container(
+                    width: widget.bW,
+                    height: widget.bH,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image),
                   ),
                 ),
                 Positioned(
@@ -110,7 +150,7 @@ class _matzipBoxState extends State<matzipBox> {
               children: [
                 Expanded(
                   child: Text(
-                    '네네치킨 태평복정점',
+                    widget.storeName,
                     style: title1,
                     overflow: TextOverflow.ellipsis,
                   ),
