@@ -49,7 +49,9 @@ class MyApp extends StatelessWidget {
               iconTheme: IconThemeData(color: Colors.white),
           surfaceTintColor: Colors.white)),
       title: 'coupangeats',
-      initialRoute: '/owner',
+
+      initialRoute: '/',
+
       routes: {
         '/': (context) => const Homepage(),
         '/signup': (context) => const SignupPage(),
