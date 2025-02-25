@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shimmer/shimmer.dart';
 
 //FirestoreService: 파이어베이스에 메뉴 저장
 //class MenuItem : 메뉴 저장용 class
@@ -97,7 +98,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
               children: [
                 TextSpan(
                   text: '$_selectedCategory', // 선택된 카테고리
-                  style: modaltitle1.copyWith(color: Colors.blue.shade200), // 회색 스타일 적용
+                  style: modaltitle1.copyWith(
+                      color: Colors.blue.shade200), // 회색 스타일 적용
                 ),
                 TextSpan(
                   text: '에 메뉴 추가', // 나머지 텍스트
@@ -106,7 +108,6 @@ class _OwnerMenuState extends State<OwnerMenu> {
               ],
             ),
           ),
-
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -129,17 +130,21 @@ class _OwnerMenuState extends State<OwnerMenu> {
                 controller: menuPriceController,
                 decoration: InputDecoration(
                   labelText: '가격',
-                  hintText: 'ex) 10000', // 회색 글씨로 표시되는 힌트
-                  suffixText: '원', // 오른쪽에 표시되는 텍스트
-                    // 기본 테두리 색상 (비활성 상태)
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 1), // 기본 검은색 테두리
-                    ),
+                  hintText: 'ex) 10000',
+                  // 회색 글씨로 표시되는 힌트
+                  suffixText: '원',
+                  // 오른쪽에 표시되는 텍스트
+                  // 기본 테두리 색상 (비활성 상태)
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.black, width: 1), // 기본 검은색 테두리
+                  ),
 
-                    // 포커스된 상태 (클릭 시) 테두리 색상 설정
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2), // 포커스 시 파란색 테두리
-                    ), // 테두리 추가 (옵션)
+                  // 포커스된 상태 (클릭 시) 테두리 색상 설정
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Colors.blue, width: 2), // 포커스 시 파란색 테두리
+                  ), // 테두리 추가 (옵션)
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -392,6 +397,10 @@ class _OwnerMenuState extends State<OwnerMenu> {
           "메뉴추가",
           style: title1,
         ),
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
+          IconButton(onPressed: () {}, icon: Icon(Icons.delete))
+        ],
       ),
       body: Row(
         children: [
@@ -452,6 +461,18 @@ class _OwnerMenuState extends State<OwnerMenu> {
                                       width: 60,
                                       height: 60,
                                       fit: BoxFit.cover,
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.white,
+                                          ),
+                                        );
+                                      },
                                       errorBuilder:
                                           (context, error, stackTrace) {
                                         // URL이 잘못되었거나 로딩 실패 시 대체

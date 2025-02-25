@@ -125,10 +125,10 @@ class HomeContent extends StatelessWidget {
             SliverToBoxAdapter(child: Search()),
             HomeFooldtile(),
             SliverToBoxAdapter(
-              child: AspectRatio(
-                aspectRatio: 16 / 5,
-                child: adImage(),
-              ),
+                child: AspectRatio(
+                  aspectRatio: 16 / 5,
+                  child: adImage(),
+                ),
             ),
             SliverPadding(
               padding: EdgeInsets.symmetric(
