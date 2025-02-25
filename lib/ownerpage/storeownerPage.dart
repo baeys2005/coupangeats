@@ -11,6 +11,7 @@ import 'package:coupangeats/theme.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../providers/store_info_provider.dart';
+import '../providers/user_info_provider.dart';
 import 'storeowner_images_util.dart';
 
 //사장님페이지
@@ -49,6 +50,11 @@ class _StoreownerpageState extends State<Storeownerpage> {
     //provider 파일에서 가게정보 불러오기
     final storeProv = Provider.of<StoreProvider>(context, listen: false);
     storeProv.loadStoreData("store123");
+
+    final userInfoProv = Provider.of<UserInfoProvider>(context, listen: false);
+    userInfoProv.loadUserInfo();
+
+
   }
 
   /// Firestore에 저장된 storeImages 불러오기
@@ -410,7 +416,8 @@ class _StoreownerpageState extends State<Storeownerpage> {
   @override
   Widget build(BuildContext context) {
     final storeProv = Provider.of<StoreProvider>(context);
-
+    final userInfoProv = Provider.of<UserInfoProvider>(context);
+    print('폰넘버'+userInfoProv.userPhone);
     return Scaffold(
 
       body: Container(
@@ -573,14 +580,11 @@ class _StoreownerpageState extends State<Storeownerpage> {
                   height: 20,
                 ),
                 Text(
-                  'beayes@naver.com',
+                  userInfoProv.userEmail,
                   style: pagebody1,
                 ),
-                SizedBox(
-                  height: 20,
-                ),
                 Text(
-                  '010-****-****',
+                  userInfoProv.userPhone,//아니 숫자 왜 안뜸?
                   style: pagebody1,
                 ),
                 SizedBox(
