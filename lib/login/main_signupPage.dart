@@ -340,7 +340,7 @@ class _SignupPageState extends State<SignupPage> {
                 'email' : _emailController.text.trim(),
                 'createAt' : DateTime.now(),
               });
-              if (mounted) {
+              if (mounted) { //mounted : 해당 위젯이 현재 위젯 트리에 마운트되어 있는지 여부 표시
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('회원가입 성공!')),
                 );
