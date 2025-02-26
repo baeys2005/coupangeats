@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/user_info_provider.dart';
 class OwnerBasicInfoTab extends StatefulWidget {
   const OwnerBasicInfoTab({Key? key}) : super(key: key);
 
@@ -65,7 +68,7 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
     try {
       // 예시로 고정 "store123" 사용. 실제론 로그인된 점주나
       // 선택된 매장의 storeId 를 가져오셔야 합니다.
-      final storeId = "store123";
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
       final storeRef = FirebaseFirestore.instance
           .collection("stores")
           .doc(storeId);
@@ -95,7 +98,7 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
   Future<void> _fetchStoreData() async {
     try {
       // 실제론 storeId를 로그인 정보 등에서 가져오면 됩니다.
-      final storeId = 'store123';
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
       final storeRef = FirebaseFirestore.instance.collection('stores').doc(storeId);
 
       final docSnap = await storeRef.get();

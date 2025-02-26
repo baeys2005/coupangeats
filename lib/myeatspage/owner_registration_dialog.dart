@@ -26,18 +26,53 @@ class _OwnerRegistrationDialogState extends State<OwnerRegistrationDialog> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // signup 컬렉션에 현재 사용자의 role을 '사장님'으로 업데이트
+        final uid = user.uid;
+
+        // 1) signup 컬렉션에서 현재 사용자 정보 가져오기
+        final userDocSnap = await FirebaseFirestore.instance
+            .collection('signup')
+            .doc(uid)
+            .get();
+
+        if (!userDocSnap.exists) {
+          throw Exception('User doc does not exist in signup collection.');
+        }
+
+        // signup/{uid} 문서에서 사용자 이름(name) 읽어옴
+        final userData = userDocSnap.data() ?? {};
+        final userName = userData['name'] ?? '이름없음';
+
+        // 2) signup 컬렉션에 현재 사용자의 role을 '사장님'으로 업데이트
         await FirebaseFirestore.instance
             .collection('signup')
-            .doc(user.uid)
+            .doc(uid)
             .update({'role': '사장님'});
-        // 상태 변경을 부모 위젯에 알림
+
+        // 3) stores 컬렉션에 새 문서(랜덤ID) 생성
+        final storeRef = FirebaseFirestore.instance
+            .collection('stores')
+            .doc();  // doc()에 파라미터 없이 호출하면 랜덤 ID 자동 생성
+
+        // storeOwnerName 필드에 사용자 이름을 저장 + createdAt 등 필요하면 추가
+        await storeRef.set({
+          'storeOwnerName': userName,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+        // [추가부분] 사용자 문서에 "mystore" 필드 업데이트:
+        // 현재 사용자의 signup 문서에 새로 생성한 store 문서의 ID를 저장
+        await FirebaseFirestore.instance
+            .collection('signup')
+            .doc(uid)
+            .update({'mystore': storeRef.id});
+
+        // 상태 변경 알림
         widget.onOwnershipChanged(true);
       }
     } catch (e) {
       print('Error updating owner status: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

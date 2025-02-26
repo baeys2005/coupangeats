@@ -13,7 +13,7 @@ class UserInfoProvider with ChangeNotifier {
   String userName = '';
   String userPhone = '';
   String userRole = '';
-
+  String userMyStore = ''; // 추가: mystore 필드
   /// Firestore의 signup/{uid}에서 사용자 정보 가져오기
   Future<void> loadUserInfo() async {
     _isLoading = true;
@@ -43,6 +43,8 @@ class UserInfoProvider with ChangeNotifier {
           userName     = data['name'] ?? '';
           userPhone    = data['num'] ?? '';
           userRole     = data['role'] ?? '일반'; // 기본값 "일반" 등
+          // 추가: mystore 필드가 있으면 불러오기
+          userMyStore = data['mystore'] ?? '';
         } else {
           userName = '문서가 존재하지 않습니다.';
         }
@@ -53,6 +55,7 @@ class UserInfoProvider with ChangeNotifier {
         userPhone = '입력된번호가 없음ㅁ';
         userRole = '';
         userCreateAt = null;
+        userMyStore = '';
       }
     } catch (e) {
       debugPrint('loadUserInfo 실패: $e');

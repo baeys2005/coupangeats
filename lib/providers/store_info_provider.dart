@@ -26,7 +26,7 @@ class StoreProvider with ChangeNotifier {
     try {
       final storeRef = FirebaseFirestore.instance
           .collection('stores')
-          .doc(storeId);
+          .doc(storeId);//해당되는 storeId 의 store 문서를 가져온다.
 
       final docSnap = await storeRef.get();
 

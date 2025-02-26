@@ -31,9 +31,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
   /// 아직 업로드하지 않은 (로컬에만 있는) 이미지 목록
   List<File> _tempLocalImages = [];
 
-  /// Firestore 상의 storeId (예: 현재 로그인 유저와 연결, 또는 이미 알고있는 storeId)
-  /// 실제로는 인증 로직이나 다른 방식으로 storeId를 구해야 합니다.
-  final String _storeId = "store123";
+
 
   /// PageController - PageView에 사용
   final PageController _pageController = PageController();
@@ -45,23 +43,24 @@ class _StoreownerpageState extends State<Storeownerpage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadStoreImagesFromFirestore();
-
-    //provider 파일에서 가게정보 불러오기
-    final storeProv = Provider.of<StoreProvider>(context, listen: false);
-    storeProv.loadStoreData("store123");
-
     final userInfoProv = Provider.of<UserInfoProvider>(context, listen: false);
-    userInfoProv.loadUserInfo();
-
+    userInfoProv.loadUserInfo().then((_) {
+      // 2. mystore 값이 준비되면, 그 값을 이용해 가게 정보를 불러옴
+      final mystoreId = userInfoProv.userMyStore; // mystore에 저장된 가게 문서 ID
+      final storeProv = Provider.of<StoreProvider>(context, listen: false);
+      storeProv.loadStoreData(mystoreId); // [수정됨] 하드코딩 대신 mystore 사용
+    });
+    _loadStoreImagesFromFirestore();
 
   }
 
   /// Firestore에 저장된 storeImages 불러오기
   Future<void> _loadStoreImagesFromFirestore() async {
     try {
+      // [수정됨] _storeId 대신 UserInfoProvider의 userMyStore를 사용
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
       final docRef =
-          FirebaseFirestore.instance.collection('stores').doc(_storeId);
+          FirebaseFirestore.instance.collection('stores').doc(storeId);
       final docSnap = await docRef.get();
       if (docSnap.exists) {
         final data = docSnap.data();
@@ -142,8 +141,11 @@ class _StoreownerpageState extends State<Storeownerpage> {
                 Navigator.pop(context);
                 return;
               }
+
+              // [수정됨] 기존에 저장된 storeImages 삭제할 때 userInfoProv.userMyStore 사용
+              final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
               // 0) Firestore의 기존 'storeImages' 필드를 먼저 전부 삭제
-              final docRef = FirebaseFirestore.instance.collection('stores').doc(_storeId);
+              final docRef = FirebaseFirestore.instance.collection('stores').doc(storeId);
               await docRef.update({'storeImages': FieldValue.delete()});
 
               List<String> uploadedUrls = [];
@@ -162,7 +164,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
                   newList = newList.take(4).toList();
                 }
 
-                await saveStoreImagesToFirestore(_storeId, newList);
+                await saveStoreImagesToFirestore(storeId, newList);
 
                 // state 갱신
                 setState(() {
@@ -340,8 +342,9 @@ class _StoreownerpageState extends State<Storeownerpage> {
 
       // 만약 최대 4장 제한을 Firestore에서도 보장해야 한다면
       // newList = newList.take(4).toList();
-
-      await saveStoreImagesToFirestore(_storeId, newList);
+      // [수정됨] 기존 _storeId 대신, UserInfoProvider의 mystore 값을 사용
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+      await saveStoreImagesToFirestore(storeId, newList);
       setState(() {
         _storeImageUrls = newList; // UI 갱신
       });
@@ -363,7 +366,9 @@ class _StoreownerpageState extends State<Storeownerpage> {
       if (newList.length > 4) {
         newList = newList.take(4).toList();
       }
-      await saveStoreImagesToFirestore(_storeId, newList);
+      // [수정됨] 기존 _storeId 대신, UserInfoProvider의 mystore 값을 사용
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+      await saveStoreImagesToFirestore(storeId, newList);
       setState(() {
         _storeImageUrls = newList;
       });
@@ -413,6 +418,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
     );
   }
 
+  //본문
   @override
   Widget build(BuildContext context) {
     final storeProv = Provider.of<StoreProvider>(context);
