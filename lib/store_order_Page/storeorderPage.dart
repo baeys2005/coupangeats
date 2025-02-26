@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:coupangeats/store_order_Page/cart_provider.dart';
 
 class storeorderPage extends StatefulWidget {
   final String menuName;
@@ -38,44 +36,6 @@ class _storeorderPageState extends State<storeorderPage> {
       setState(() {
         _quantity--;
       });
-    }
-  }
-
-  // 카트에 아이템 추가 메서드
-  Future<void> _addToCart(BuildContext context) async {
-    try {
-      final cartProvider = Provider.of<CartProvider>(context, listen: false);
-
-      // CartItem 객체 생성
-      final cartItem = CartItem(
-        name: widget.menuName,
-        price: widget.menuPrice,
-        quantity: _quantity,
-        image: widget.menuImage,
-      );
-
-      // CartProvider를 통해 Firestore에 저장
-      await cartProvider.addItem(cartItem);
-
-      // 성공 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${widget.menuName}를 카트에 담았습니다.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-
-      // 이전 화면으로 돌아가기
-      Navigator.pop(context, true); // true를 반환하여 아이템이 추가되었음을 알림
-
-    } catch (e) {
-      // 에러 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('카트에 담기 실패: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
@@ -272,7 +232,16 @@ class _storeorderPageState extends State<storeorderPage> {
             width: double.infinity,
             height: 60,
             child: ElevatedButton(
-              onPressed: () => _addToCart(context),
+              onPressed: () {
+                // 장바구니에 담는 로직 구현
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('장바구니에 추가되었습니다.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                Navigator.pop(context);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
