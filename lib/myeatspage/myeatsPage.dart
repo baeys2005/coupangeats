@@ -77,8 +77,6 @@ class _myeatsPageState extends State<myeatsPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         actions: [
-          //사장님페이지 스위치
-          OwnerSwitch()
         ],
       ),
       body: SingleChildScrollView(

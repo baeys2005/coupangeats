@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../switch_store_provider.dart';
 import '../theme.dart';
 
 class StorePage extends StatefulWidget {
@@ -148,6 +149,7 @@ class _StorePageState extends State<StorePage>
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+
         body: NestedScrollView(
           controller: _scrollController,
           headerSliverBuilder: (context, innerBoxIsScrolled) {
