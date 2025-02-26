@@ -9,6 +9,10 @@ import 'package:coupangeats/myeatspage/owner_registration_dialog.dart';
 import 'package:coupangeats/myeatspage/userRole.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../switch_store_provider.dart';
+
+import '../switch_store_provider.dart';
+
 
 
 class myeatsPage extends StatefulWidget {
@@ -73,19 +77,8 @@ class _myeatsPageState extends State<myeatsPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         actions: [
-          CupertinoSwitch(
-              value: _isChecked,
-              onChanged: (value){
-                setState(() {
-                  _isChecked = value;
-                  if (value){
-                    _showOwnerDialog(); //딸각버튼 누르면 다이얼로그 표시
-                  }
-                });
-              },
-          activeColor: Colors.blue,
-
-          )
+          //사장님페이지 스위치
+          OwnerSwitch()
         ],
       ),
       body: SingleChildScrollView(
