@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../providers/user_info_provider.dart';
+import 'owner_category_edit.dart';
 
 //FirestoreService: 파이어베이스에 메뉴 저장
 //class MenuItem : 메뉴 저장용 class
@@ -413,8 +414,42 @@ class _OwnerMenuState extends State<OwnerMenu> {
           style: title1,
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.delete))
+      // OwnerMenu 혹은 해당 화면에서
+      IconButton(
+      icon: Icon(Icons.edit),
+      onPressed: () {
+        // 현재 선택된 카테고리 이름을 넘김
+        showEditCategoryDialog(context, _selectedCategory, (newCategoryName) {
+          // 여기서 로컬 상태(카테고리 리스트, 메뉴 맵 등)를 업데이트합니다.
+          setState(() {
+            // 예: 기존 카테고리 이름을 새로운 이름으로 교체
+            int index = categories.indexOf(_selectedCategory);
+            if (index != -1) {
+              categories[index] = newCategoryName;
+              // 추가로 menuItems와 menuIds의 키도 업데이트해야 합니다.
+              menuItems[newCategoryName] = menuItems.remove(_selectedCategory) ?? [];
+              menuIds[newCategoryName] = menuIds.remove(_selectedCategory) ?? [];
+              _selectedCategory = newCategoryName;
+            }
+          });
+        });
+      },
+    ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              showDeleteCategoryDialog(context, _selectedCategory, () {
+                // 삭제 후 로컬 상태 업데이트: 해당 카테고리 제거
+                setState(() {
+                  categories.remove(_selectedCategory);
+                  menuItems.remove(_selectedCategory);
+                  menuIds.remove(_selectedCategory);
+                  // 필요에 따라 다른 처리를 진행 (예: _selectedCategory를 다른 값으로 설정)
+                  _selectedCategory = categories.isNotEmpty ? categories.first : '';
+                });
+              });
+            },
+          )
         ],
       ),
       body: Row(
