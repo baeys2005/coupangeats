@@ -17,7 +17,6 @@ class StorePage extends StatefulWidget {
 
 class _StorePageState extends State<StorePage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
   List<GlobalKey> _sectionKeys = [];
 
   final ScrollController _scrollController = ScrollController();
@@ -37,7 +36,6 @@ class _StorePageState extends State<StorePage>
       _calculateSectionOffsets();
     });
 
-    _scrollController.addListener(_updateTabBarIndex);
 
     _scrollController.addListener(() {
       setState(() {
@@ -62,11 +60,6 @@ class _StorePageState extends State<StorePage>
 
 
     final catCount = storeMenusProv.categories.length;
-    _tabController = TabController(length: catCount, vsync: this);
-    // [디버깅 코드 추가] TabController 리스너
-    _tabController.addListener(() {
-      debugPrint('TabController index changed to: ${_tabController.index}');
-    });
   }
 
   void _updateTabAndSections() {
@@ -83,7 +76,6 @@ class _StorePageState extends State<StorePage>
       // catCount가 0이면 TabBar 제거
       if (catCount == 0) {
         setState(() {
-          _tabController.dispose();
           _sectionKeys = [];
         });
         return;
@@ -91,11 +83,8 @@ class _StorePageState extends State<StorePage>
 
       // catCount > 0일 때 탭컨트롤러 재생성
       setState(() {
-        _tabController.dispose();
-        _tabController = TabController(length: catCount, vsync: this);
-        _tabController.addListener(() {
-          debugPrint('TabController index changed to: ${_tabController.index}');
-        });
+
+
 
         // 섹션 키 재생성
         _sectionKeys = List.generate(catCount, (index) => GlobalKey());
@@ -132,15 +121,6 @@ class _StorePageState extends State<StorePage>
   }
 
 
-  void _updateTabBarIndex() {
-    double offset = _scrollController.offset + kToolbarHeight + 48;
-    for (int i = 0; i < _sectionOffsets.length; i++) {
-      if (i < _tabController.length) {
-        _tabController.animateTo(i); // 탭 개수보다 크거나 같으면 crash
-      }
-      break;
-    }
-  }
 
   void _scrollToSection(int index) {
     _scrollController.animateTo(
@@ -162,7 +142,6 @@ class _StorePageState extends State<StorePage>
         Provider.of<StoreMenusProvider>(context, listen: false);
     storeMenusProv.removeListener(_updateTabAndSections);
 
-    _tabController.dispose();
     _scrollController.dispose();
 
     _pageController.dispose();
