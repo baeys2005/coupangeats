@@ -106,6 +106,8 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
                 final data = doc.data() as Map<String, dynamic>;
 
                 // Firestore 필드 예시:
+                // 스토어 문서 ID
+                final storeId = doc.id;
                 // storeImages: ["url1", "url2", "url3", ...]
                 final List<dynamic> dynamicList = data['storeImages'] ?? [];
                 final List<String> storeImages =
@@ -122,6 +124,7 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
                     bH: MediaQuery.of(context).size.width * 0.6,
                     storeName: storeName,
                     storeImages: storeImages,
+                    storeId: storeId, // gollaMatzipBox에 전달
                   ),
                 );
               },
@@ -139,6 +142,7 @@ class gollaMatzipBox extends StatefulWidget {
   final double bH;
   final String storeName;
   final List<String> storeImages;
+  final String storeId; // 추가: 스토어 문서 ID
 
   const gollaMatzipBox({
     super.key,
@@ -147,6 +151,7 @@ class gollaMatzipBox extends StatefulWidget {
     required this.bW,
     required this.storeName,
     required this.storeImages,
+    required this.storeId,
   });
 
   @override
@@ -171,7 +176,9 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => StorePage(),
+            builder: (context) => StorePage(
+              storeId: widget.storeId,
+            ),
           ),
         );
       },

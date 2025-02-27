@@ -18,6 +18,15 @@ class StoreProvider with ChangeNotifier {
   String storeTime = '';
   String storeTip = '';
 
+  /// [resetStoreData] : 이전 store 데이터가 남아있지 않도록 초기화(StorePage문제해결)
+  void resetStoreData() {
+    _isLoading = true;
+    storeName = '';
+    storeImages = [];
+    // ... 등등 다른 필드도 기본값으로
+    notifyListeners();
+  }
+
   /// Firestore에서 특정 가게 문서(storeId)의 모든 필드 불러오기
   Future<void> loadStoreData(String storeId) async {
     _isLoading = true;

@@ -34,6 +34,8 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
               final data = doc.data() as Map<String, dynamic>;
 
               // storeName, storeImages 필드 꺼내기
+              // storeId, storeName, storeImages 필드 꺼내기
+              final storeId = doc.id;  // 문서 ID
               final storeName = data['storeName'] ?? '이름없는 가게';
               final storeImages = data['storeImages'] as List<dynamic>? ?? [];
 
@@ -49,6 +51,7 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
                   bH: MediaQuery.of(context).size.width * 0.4,
                   storeName: storeName,
                   storeImage: firstImage,
+                  storeId: storeId,  // matzipBox에 전달
                 ),
               );
             },
@@ -65,6 +68,7 @@ class matzipBox extends StatefulWidget {
   final double bH;
   final String storeName;
   final String? storeImage;
+  final String storeId;  // 추가: 스토어 문서 ID
 
   const matzipBox({
     super.key,
@@ -73,6 +77,7 @@ class matzipBox extends StatefulWidget {
     required this.bW,
     required this.storeName,
     required this.storeImage,
+    required this.storeId,
   });
 
   @override
@@ -85,10 +90,13 @@ class _matzipBoxState extends State<matzipBox> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // tap 시 StorePage로 이동하며 storeId 전달
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => StorePage(),
+            builder: (context) => StorePage(
+              storeId: widget.storeId,
+            ),
           ),
         );
       },
