@@ -9,10 +9,16 @@ import 'package:provider/provider.dart';
 import 'orderpage/storeproviders/store_info_provider.dart';
 import 'orderpage/storeproviders/store_menus_provider.dart';
 import 'store_order_Page/cart_provider.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 //머지할떄 메인 지우기
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 이 줄은 반드시 가장 먼저 실행되어야 합니다
+
+  // 네이버 지도 SDK 초기화
+  NaverMapSdk.instance.initialize(
+    clientId: 'r74ixivxx7',
+  );
 
   try {
     await Firebase.initializeApp(

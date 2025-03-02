@@ -1,4 +1,5 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
+import 'package:coupangeats/mappage/mylocation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'home_search.dart';
@@ -95,7 +96,13 @@ class HomeContent extends StatelessWidget {
               leadingWidth: 40,
               leading: Padding(
                 padding: EdgeInsets.only(left: padding1),
-                child: Icon(Icons.near_me, color: Colors.yellow, size: 20),
+                child: IconButton(onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyLocationPage()),
+                  );
+                }, icon: Icon(Icons.near_me, color: Colors.yellow, size: 20))
+                //,
               ),
               title: Row(
                 children: [
