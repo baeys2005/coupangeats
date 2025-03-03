@@ -232,7 +232,15 @@ class _storeorderPageState extends State<storeorderPage> {
             width: double.infinity,
             height: 60,
             child: ElevatedButton(
-              onPressed: ()=> _addToCart,
+              onPressed: (){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('장바구니에 추가되었습니다.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                Navigator.pop(context);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
