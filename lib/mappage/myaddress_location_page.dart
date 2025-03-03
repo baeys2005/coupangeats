@@ -14,6 +14,10 @@ class _MyLocationPageState extends State<MyLocationPage> {
   // 지도 중앙 좌표를 추적할 변수
   NLatLng? _centerLatLng;
   NaverMapController? _controller;
+
+  NCameraPosition _mapPosition = const NCameraPosition(target: NLatLng(37.5665, 126.9780), zoom: 15);
+  NCameraPosition get mapPosition => _mapPosition;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -30,6 +34,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
   }
   /// [설정하기] 버튼 클릭 시 현재 저장된 _centerLatLng 값으로 저장 및 디버깅 출력
   void _onPressedSave() {
+
     if (_centerLatLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('지도를 움직여 위치를 확인 후 저장하세요.')),
@@ -67,7 +72,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
                 locationButtonEnable: true, // 우측 하단 내 위치 버튼
               ),
               // [2] 스크롤 충돌 방지 여부
-              forceGesture: false,
+              forceGesture: true,
               // [3] 지도 준비 시점에 콜백
               onMapReady: (controller) async {
                 _controller = controller; // 이 줄 추가!
@@ -87,14 +92,13 @@ class _MyLocationPageState extends State<MyLocationPage> {
                 debugPrint('카메라 이동: $position, reason: $reason');
               },
               onCameraIdle: () async {
-                // final cameraPosition = await _controller?.getCameraPosition();
-                // debugPrint('멈춤'+cameraPosition.toString());
-                // setState(() {
-                //   _centerLatLng = cameraPosition?.target;
-                // });
+                NCameraPosition cameraPosition = await _controller!.getCameraPosition();
+              debugPrint("카메라위치 " + cameraPosition.toString());
+              setState(() {
+                _mapPosition = cameraPosition; // 수정: 현재 카메라 위치를 _mapPosition에 저장
+                _centerLatLng = cameraPosition.target; // 화면 중앙 좌표도 _centerLatLng에 저장
+              });
 
-                
-                debugPrint('카메라 이동 멈춤'+_centerLatLng.toString());
               },
             ),
           ),
@@ -115,6 +119,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
 
                         onPressed: () {
                           _onPressedSave();
+
                           // 버튼 클릭 시 실행할 코드
                         },
                         style: ElevatedButton.styleFrom(
