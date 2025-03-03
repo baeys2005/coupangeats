@@ -27,6 +27,12 @@ var dividerLine = Divider(
   thickness: 1, // 선 두께
   height: 20, // 위아래 여백
 );
+//카테고리 구분선
+var dividerLineCategory = Divider(
+  color: Colors.blueGrey.withOpacity(0.1),
+  thickness: 7,
+  height: 20,
+);
 
 double iconsize1=30;
 
