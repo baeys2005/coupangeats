@@ -1,5 +1,6 @@
 # Uncomment this line to define a global platform for your project
 platform :ios, '13.0'
+use_frameworks! #네이버 맵 플러그인 사용 시 필요q
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
