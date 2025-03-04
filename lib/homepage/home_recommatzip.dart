@@ -10,38 +10,72 @@ class HomeRecommatzip extends StatefulWidget {
 }
 
 class _HomeRecommatzipState extends State<HomeRecommatzip> {
-  bool _isLoading = true;
-  String _errorMessage = '';
-  List<Map<String, dynamic>> _data = [];
-
   @override
-  void initState() {
-    super.initState();
-    _loadData();
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 300,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('stores').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            // 아직 데이터를 못 불러왔으면 로딩 표시
+            return const Center(child: CircularProgressIndicator());
+          }
+          // store 문서 목록
+          final docs = snapshot.data!.docs;
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final doc = docs[index];
+              final data = doc.data() as Map<String, dynamic>;
+
+              // storeName, storeImages 필드 꺼내기
+              // storeId, storeName, storeImages 필드 꺼내기
+              final storeId = doc.id;  // 문서 ID
+              final storeName = data['storeName'] ?? '이름없는 가게';
+              final storeImages = data['storeImages'] as List<dynamic>? ?? [];
+
+              // 첫 번째 이미지 (없으면 null)
+              final firstImage = storeImages.isNotEmpty
+                  ? storeImages[0].toString()
+                  : null;
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: padding1),
+                child: matzipBox(
+                  index: index,
+                  bW: MediaQuery.of(context).size.width * 0.7,
+                  bH: MediaQuery.of(context).size.width * 0.4,
+                  storeName: storeName,
+                  storeImage: firstImage,
+                  storeId: storeId,  // matzipBox에 전달
+                ),
+              );
+            },
+          );
+        }
+      ),
+    );
   }
 
-  Future<void> _loadData() async {
-    try {
-      // Firebase 초기화 상태 확인
-      try {
-        Firebase.app();
-      } catch (e) {
-        // 앱이 초기화되지 않았다면 초기화
-        try {
-          await Firebase.initializeApp();
-        } catch (initError) {
-          print("Firebase 초기화 오류: $initError");
-          setState(() {
-            _isLoading = false;
-            _errorMessage = "데이터를 로드할 수 없습니다.";
-          });
-          return;
-        }
-      }
+class matzipBox extends StatefulWidget {
+  final int index;
+  final double bW;
+  final double bH;
+  final String storeName;
+  final String? storeImage;
+  final String storeId;  // 추가: 스토어 문서 ID
 
-      // 데이터 로드 - 원래 파일의 컬렉션 이름으로 변경하세요
-      final snapshot =
-          await FirebaseFirestore.instance.collection('recommatzip').get();
+  const matzipBox({
+    super.key,
+    required this.index,
+    required this.bH,
+    required this.bW,
+    required this.storeName,
+    required this.storeImage,
+    required this.storeId,
+  });
+
 
       setState(() {
         _data = snapshot.docs
@@ -62,12 +96,15 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return SliverToBoxAdapter(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: CircularProgressIndicator(),
+    return GestureDetector(
+      onTap: () {
+        // tap 시 StorePage로 이동하며 storeId 전달
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StorePage(
+              storeId: widget.storeId,
+            ),
           ),
         ),
       );

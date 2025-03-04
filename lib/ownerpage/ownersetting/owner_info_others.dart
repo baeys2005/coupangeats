@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/user_info_provider.dart';
 import '../../theme.dart';
 
 class OwnerInfoOthers extends StatefulWidget {
@@ -42,7 +44,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
     try {
       // 예시로 고정 "store123" 사용
       // 실제에선 로그인 정보나 전달받은 storeId 로 대체하세요
-      final storeId = 'store123';
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
       final storeRef =
       FirebaseFirestore.instance.collection('stores').doc(storeId);
 
@@ -77,7 +79,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
 
     try {
       // 예시로 고정 "store123" 사용
-      final storeId = 'store123';
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
       final storeRef =
       FirebaseFirestore.instance.collection('stores').doc(storeId);
 

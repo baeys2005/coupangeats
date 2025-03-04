@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../providers/user_info_provider.dart';
+import 'owner_category_edit.dart';
 
 //FirestoreService: 파이어베이스에 메뉴 저장
 //class MenuItem : 메뉴 저장용 class
@@ -176,6 +180,14 @@ class _OwnerMenuState extends State<OwnerMenu> {
                   final newMenuItem =
                       MenuItem(name: menuName, price: menuPrice);
 
+                  // [추가] mystore 값이 로드되었는지 확인
+                  final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+                  if (storeId.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('가게 정보가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.')),
+                    );
+                    return;
+                  }
                   setState(() {
                     // 선택된 카테고리에 메뉴 추가
                     menuItems[_selectedCategory]?.add(
@@ -189,9 +201,10 @@ class _OwnerMenuState extends State<OwnerMenu> {
                       debugPrint('- ${menu.name}: ${menu.price}원');
                     }
                   });
+
                   // Firebase Firestore에 메뉴 저장
                   await FirestoreService().addMenuToFirestore(
-                    storeId: 'store123', // 가게 ID (여기서 고정값, 실제로는 동적으로 설정 필요)
+                    storeId: storeId, // 가게 ID (여기서 고정값, 실제로는 동적으로 설정 필요)
                     categoryId: _selectedCategory, // 선택된 카테고리
                     menuItem: newMenuItem,
                   );
@@ -217,9 +230,9 @@ class _OwnerMenuState extends State<OwnerMenu> {
   void fetchMenusFromFirebase() async {
     try {
       debugPrint('Fetching menus from Firebase...');
-      final storeId = 'store123'; // 고정된 가게 ID
+      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
       final storeRef =
-          FirebaseFirestore.instance.collection('stores').doc('store123');
+          FirebaseFirestore.instance.collection('stores').doc(storeId);
 
       // 가게 데이터 확인
       final storeSnapshot = await storeRef.get();
@@ -325,7 +338,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final storeId = 'store123';
+                final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
                 final newCategoryName = categoryNameController.text.trim();
 
                 if (newCategoryName.isNotEmpty) {
@@ -355,6 +368,8 @@ class _OwnerMenuState extends State<OwnerMenu> {
                       categories.add(newCategoryId);
                       // 해당 카테고리의 메뉴 리스트도 초기화
                       menuItems[newCategoryId] = [];
+                      // [추가] 새 카테고리의 메뉴 ID 리스트도 초기화
+                      menuIds[newCategoryId] = [];  // <-- 추가된 부분
                       // 새로 생성한 카테고리를 현재 선택 상태로 변경
                       _selectedCategory = newCategoryId;
                     });
@@ -393,13 +408,48 @@ class _OwnerMenuState extends State<OwnerMenu> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
         title: Text(
           "메뉴추가",
           style: title1,
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.delete))
+      // OwnerMenu 혹은 해당 화면에서
+      IconButton(
+      icon: Icon(Icons.edit),
+      onPressed: () {
+        // 현재 선택된 카테고리 이름을 넘김
+        showEditCategoryDialog(context, _selectedCategory, (newCategoryName) {
+          // 여기서 로컬 상태(카테고리 리스트, 메뉴 맵 등)를 업데이트합니다.
+          setState(() {
+            // 예: 기존 카테고리 이름을 새로운 이름으로 교체
+            int index = categories.indexOf(_selectedCategory);
+            if (index != -1) {
+              categories[index] = newCategoryName;
+              // 추가로 menuItems와 menuIds의 키도 업데이트해야 합니다.
+              menuItems[newCategoryName] = menuItems.remove(_selectedCategory) ?? [];
+              menuIds[newCategoryName] = menuIds.remove(_selectedCategory) ?? [];
+              _selectedCategory = newCategoryName;
+            }
+          });
+        });
+      },
+    ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              showDeleteCategoryDialog(context, _selectedCategory, () {
+                // 삭제 후 로컬 상태 업데이트: 해당 카테고리 제거
+                setState(() {
+                  categories.remove(_selectedCategory);
+                  menuItems.remove(_selectedCategory);
+                  menuIds.remove(_selectedCategory);
+                  // 필요에 따라 다른 처리를 진행 (예: _selectedCategory를 다른 값으로 설정)
+                  _selectedCategory = categories.isNotEmpty ? categories.first : '';
+                });
+              });
+            },
+          )
         ],
       ),
       body: Row(
@@ -446,7 +496,9 @@ class _OwnerMenuState extends State<OwnerMenu> {
                     itemCount: menuItems[_selectedCategory]?.length ?? 0,
                     itemBuilder: (c, i) {
                       final menu = menuItems[_selectedCategory]![i];
-                      final menuId = menuIds[_selectedCategory]![i];
+                      // [수정] menuIds가 비어있다면 빈 문자열을 사용
+                      final menuIdList = menuIds[_selectedCategory] ?? [];
+                      final menuId = menuIdList.isNotEmpty ? menuIdList[i] : '';
                       return Container(
                           margin: EdgeInsets.fromLTRB(10, 5, 10, 5),
                           padding: EdgeInsets.all(3),
@@ -488,7 +540,7 @@ class _OwnerMenuState extends State<OwnerMenu> {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (c) {
                                 return OwnerMenuEdit(
-                                    storeId: 'store123',
+                                    storeId: Provider.of<UserInfoProvider>(context, listen: false).userMyStore,
                                     categoryId: _selectedCategory,
                                     menuId: menuId,
                                     menuName: menu.name,

@@ -1,4 +1,6 @@
 import 'package:coupangeats/orderpage/store_appBar.dart';
+import 'package:coupangeats/providers/store_info_provider.dart';
+import 'package:coupangeats/providers/store_menus_provider.dart';
 import 'package:coupangeats/orderpage/storeproviders/store_info_provider.dart';
 import 'package:coupangeats/orderpage/storeproviders/store_menus_provider.dart';
 import 'package:coupangeats/store_order_Page/storeorderPage.dart';
@@ -14,15 +16,15 @@ import '../switch_store_provider.dart';
 import '../theme.dart';
 
 class StorePage extends StatefulWidget {
-  const StorePage({super.key});
+  final String storeId; // storeId 받아서 가게정보 띄우기
+  const StorePage({super.key,required this.storeId});
 
   @override
   State<StorePage> createState() => _StorePageState();
 }
 
 class _StorePageState extends State<StorePage>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
+    with SingleTickerProviderStateMixin {
   List<GlobalKey> _sectionKeys = [];
 
   final ScrollController _scrollController = ScrollController();
@@ -30,53 +32,18 @@ class _StorePageState extends State<StorePage>
   int _selectedContent = 0; // 0: 정보, 1: 리뷰
   bool _isCollapsed = false;
 
-  // [추가부분] 이미지 슬라이더를 위한 PageController, 현재 페이지
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-
-    _scrollController.addListener(_updateTabBarIndex);
-    _scrollController.addListener(() {
-      setState(() {
-        _isCollapsed = _scrollController.offset > flexibleSpace - kToolbarHeight;
-      });
-    });
-
-    _tabController = TabController(length: 1, vsync: this);
-
-    // 빌드 완료 후에 데이터 로드 및 UI 업데이트
+    debugPrint('Current store ID: ${widget.storeId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateSectionOffsets();
 
-      // 가게정보 firebase서 불러오기
-      final storeProv = Provider.of<StoreProvider>(context, listen: false);
-      storeProv.loadStoreData("store123");
 
-      //메뉴정보 firebase 서 불러오기
-      final storeMenusProv = Provider.of<StoreMenusProvider>(context, listen: false);
-      storeMenusProv.loadStoreMenus("store123").then((_){
-        if (mounted) {
-          setState(() {
-            final catCount = storeMenusProv.categories.length;
-            if (catCount > 0){
-              _tabController.dispose();
-              _tabController = TabController(length: catCount, vsync: this);
-              _sectionKeys = List.generate(catCount, (index) => GlobalKey());
-
-              Future.delayed(Duration(milliseconds: 100), (){
-                if (mounted){
-                  _calculateSectionOffsets();
-                }
-              });
-            }
-          });
-        }
-      });
-
-      // 카테고리가 로드된 후 TabController와 섹션 키 초기화
+    _scrollController.addListener(() {
       setState(() {
         final catCount = storeMenusProv.categories.length;
         if (_tabController.length != catCount && catCount > 0) {
@@ -86,69 +53,84 @@ class _StorePageState extends State<StorePage>
         }
       });
     });
+    // 가게정보 firebase서 불러오기
+    final storeProv = Provider.of<StoreProvider>(context, listen: false);
+    // 1) 이전 데이터가 남아있지 않도록 초기화
+    storeProv.resetStoreData();
+    // 2) 새 storeId로 로딩
+    storeProv.loadStoreData(widget.storeId);
 
-    // 초기 TabController 설정 - 카테고리가 로드되기 전에는 임시로 1로 설정
-    _tabController = TabController(length: 1, vsync: this);
+
+    //메뉴정보 firebase 서 불러오기
+    final storeMenusProv =
+        Provider.of<StoreMenusProvider>(context, listen: false);
+    storeMenusProv.loadStoreMenus(widget.storeId);
+    storeMenusProv.addListener(_updateTabAndSections);
+
+
+    final catCount = storeMenusProv.categories.length;
   }
 
-  // 카테고리가 바뀔 때마다 TabController와 섹션 키 재생성
   void _updateTabAndSections() {
-    final storeMenusProv =
-    Provider.of<StoreMenusProvider>(context, listen: false);
+    final storeMenusProv = Provider.of<StoreMenusProvider>(context, listen: false);
 
-    // 아직 로딩 중이면 생략
     if (storeMenusProv.isLoading) return;
 
     final catCount = storeMenusProv.categories.length;
-    if (catCount == 0) {
-      // 카테고리 없는 경우
-      setState(() {
-        _tabController.dispose();
-        _sectionKeys = [];
-      });
-      return;
-    }
+    debugPrint('[_updateTabAndSections] catCount: $catCount');
 
-    // tabController 재생성
-    setState(() {
-      _tabController.dispose();
-      _tabController = TabController(length: catCount, vsync: this);
-
-      // 섹션 키 재생성
-      _sectionKeys = List.generate(catCount, (index) => GlobalKey());
-    });
-
-    // 섹션 위치 재계산
+    // (Issue #4 fix) 빌드 중에 setState()하지 않도록 다음 프레임에 처리
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateSectionOffsets();
+      if (!mounted) return; // 혹시 페이지가 dispose된 경우 방어
+
+      // catCount가 0이면 TabBar 제거
+      if (catCount == 0) {
+        setState(() {
+          _sectionKeys = [];
+        });
+        return;
+      }
+
+      // catCount > 0일 때 탭컨트롤러 재생성
+      setState(() {
+
+
+
+        // 섹션 키 재생성
+        _sectionKeys = List.generate(catCount, (index) => GlobalKey());
+      });
+
+      // 섹션 위치 재계산
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _calculateSectionOffsets();
+        }
+      });
     });
   }
 
   void _calculateSectionOffsets() {
     _sectionOffsets.clear();
     for (var key in _sectionKeys) {
-      if (key.currentContext != null) {
-        final RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
-        final position =
-        box.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
-        _sectionOffsets.add(position.dy);
-      }
+      // 1) key.currentContext가 아직 없으면 pass
+      if (key.currentContext == null) continue;
+
+      final renderObj = key.currentContext!.findRenderObject();
+      // 2) renderObj가 아직 null이면 pass
+      if (renderObj == null) continue;
+
+      final box = renderObj as RenderBox;
+
+      // 3) context.findRenderObject()도 null일 수 있으니 체크
+      final ancestorRO = context.findRenderObject();
+      if (ancestorRO == null) continue;
+
+      final position = box.localToGlobal(Offset.zero, ancestor: ancestorRO);
+      _sectionOffsets.add(position.dy);
     }
   }
 
-  void _updateTabBarIndex() {
-    if (_sectionOffsets.isEmpty) return;
 
-    double offset = _scrollController.offset + kToolbarHeight + 48;
-    for (int i = 0; i < _sectionOffsets.length; i++) {
-      if (i == _sectionOffsets.length - 1 || offset < _sectionOffsets[i]) {
-        if (_tabController.index != i) {
-          _tabController.animateTo(i);
-        }
-        break;
-      }
-    }
-  }
 
   void _scrollToSection(int index) {
     if (index >= _sectionOffsets.length || _sectionOffsets.isEmpty) return;
@@ -185,7 +167,6 @@ class _StorePageState extends State<StorePage>
     Provider.of<StoreMenusProvider>(context, listen: false);
     storeMenusProv.removeListener(_updateTabAndSections);
 
-    _tabController.dispose();
     _scrollController.dispose();
     _pageController.dispose();
     super.dispose();
@@ -195,9 +176,11 @@ class _StorePageState extends State<StorePage>
   Widget build(BuildContext context) {
     final storeProv = Provider.of<StoreProvider>(context);
     final storeMenusProv = Provider.of<StoreMenusProvider>(context);
+    final catCount = storeMenusProv.categories.length;
+    debugPrint("catCount is"+catCount.toString());
 
     return DefaultTabController(
-      length: 4,
+      length: catCount, // catCount
       child: Scaffold(
         // 수정: _buildCartBar 대신 StoreCartBar 위젯 사용
         bottomNavigationBar: StoreCartBar(
@@ -303,22 +286,21 @@ class _StorePageState extends State<StorePage>
                 ),
               ),
               if (!storeMenusProv.isLoading)
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _StickyTabBarDelegate(
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Colors.blue,
-                      isScrollable: true,
-                      tabs: storeMenusProv.categories.map((cat) {
-                        return Tab(text: cat.name);
-                      }).toList(),
-                      onTap: _scrollToSection,
+                if (catCount == 0)
+                  SliverToBoxAdapter(
+                    child: Center(child: Text('카테고리가 없습니다.')),
+                  )
+                else
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _StickyTabBarDelegate(
+                      TabBar(
+                        // controller 생략하면 DefaultTabController.of(context)를 자동 연결
+                        isScrollable: true,
+                        tabs: storeMenusProv.categories.map((cat) => Tab(text: cat.name)).toList(),
+                      ),
                     ),
                   ),
-                ),
             ];
           },
           body: storeMenusProv.isLoading
