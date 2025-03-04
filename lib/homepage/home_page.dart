@@ -145,7 +145,7 @@ class HomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            Search(),
+            Search(),//dd
 
             // HomeFooldtile - 기존 코드 그대로 (이미 SliverToBoxAdapter 반환)
             HomeFooldtile(),
