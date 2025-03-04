@@ -1,4 +1,5 @@
 // switch_state.dart
+import 'package:coupangeats/providers/user_info_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'homepage/home_page.dart';
 import 'package:coupangeats/myeatspage/owner_registration_dialog.dart';
 
 import 'myeatspage/owner_registration_dialog.dart';
-import 'orderpage/storeproviders/user_info_provider.dart';
 import 'ownerpage/storeownerPage.dart';
 
 class SwitchState with ChangeNotifier {

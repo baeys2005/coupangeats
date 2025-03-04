@@ -94,7 +94,9 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
           if (!snapshot.hasData) {
             // 로딩 상태 - SliverToBoxAdapter로 감싸서 반환
             return SliverToBoxAdapter(
-              child: Center(child: CircularProgressIndicator()),
+              child: Container(
+                child: Center(child: CircularProgressIndicator()),
+              ),
             );
           }
 

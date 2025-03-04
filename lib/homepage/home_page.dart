@@ -37,7 +37,7 @@ class _HomepageState extends State<Homepage> {
       ),
     );
 
-    overlay?.insert(_overlayEntry!);
+    overlay.insert(_overlayEntry!);
   }
 
   void _removeSwitchOverlay() {
@@ -47,11 +47,7 @@ class _HomepageState extends State<Homepage> {
 
 
 
-  Widget get _currentPage{
-    if (_currentIndex == 4 && FirebaseAuth.instance.currentUser == null){
-      return Homepage();
-    } return _pages[_currentIndex];
-  }
+  Widget get _currentPage => _pages[_currentIndex];
 
 
   final List<Widget> _pages = [
@@ -149,16 +145,10 @@ class HomeContent extends StatelessWidget {
                 ),
               ],
             ),
+            Search(),
 
             // HomeFooldtile - 기존 코드 그대로 (이미 SliverToBoxAdapter 반환)
             HomeFooldtile(),
-
-            // HomeRecommatzip - Sliver 위젯을 반환하도록 수정되었음
-            HomeRecommatzip(),
-
-            // HomeGollamukmatzip - Sliver 위젯을 반환하도록 수정되었음
-            HomeGollamukmatzip(),
-
             // 이츠 추천 맛집 타이틀
             SliverPadding(
               padding: EdgeInsets.symmetric(
@@ -176,20 +166,8 @@ class HomeContent extends StatelessWidget {
               ),
             ),
 
-            // 이츠 추천 맛집 - SliverToBoxAdapter로 래핑
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(left: padding1 * 2.5),
-                // 여기서 또 HomeRecommatzip을 쓰는 경우,
-                // HomeRecommatzip이 이미 Sliver 위젯을 반환한다면 수정이 필요합니다.
-                child: Column( // 여기서는 단순 Widget을 받는 형태로 바꿨습니다
-                  children: [
-                    // 추천 맛집 내용을 담을 위젯들
-                    // 예: 가로 스크롤 리스트뷰 등
-                  ],
-                ),
-              ),
-            ),
+            // HomeRecommatzip - Sliver 위젯을 반환하도록 수정되었음
+            HomeRecommatzip(),
 
             // 골라먹는맛집 타이틀
             SliverPadding(
@@ -201,7 +179,6 @@ class HomeContent extends StatelessWidget {
                 child: Text('골라먹는맛집', style: title1),
               ),
             ),
-
             // 골라먹는맛집 바
             SliverToBoxAdapter(
               child: Padding(
@@ -209,6 +186,13 @@ class HomeContent extends StatelessWidget {
                 child: GollamukmatzipBar(),
               ),
             ),
+            // HomeGollamukmatzip - Sliver 위젯을 반환하도록 수정되었음
+            HomeGollamukmatzip(),
+
+
+
+
+
 
             // 여기서는 HomeGollamukmatzip을 또 호출하지 않습니다.
             // 기존 코드에 있었다면 제거하거나,
