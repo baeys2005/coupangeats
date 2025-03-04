@@ -10,6 +10,7 @@ import 'package:coupangeats/orderpage//store_cart_bar.dart'; // 새로 분리된
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../switch_store_provider.dart';
 import '../theme.dart';
 
 class StorePage extends StatefulWidget {

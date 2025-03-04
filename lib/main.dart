@@ -1,6 +1,8 @@
 import 'package:coupangeats/login/main_signupPage.dart';
 import 'package:coupangeats/orderpage/order_cart/how_many_food.dart';
 import 'package:coupangeats/ownerpage/storeownerPage.dart';
+import 'package:coupangeats/switch_store_provider.dart';
+import 'package:coupangeats/switch_store_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; // firebase_options.dart 파일에서 Firebase 설정을 가져옵니다.
 import 'package:coupangeats/homepage/home_page.dart';
@@ -9,6 +11,7 @@ import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'orderpage/storeproviders/store_info_provider.dart';
 import 'orderpage/storeproviders/store_menus_provider.dart';
+import 'orderpage/storeproviders/user_info_provider.dart';
 import 'store_order_Page/cart_provider.dart';
 
 //머지할떄 메인 지우기
@@ -30,6 +33,16 @@ Future<void> main() async {
       ),
       ChangeNotifierProvider<StoreMenusProvider>(
         create: (_) => StoreMenusProvider(),
+      ),
+      ChangeNotifierProvider<SwitchState>(
+        create: (_) => SwitchState(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) {
+          final userInfoProvider = UserInfoProvider();
+          userInfoProvider.loadUserInfo();
+          return userInfoProvider;
+        }
       ),
       ChangeNotifierProvider(
           create: (_) => CartProvider())

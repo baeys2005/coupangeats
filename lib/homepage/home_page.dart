@@ -1,6 +1,7 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../switch_store_provider.dart';
 import 'home_search.dart';
 import 'home_fooldtile.dart';
 import 'home_wowad.dart';
@@ -20,6 +21,31 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
+
+  OverlayEntry? _overlayEntry;
+
+  void _showSwitchOverlay() {
+    final overlay = Overlay.of(context);
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 10,
+        right: 10,
+        child: Material(
+          color: Colors.transparent,
+          child: OwnerSwitch(), // 오버레이로 띄우고 싶은 위젯
+        ),
+      ),
+    );
+
+    overlay?.insert(_overlayEntry!);
+  }
+
+  void _removeSwitchOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+
 
   Widget get _currentPage{
     if (_currentIndex == 4 && FirebaseAuth.instance.currentUser == null){
@@ -53,7 +79,15 @@ class _HomepageState extends State<Homepage> {
       _currentIndex = index;
     });
   }
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // 위젯 트리 구성 완료 후 오버레이 추가
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showSwitchOverlay();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
