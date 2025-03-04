@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:coupangeats/store_order_Page//cart_provider.dart';
+import 'package:coupangeats/providers/cart_provider.dart';
 
 class CartViewPage extends StatefulWidget {
   const CartViewPage({Key? key}) : super(key: key);

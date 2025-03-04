@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:coupangeats/store_order_Page/cart_provider.dart';
+import 'package:coupangeats/providers/cart_provider.dart';
 
 /// 장바구니 하단 바 위젯
 /// 추가된 메뉴 개수와 총 금액을 표시하고, 클릭 시 장바구니 페이지로 이동

@@ -11,7 +11,7 @@ import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'providers/store_info_provider.dart';
 import 'providers/store_menus_provider.dart';
-import 'store_order_Page/cart_provider.dart';
+import 'providers/cart_provider.dart';
 import 'providers/user_info_provider.dart';
 
 

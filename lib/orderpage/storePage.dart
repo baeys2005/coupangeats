@@ -1,10 +1,12 @@
 import 'package:coupangeats/orderpage/store_appBar.dart';
+import 'package:coupangeats/orderpage/store_menu_section.dart';
 import 'package:coupangeats/providers/store_info_provider.dart';
 import 'package:coupangeats/providers/store_menus_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../store_order_Page/storeorderPage.dart';
 import '../theme.dart';
 
 class StorePage extends StatefulWidget {
@@ -134,6 +136,18 @@ class _StorePageState extends State<StorePage>
     setState(() {
       _selectedContent = index;
     });
+  }
+  // 메뉴 항목 클릭 시 주문 페이지로 이동하는 메서드
+  void _navigateToOrderPage(BuildContext context, Map<String, String> menuItem) {
+    // 메뉴 정보를 인자로 전달하면서 주문 페이지로 이동
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => storeorderPage(
+          menuName: menuItem['name'] ?? '메뉴 이름 없음',
+          menuPrice: int.tryParse(menuItem['price'] ?? '0') ?? 0,
+        ),
+      ),
+    );
   }
 
   @override
@@ -311,11 +325,12 @@ class _StorePageState extends State<StorePage>
               }).toList();
 
               // (2) 카테고리 이름 -> title
-              return _buildMenuSection(
-                sectionKey,
-                category.name,
-                Colors.grey.shade200, // 임의 배경색
-                itemList,
+              return StoreMenuSection(
+                key: sectionKey,
+                title: category.name,
+                color: Colors.grey.shade200,
+                items: itemList,
+                onMenuTap: _navigateToOrderPage,
               );
             },
           ),
@@ -380,77 +395,7 @@ class _StorePageState extends State<StorePage>
     );
   }
   //카테고리별로 블록 생성
-  Widget _buildMenuSection(
-      GlobalKey? key,
-      String title,
-      Color color,
-      List<Map<String, String>> items) {
-    return Container(
-      key: key, // 가게 하나당 할당 공간
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 30,),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title, //카테고리 제목
-              style: const TextStyle(
-                fontSize: 18,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              "메뉴 사진은 연출된 이미지 입니다 ", //카테고리 제목
-              style: const TextStyle(
-                fontSize: 13,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: items.asMap().entries.map((entry) {//메뉴수 만큼 메뉴블럭 생성
-                final i = entry.key;       // 인덱스
-                final item = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (i > 0) dividerLine,
-                      Text(
-                        item['name']!, // ✅ 메뉴 이름
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4), // 간격 추가
-                      Text(
-                        '${item['price']}원', // ✅ 가격
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          Divider(
-            color: Colors.blueGrey.withOpacity(0.1), // 선 색상
-            thickness: 7, // 선 두께
-            height: 20, // 위아래 여백
-          )
-        ],
-      ),
-    );
-  }
+
 }
 
 // 🔹 SliverPersistentHeader를 위한 Delegate 클래스
