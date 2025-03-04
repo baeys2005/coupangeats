@@ -1,12 +1,9 @@
-import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:coupangeats/homepage/resturantPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../orderpage/storePage.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class HomeRecommatzip extends StatefulWidget {
-  const HomeRecommatzip({super.key});
+  const HomeRecommatzip({Key? key}) : super(key: key);
 
   @override
   State<HomeRecommatzip> createState() => _HomeRecommatzipState();
@@ -60,7 +57,6 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
       ),
     );
   }
-}
 
 class matzipBox extends StatefulWidget {
   final int index;
@@ -80,11 +76,23 @@ class matzipBox extends StatefulWidget {
     required this.storeId,
   });
 
-  @override
-  State<matzipBox> createState() => _matzipBoxState();
-}
 
-class _matzipBoxState extends State<matzipBox> {
+      setState(() {
+        _data = snapshot.docs
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("데이터 로드 오류: $e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "데이터를 로드할 수 없습니다.";
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,92 +106,57 @@ class _matzipBoxState extends State<matzipBox> {
               storeId: widget.storeId,
             ),
           ),
-        );
-      },
-      child: Container(
-        width: widget.bW,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child:  widget.storeImage != null
-                      ? Image.network(
-                    widget.storeImage!,
-                    width: widget.bW,
-                    height: widget.bH,
-                    fit: BoxFit.cover,
-                    errorBuilder: (ctx, error, stack) => Container(
-                      width: widget.bW,
-                      height: widget.bH,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image),
-                    ),
-                  )
-                      : Container(
-                    width: widget.bW,
-                    height: widget.bH,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image),
-                  ),
-                ),
-                Positioned(
-                  bottom: -13.0,
-                  left: 4,
-                  right: 4,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Color(0xff1976D2),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Text(
-                      'wow 매 주문 무료배달 적용 매장',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.storeName,
-                    style: title1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Text(
-                  'wow+즉시할인',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.star, color: Colors.yellow, size: 16),
-                SizedBox(width: 4),
-                Text(
-                  '5.0(251) · 0.8km · 30분',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
-            ),
-          ],
         ),
+      );
+    }
+
+    if (_errorMessage.isNotEmpty) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            _errorMessage,
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      );
+    }
+
+    // 여기서 SliverToBoxAdapter를 반환하여 일관성 유지
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              "추천 맛집",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          // 데이터 목록 표시
+          _data.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(child: Text("추천 맛집이 없습니다")),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _data.length,
+                  itemBuilder: (context, index) {
+                    final item = _data[index];
+                    return ListTile(
+                      title: Text(item['name'] ?? '이름 없음'),
+                      subtitle: Text(item['description'] ?? '설명 없음'),
+                    );
+                  },
+                ),
+        ],
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../switch_store_provider.dart';
 import 'home_search.dart';
 import 'home_fooldtile.dart';
 import 'home_wowad.dart';
@@ -20,6 +21,31 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
+
+  OverlayEntry? _overlayEntry;
+
+  void _showSwitchOverlay() {
+    final overlay = Overlay.of(context);
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 10,
+        right: 10,
+        child: Material(
+          color: Colors.transparent,
+          child: OwnerSwitch(), // 오버레이로 띄우고 싶은 위젯
+        ),
+      ),
+    );
+
+    overlay?.insert(_overlayEntry!);
+  }
+
+  void _removeSwitchOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+
 
   Widget get _currentPage{
     if (_currentIndex == 4 && FirebaseAuth.instance.currentUser == null){
@@ -43,7 +69,7 @@ class _HomepageState extends State<Homepage> {
         showModalBottomSheet(
             context: context,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(10))
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10))
             ),
             builder: (context) => LoginBottomSheet());
         return;
@@ -53,28 +79,35 @@ class _HomepageState extends State<Homepage> {
       _currentIndex = index;
     });
   }
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // 위젯 트리 구성 완료 후 오버레이 추가
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showSwitchOverlay();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-        body: _currentPage,
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey,
-          backgroundColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _currentIndex,
-          onTap: _handleTabTap,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: '즐겨찾기'),
-            BottomNavigationBarItem(icon: Icon(Icons.menu), label: '주문내역'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My 이츠'),
-          ],
-        ),
+      body: _currentPage,
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _currentIndex,
+        onTap: _handleTabTap,
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: '즐겨찾기'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu), label: '주문내역'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My 이츠'),
+        ],
+      ),
     );
   }
 }
@@ -86,10 +119,10 @@ class HomeContent extends StatelessWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // 기존 AppBar를 SliverAppBar로 변경
+            // SliverAppBar
             SliverAppBar(
-              floating: true, // 스크롤 시 앱바가 사라졌다가 위로 스크롤하면 다시 나타남
-              snap: true,     // 스크롤을 조금만 해도 앱바가 완전히 나타나거나 사라짐
+              floating: true,
+              snap: true,
               backgroundColor: Colors.white,
               elevation: 0,
               leadingWidth: 40,
@@ -116,15 +149,17 @@ class HomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            // 나머지 컨텐츠는 그대로 유지
-            SliverToBoxAdapter(child: Search()),
+
+            // HomeFooldtile - 기존 코드 그대로 (이미 SliverToBoxAdapter 반환)
             HomeFooldtile(),
-            SliverToBoxAdapter(
-                child: AspectRatio(
-                  aspectRatio: 16 / 5,
-                  child: adImage(),
-                ),
-            ),
+
+            // HomeRecommatzip - Sliver 위젯을 반환하도록 수정되었음
+            HomeRecommatzip(),
+
+            // HomeGollamukmatzip - Sliver 위젯을 반환하도록 수정되었음
+            HomeGollamukmatzip(),
+
+            // 이츠 추천 맛집 타이틀
             SliverPadding(
               padding: EdgeInsets.symmetric(
                 horizontal: padding1 * 2.5,
@@ -140,12 +175,23 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
+
+            // 이츠 추천 맛집 - SliverToBoxAdapter로 래핑
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.only(left: padding1 * 2.5),
-                child: HomeRecommatzip(),
+                // 여기서 또 HomeRecommatzip을 쓰는 경우,
+                // HomeRecommatzip이 이미 Sliver 위젯을 반환한다면 수정이 필요합니다.
+                child: Column( // 여기서는 단순 Widget을 받는 형태로 바꿨습니다
+                  children: [
+                    // 추천 맛집 내용을 담을 위젯들
+                    // 예: 가로 스크롤 리스트뷰 등
+                  ],
+                ),
               ),
             ),
+
+            // 골라먹는맛집 타이틀
             SliverPadding(
               padding: EdgeInsets.symmetric(
                 horizontal: padding1 * 2.5,
@@ -155,20 +201,24 @@ class HomeContent extends StatelessWidget {
                 child: Text('골라먹는맛집', style: title1),
               ),
             ),
+
+            // 골라먹는맛집 바
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: padding1 * 2.5),
                 child: GollamukmatzipBar(),
               ),
             ),
-            HomeGollamukmatzip(),
+
+            // 여기서는 HomeGollamukmatzip을 또 호출하지 않습니다.
+            // 기존 코드에 있었다면 제거하거나,
+            // HomeGollamukmatzip이 일반 위젯을 반환하도록 수정하고 SliverToBoxAdapter로 감싸야 합니다.
           ],
         ),
       ),
     );
   }
 }
-
 
 class FavoritesPage extends StatelessWidget {
   @override
@@ -201,4 +251,3 @@ class OrderHistoryPage extends StatelessWidget {
     );
   }
 }
-

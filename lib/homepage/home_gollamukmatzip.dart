@@ -92,16 +92,18 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
         stream: FirebaseFirestore.instance.collection('stores').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            // 로딩 상태
-            return const SliverToBoxAdapter(
+            // 로딩 상태 - SliverToBoxAdapter로 감싸서 반환
+            return SliverToBoxAdapter(
               child: Center(child: CircularProgressIndicator()),
             );
           }
+
           // store 문서 목록
           final docs = snapshot.data!.docs;
-          return SliverList(
+
+          return SliverList(  // 여기서 ListView 대신 SliverList 사용
             delegate: SliverChildBuilderDelegate(
-              (context, index) {
+                  (context, index) {
                 final doc = docs[index];
                 final data = doc.data() as Map<String, dynamic>;
 
@@ -111,9 +113,8 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
                 // storeImages: ["url1", "url2", "url3", ...]
                 final List<dynamic> dynamicList = data['storeImages'] ?? [];
                 final List<String> storeImages =
-                    dynamicList.map((e) => e.toString()).toList();
+                dynamicList.map((e) => e.toString()).toList();
 
-                // 가게 이름
                 final storeName = data['storeName'] ?? '이름없는 가게';
 
                 return Padding(
@@ -131,7 +132,8 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
               childCount: docs.length,
             ),
           );
-        });
+        }
+    );
   }
 }
 
@@ -161,7 +163,7 @@ class gollaMatzipBox extends StatefulWidget {
 class _gollaMatzipBoxState extends State<gollaMatzipBox> {
   final List<String> restimagePaths = List.generate(
     10,
-    (index) => 'assets/rest${index + 1}.png',
+        (index) => 'assets/rest${index + 1}.png',
   );
 
   @override
@@ -198,23 +200,24 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
                         padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                         child: hasAtLeastOne
                             ? Image.network(
-                                displayedImages[0],
-                                width: widget.bW * 0.73,
-                                height: widget.bH * 0.75,
-                                fit: BoxFit.cover,
-                                errorBuilder: (ctx, error, stack) => Container(
-                                  width: widget.bW * 0.73,
-                                  height: widget.bH * 0.75,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.broken_image),
-                                ),
-                              )
-                            : Container(
+                          displayedImages[0],
+                          width: widget.bW * 0.73,
+                          height: widget.bH * 0.75,
+                          fit: BoxFit.cover,
+                          errorBuilder: (ctx, error, stack) =>
+                              Container(
                                 width: widget.bW * 0.73,
                                 height: widget.bH * 0.75,
                                 color: Colors.grey[300],
-                                child: const Icon(Icons.image),
+                                child: const Icon(Icons.broken_image),
                               ),
+                        )
+                            : Container(
+                          width: widget.bW * 0.73,
+                          height: widget.bH * 0.75,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image),
+                        ),
                       ),
                       Column(
                         children: [
@@ -226,16 +229,17 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
                                 width: widget.bW * 0.25,
                                 height: widget.bW * 0.25,
                                 fit: BoxFit.cover,
-                                errorBuilder: (ctx, error, stack) => Container(
-                                  width: widget.bW * 0.25,
-                                  height: widget.bW * 0.25,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.broken_image),
-                                ),
+                                errorBuilder: (ctx, error, stack) =>
+                                    Container(
+                                      width: widget.bW * 0.25,
+                                      height: widget.bW * 0.25,
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.broken_image),
+                                    ),
                               ),
                             )
                           else
-                            // 이미지가 1장 이하인 경우 -> 빈 컨테이너 or 대체이미지
+                          // 이미지가 1장 이하인 경우 -> 빈 컨테이너 or 대체이미지
                             Container(
                               width: widget.bW * 0.25,
                               height: widget.bW * 0.25,
@@ -248,15 +252,16 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
                               width: widget.bW * 0.25,
                               height: widget.bW * 0.25,
                               fit: BoxFit.cover,
-                              errorBuilder: (ctx, error, stack) => Container(
-                                width: widget.bW * 0.25,
-                                height: widget.bW * 0.25,
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.broken_image),
-                              ),
+                              errorBuilder: (ctx, error, stack) =>
+                                  Container(
+                                    width: widget.bW * 0.25,
+                                    height: widget.bW * 0.25,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.broken_image),
+                                  ),
                             )
                           else
-                            // 이미지가 2장 이하인 경우 -> 빈 컨테이너
+                          // 이미지가 2장 이하인 경우 -> 빈 컨테이너
                             Container(
                               width: widget.bW * 0.25,
                               height: widget.bW * 0.25,
