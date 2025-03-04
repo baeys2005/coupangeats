@@ -19,7 +19,7 @@ class StoreInfo extends StatefulWidget {
 
 class _StoreInfoState extends State<StoreInfo> {
   int _selectedContent = 0; // 0: 배달, 1: 포장
-
+  double flexibleSpace = 600;
   void _changeContent(int index) {
     setState(() {
       _selectedContent = index;

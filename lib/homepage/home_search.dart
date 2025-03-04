@@ -6,38 +6,40 @@ class Search extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 3, 20, 10),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SearchPage()),
-          );
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              width: 1,
-              color: Colors.grey
-            )
-
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.search, color: Colors.black87),
-              SizedBox(width: 12),
-              Text(
-                '음식, 가게를 검색해보세요',
-                style: TextStyle(
-                  color: Colors.black54,
-                  fontSize: 16,
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 3, 20, 10),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchPage()),
+            );
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                width: 1,
+                color: Colors.grey
+              )
+      
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.search, color: Colors.black87),
+                SizedBox(width: 12),
+                Text(
+                  '음식, 가게를 검색해보세요',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

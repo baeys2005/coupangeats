@@ -1,14 +1,17 @@
 import 'package:coupangeats/orderpage/store_appBar.dart';
-import 'package:coupangeats/orderpage/storeproviders/store_info_provider.dart';
-import 'package:coupangeats/orderpage/storeproviders/store_menus_provider.dart';
+import 'package:coupangeats/orderpage/store_menu_section.dart';
+import 'package:coupangeats/providers/store_info_provider.dart';
+import 'package:coupangeats/providers/store_menus_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../store_order_Page/storeorderPage.dart';
 import '../theme.dart';
 
 class StorePage extends StatefulWidget {
-  const StorePage({super.key});
+  final String storeId; // storeId 받아서 가게정보 띄우기
+  const StorePage({super.key,required this.storeId});
 
   @override
   State<StorePage> createState() => _StorePageState();
@@ -16,7 +19,6 @@ class StorePage extends StatefulWidget {
 
 class _StorePageState extends State<StorePage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
   List<GlobalKey> _sectionKeys = [];
 
   final ScrollController _scrollController = ScrollController();
@@ -24,7 +26,6 @@ class _StorePageState extends State<StorePage>
   int _selectedContent = 0; // 0: 정보, 1: 리뷰
   bool _isCollapsed = false;
 
-  // [추가부분] 이미지 슬라이더를 위한 PageController, 현재 페이지
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -32,14 +33,12 @@ class _StorePageState extends State<StorePage>
   @override
   void initState() {
     super.initState();
-
+    debugPrint('Current store ID: ${widget.storeId}');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateSectionOffsets();
     });
 
-    _scrollController.addListener(_updateTabBarIndex);
 
-    // ✅ 스크롤 값이 변경될 때 FlexibleSpaceBar의 표시 여부 확인
     _scrollController.addListener(() {
       setState(() {
         _isCollapsed =
@@ -49,68 +48,81 @@ class _StorePageState extends State<StorePage>
 
     // 가게정보 firebase서 불러오기
     final storeProv = Provider.of<StoreProvider>(context, listen: false);
-    storeProv.loadStoreData("store123");
+    // 1) 이전 데이터가 남아있지 않도록 초기화
+    storeProv.resetStoreData();
+    // 2) 새 storeId로 로딩
+    storeProv.loadStoreData(widget.storeId);
+
+
     //메뉴정보 firebase 서 불러오기
     final storeMenusProv =
-        Provider.of<StoreMenusProvider>(context, listen: false);
-    storeMenusProv.loadStoreMenus("store123");
+    Provider.of<StoreMenusProvider>(context, listen: false);
+    storeMenusProv.loadStoreMenus(widget.storeId);
+    storeMenusProv.addListener(_updateTabAndSections);
+
 
     final catCount = storeMenusProv.categories.length;
-    _tabController = TabController(length: catCount, vsync: this);
   }
 
-  // [변경부분] 카테고리가 바뀔 때마다 TabController와 섹션 키 재생성
   void _updateTabAndSections() {
-    final storeMenusProv =
-        Provider.of<StoreMenusProvider>(context, listen: false);
-
-    // 아직 로딩 중이면 생략
+    final storeMenusProv = Provider.of<StoreMenusProvider>(context, listen: false);
     if (storeMenusProv.isLoading) return;
 
     final catCount = storeMenusProv.categories.length;
-    if (catCount == 0) {
-      // 카테고리 없는 경우
-      setState(() {
-        _tabController.dispose();
-        _sectionKeys = [];
-      });
-      return;
-    }
+    debugPrint('[_updateTabAndSections] catCount: $catCount');
 
-    // tabController 재생성
-    setState(() {
-      _tabController.dispose();
-      _tabController = TabController(length: catCount, vsync: this);
-
-      // 섹션 키 재생성
-      _sectionKeys = List.generate(catCount, (index) => GlobalKey());
-    });
-
-    // 섹션 위치 재계산
+    // (Issue #4 fix) 빌드 중에 setState()하지 않도록 다음 프레임에 처리
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateSectionOffsets();
+      if (!mounted) return; // 혹시 페이지가 dispose된 경우 방어
+
+      // catCount가 0이면 TabBar 제거
+      if (catCount == 0) {
+        setState(() {
+          _sectionKeys = [];
+        });
+        return;
+      }
+
+      // catCount > 0일 때 탭컨트롤러 재생성
+      setState(() {
+
+
+
+        // 섹션 키 재생성
+        _sectionKeys = List.generate(catCount, (index) => GlobalKey());
+      });
+
+      // 섹션 위치 재계산
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _calculateSectionOffsets();
+        }
+      });
     });
   }
 
   void _calculateSectionOffsets() {
     _sectionOffsets.clear();
     for (var key in _sectionKeys) {
-      final RenderBox box = key.currentContext!.findRenderObject() as RenderBox;
-      final position =
-          box.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
+      // 1) key.currentContext가 아직 없으면 pass
+      if (key.currentContext == null) continue;
+
+      final renderObj = key.currentContext!.findRenderObject();
+      // 2) renderObj가 아직 null이면 pass
+      if (renderObj == null) continue;
+
+      final box = renderObj as RenderBox;
+
+      // 3) context.findRenderObject()도 null일 수 있으니 체크
+      final ancestorRO = context.findRenderObject();
+      if (ancestorRO == null) continue;
+
+      final position = box.localToGlobal(Offset.zero, ancestor: ancestorRO);
       _sectionOffsets.add(position.dy);
     }
   }
 
-  void _updateTabBarIndex() {
-    double offset = _scrollController.offset + kToolbarHeight + 48;
-    for (int i = 0; i < _sectionOffsets.length; i++) {
-      if (offset < _sectionOffsets[i]) {
-        _tabController.animateTo(i);
-        break;
-      }
-    }
-  }
+
 
   void _scrollToSection(int index) {
     _scrollController.animateTo(
@@ -125,18 +137,28 @@ class _StorePageState extends State<StorePage>
       _selectedContent = index;
     });
   }
+  // 메뉴 항목 클릭 시 주문 페이지로 이동하는 메서드
+  void _navigateToOrderPage(BuildContext context, Map<String, String> menuItem) {
+    // 메뉴 정보를 인자로 전달하면서 주문 페이지로 이동
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => storeorderPage(
+          menuName: menuItem['name'] ?? '메뉴 이름 없음',
+          menuPrice: int.tryParse(menuItem['price'] ?? '0') ?? 0,
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
-    // [변경부분] addListener 해제
     final storeMenusProv =
-        Provider.of<StoreMenusProvider>(context, listen: false);
+    Provider.of<StoreMenusProvider>(context, listen: false);
     storeMenusProv.removeListener(_updateTabAndSections);
 
-    _tabController.dispose();
     _scrollController.dispose();
 
-    _pageController.dispose(); // [추가부분] PageController dispose
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -144,9 +166,11 @@ class _StorePageState extends State<StorePage>
   Widget build(BuildContext context) {
     final storeProv = Provider.of<StoreProvider>(context);
     final storeMenusProv = Provider.of<StoreMenusProvider>(context);
+    final catCount = storeMenusProv.categories.length;
+    debugPrint("catCount is"+catCount.toString());
 
     return DefaultTabController(
-      length: 4,
+      length: catCount, // catCount
       child: Scaffold(
         body: NestedScrollView(
           controller: _scrollController,
@@ -220,30 +244,30 @@ class _StorePageState extends State<StorePage>
                           ),
                         ),
                       ),
-                Positioned(
-                  top:150, // 슬라이더 높이가 220이므로, 적절히 조정
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      storeProv.storeImages.isNotEmpty
-                          ? storeProv.storeImages.length
-                          : 1,
-                          (index) {
-                        bool isActive = (index == _currentPage);
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: isActive ? 10 : 8,
-                          height: isActive ? 10 : 8,
-                          decoration: BoxDecoration(
-                            color: isActive ? Colors.white : Colors.grey,
-                            shape: BoxShape.circle,
-                          ),
-                        );
-                      },
-                    ),))
+                      Positioned(
+                          top:150, // 슬라이더 높이가 220이므로, 적절히 조정
+                          left: 0,
+                          right: 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              storeProv.storeImages.isNotEmpty
+                                  ? storeProv.storeImages.length
+                                  : 1,
+                                  (index) {
+                                bool isActive = (index == _currentPage);
+                                return AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                                  width: isActive ? 10 : 8,
+                                  height: isActive ? 10 : 8,
+                                  decoration: BoxDecoration(
+                                    color: isActive ? Colors.white : Colors.grey,
+                                    shape: BoxShape.circle,
+                                  ),
+                                );
+                              },
+                            ),))
                     ],
                   ),
                 ),
@@ -261,56 +285,55 @@ class _StorePageState extends State<StorePage>
                 ),
               ),
               if (!storeMenusProv.isLoading)
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _StickyTabBarDelegate(
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Colors.blue,
-                      isScrollable: true,
-                      // 카테고리가 많으면 스크롤 가능
-                      tabs: storeMenusProv.categories.map((cat) {
-                        return Tab(text: cat.name);
-                      }).toList(),
-                      onTap: _scrollToSection,
+                if (catCount == 0)
+                  SliverToBoxAdapter(
+                    child: Center(child: Text('카테고리가 없습니다.')),
+                  )
+                else
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _StickyTabBarDelegate(
+                      TabBar(
+                        // controller 생략하면 DefaultTabController.of(context)를 자동 연결
+                        isScrollable: true,
+                        tabs: storeMenusProv.categories.map((cat) => Tab(text: cat.name)).toList(),
+                      ),
                     ),
                   ),
-                ),
             ];
           },
           body: storeMenusProv.isLoading
               ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: storeMenusProv.categories.length,
-                  itemBuilder: (context, catIndex) {
-                    final category = storeMenusProv.categories[catIndex];
-                    final menus = category.menus;
-                    final sectionKey = (catIndex < _sectionKeys.length)
-                        ? _sectionKeys[catIndex]
-                        : null;
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: storeMenusProv.categories.length,
+            itemBuilder: (context, catIndex) {
+              final category = storeMenusProv.categories[catIndex];
+              final menus = category.menus;
+              final sectionKey = (catIndex < _sectionKeys.length)
+                  ? _sectionKeys[catIndex]
+                  : null;
 
-                    // (1) "items" 리스트로 변환
-                    //     _buildMenuSection의 4th 파라미터는
-                    //     List<Map<String, String>> 형태여야 함
-                    final itemList = menus.map((m) {
-                      return {
-                        'name': m.name,
-                        'price': m.price.toString(),
-                      };
-                    }).toList();
+              // (1) "items" 리스트로 변환
+              //     _buildMenuSection의 4th 파라미터는
+              //     List<Map<String, String>> 형태여야 함
+              final itemList = menus.map((m) {
+                return {
+                  'name': m.name,
+                  'price': m.price.toString(),
+                };
+              }).toList();
 
-                    // (2) 카테고리 이름 -> title
-                    return _buildMenuSection(
-                      sectionKey,
-                      category.name,
-                      Colors.grey.shade200, // 임의 배경색
-                      itemList,
-                    );
-                  },
-                ),
+              // (2) 카테고리 이름 -> title
+              return StoreMenuSection(
+                key: sectionKey,
+                title: category.name,
+                color: Colors.grey.shade200,
+                items: itemList,
+                onMenuTap: _navigateToOrderPage,
+              );
+            },
+          ),
         ),
       ),
     );
@@ -372,77 +395,7 @@ class _StorePageState extends State<StorePage>
     );
   }
   //카테고리별로 블록 생성
-  Widget _buildMenuSection(
-      GlobalKey? key,
-      String title,
-      Color color,
-      List<Map<String, String>> items) {
-    return Container(
-      key: key, // 가게 하나당 할당 공간
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 30,),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title, //카테고리 제목
-              style: const TextStyle(
-                fontSize: 18,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              "메뉴 사진은 연출된 이미지 입니다 ", //카테고리 제목
-              style: const TextStyle(
-                fontSize: 13,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: items.asMap().entries.map((entry) {//메뉴수 만큼 메뉴블럭 생성
-                final i = entry.key;       // 인덱스
-                final item = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (i > 0) dividerLine,
-                      Text(
-                        item['name']!, // ✅ 메뉴 이름
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4), // 간격 추가
-                      Text(
-                        '${item['price']}원', // ✅ 가격
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          Divider(
-            color: Colors.blueGrey.withOpacity(0.1), // 선 색상
-            thickness: 7, // 선 두께
-            height: 20, // 위아래 여백
-          )
-        ],
-      ),
-    );
-  }
+
 }
 
 // 🔹 SliverPersistentHeader를 위한 Delegate 클래스
