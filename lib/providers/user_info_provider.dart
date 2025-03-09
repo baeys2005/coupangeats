@@ -14,6 +14,7 @@ class UserInfoProvider with ChangeNotifier {
   String userPhone = '';
   String userRole = '';
   String userMyStore = ''; // 추가: mystore 필드
+  String userUid = '';
   /// Firestore의 signup/{uid}에서 사용자 정보 가져오기
   Future<void> loadUserInfo() async {
     _isLoading = true;
@@ -25,6 +26,7 @@ class UserInfoProvider with ChangeNotifier {
         // FirebaseAuth에서 가져올 수 있는 email
         print("🔹 Current user's UID: ${user.uid}");
         userEmail = user.email ?? '';
+        userUid   = user.uid; // ★ UID 저장
 
         // Firestore에서 signup/{user.uid} 문서 가져오기
         final docSnap = await FirebaseFirestore.instance
@@ -50,6 +52,7 @@ class UserInfoProvider with ChangeNotifier {
         }
       } else {
         // 로그인 안 된 상태면
+        userUid     = '';
         userEmail = '';
         userName = '';
         userPhone = '입력된번호가 없음ㅁ';

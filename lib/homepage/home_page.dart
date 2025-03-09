@@ -1,6 +1,10 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../orderpage/store_cart_bar.dart';
+import '../providers/cart_provider.dart';
+import '../providers/user_info_provider.dart';
 import '../switch_store_provider.dart';
 import 'home_search.dart';
 import 'home_fooldtile.dart';
@@ -22,7 +26,9 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
 
-  OverlayEntry? _overlayEntry;
+  OverlayEntry? _overlayEntry;//사장님 버튼 오버레이 관리
+
+
 
   void _showSwitchOverlay() {
     final overlay = Overlay.of(context);
@@ -83,10 +89,52 @@ class _HomepageState extends State<Homepage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showSwitchOverlay();
     });
-  }
+    // 2) 사용자 정보 로드 → UID 세팅
+    final userInfoProv = Provider.of<UserInfoProvider>(context, listen: false);
+    userInfoProv.loadUserInfo().then((_) async {
+      final uid = userInfoProv.userUid;
+      if (uid.isNotEmpty) {
+        final cartProv = Provider.of<CartProvider>(context, listen: false);
+        // Firestore 장바구니 로드
+        await cartProv.setUserId(uid);
 
+        // ★ 로드가 끝난 후, 아이템이 1개 이상이면 즉시 오버레이 표시
+        if (cartProv.totalItemCount > 0) {
+          debugPrint('오버레이 표시');
+          CartOverlayManager.showOverlay(context, bottom:60);
+        } else {
+          CartOverlayManager.hideOverlay();
+        }
+      }
+    });
+
+    // 3) 장바구니 변화 감시 → 추가/삭제/수량 변경 시에도 오버레이 갱신
+    final cartProv = Provider.of<CartProvider>(context, listen: false);
+    cartProv.addListener(() {
+      print('[DEBUG] HomePage - 장바구니 변경됨');
+      print('  총 ${cartProv.items.length}개 아이템');
+      for (int i = 0; i < cartProv.items.length; i++) {
+        final item = cartProv.items[i];
+        print('    #$i: ${item.menuName} (x${item.quantity}), docId=${item.id}');
+      }
+
+      if (cartProv.totalItemCount > 0) {
+        debugPrint("오버레이 표시 ");
+        CartOverlayManager.showOverlay(context, bottom:60);
+      } else {
+        CartOverlayManager.hideOverlay();
+      }
+    });
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
       body: _currentPage,
       bottomNavigationBar: BottomNavigationBar(

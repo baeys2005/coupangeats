@@ -41,7 +41,9 @@ class CartItem {
 
 class CartProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String _userId = "user123"; // 실제 앱에서는 로그인한 사용자 ID를 사용
+
+  // ★ 초기에 빈 문자열
+  String _userId = "";
 
   List<CartItem> _items = [];
   bool _isLoading = true;
@@ -51,19 +53,46 @@ class CartProvider with ChangeNotifier {
   int get totalItemCount => _items.fold(0, (sum, item) => sum + item.quantity);
   int get totalAmount => _items.fold(0, (sum, item) => sum + item.totalPrice);
 
+  // 생성자
   CartProvider() {
-    // 생성자에서 장바구니 데이터 로드
-    loadCartItems();
+    // 여기서 바로 loadCartItems()를 호출하면 userId가 비어 있을 수 있으므로
+    // 원하는 경우, 아래처럼 호출을 막고,
+    // setUserId() 호출 시점에서 loadCartItems()를 실행하는 편이 안전합니다.
+    //
+    // loadCartItems();
+  }
+
+  /// userId 설정 후 장바구니 재로딩
+  Future<void> setUserId(String userId) async {
+    if (userId.isEmpty) {
+      // 빈 UID라면 Firestore 접근 안 함
+      print("[DEBUG] setUserId() - 전달받은 userId가 비어 있음. Firestore 호출 스킵");
+      _userId = "";
+      return;
+    }
+
+    _userId = userId;
+    print("[DEBUG] setUserId() - userId 세팅됨: $_userId");
+    await loadCartItems();
   }
 
   // 장바구니 데이터 로드
   Future<void> loadCartItems() async {
+    // ★ _userId가 비어 있다면 로딩 스킵
+    if (_userId.isEmpty) {
+      print("[DEBUG] loadCartItems() - _userId가 비어 있음. 로딩 스킵");
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
+      print("[DEBUG] loadCartItems() - Firestore에서 장바구니 로드 시작. userId=$_userId");
       final cartSnapshot = await _firestore
-          .collection('users')
+          .collection('signup')
           .doc(_userId)
           .collection('cart')
           .orderBy('timestamp', descending: true)
@@ -72,9 +101,11 @@ class CartProvider with ChangeNotifier {
       _items = cartSnapshot.docs
           .map((doc) => CartItem.fromMap(doc.data(), doc.id))
           .toList();
+
+      print("[DEBUG] loadCartItems() - 로드 완료. 총 ${_items.length}개의 아이템");
     } catch (e) {
-      print('장바구니 로드 중 오류: $e');
-      _items = []; // 오류 발생 시 빈 리스트로 초기화
+      print('[DEBUG] 장바구니 로드 중 오류: $e');
+      _items = [];
     }
 
     _isLoading = false;
@@ -83,23 +114,42 @@ class CartProvider with ChangeNotifier {
 
   // 메뉴 추가
   Future<void> addItem(String menuName, int price, int quantity, {String? menuImage}) async {
-    // 이미 있는 메뉴인지 확인
+    // ★ _userId가 비어 있다면 스킵
+    if (_userId.isEmpty) {
+      print("[DEBUG] addItem() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
+      return;
+    }
+
+    print('[DEBUG] addItem() 호출됨');
+    print('  - userId: $_userId');
+    print('  - menuName: $menuName, price: $price, quantity: $quantity, menuImage: $menuImage');
+
     final existingItemIndex = _items.indexWhere((item) => item.menuName == menuName);
+    print('[DEBUG] 기존 아이템 인덱스: $existingItemIndex  ( -1이면 없음 )');
 
     try {
       if (existingItemIndex >= 0) {
-        // 기존 메뉴 수량 증가
+        final oldQuantity = _items[existingItemIndex].quantity;
+        final newQuantity = oldQuantity + quantity;
+        print('[DEBUG] 기존 아이템 수량 증가 시도');
+        print('  - 기존 수량: $oldQuantity, 추가할 수량: $quantity, 최종 수량: $newQuantity');
+
         await _firestore
-            .collection('users')
+            .collection('signup')
             .doc(_userId)
             .collection('cart')
             .doc(_items[existingItemIndex].id)
-            .update({'quantity': _items[existingItemIndex].quantity + quantity});
+            .update({'quantity': newQuantity});
 
-        _items[existingItemIndex].quantity += quantity;
+        _items[existingItemIndex].quantity = newQuantity;
+        print('[DEBUG] 기존 아이템 업데이트 완료');
       } else {
-        // 새 메뉴 추가
-        final docRef = await _firestore.collection('users').doc(_userId).collection('cart').add({
+        print('[DEBUG] 새 아이템 추가 시도');
+        final docRef = await _firestore
+            .collection('signup')
+            .doc(_userId)
+            .collection('cart')
+            .add({
           'menuName': menuName,
           'price': price,
           'quantity': quantity,
@@ -114,21 +164,38 @@ class CartProvider with ChangeNotifier {
           menuImage: menuImage,
           id: docRef.id,
         ));
+
+        print('[DEBUG] 새 아이템 Firestore 문서 생성 완료');
+        print('  - docId: ${docRef.id}');
       }
+
+      // 현재 장바구니 상태 출력
+      print('[DEBUG] notifyListeners() 호출 전 장바구니 아이템 목록:');
+      for (var i = 0; i < _items.length; i++) {
+        final it = _items[i];
+        print('  - index $i: menuName=${it.menuName}, quantity=${it.quantity}, docId=${it.id}');
+      }
+
       notifyListeners();
+      print('[DEBUG] addItem() 메서드 종료');
     } catch (e) {
-      print('장바구니에 추가 중 오류: $e');
+      print('[DEBUG] 장바구니에 추가 중 오류: $e');
     }
   }
 
   // 수량 증가
   Future<void> incrementQuantity(String menuName) async {
+    if (_userId.isEmpty) {
+      print("[DEBUG] incrementQuantity() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
+      return;
+    }
+
     try {
       final item = _items.firstWhere((item) => item.menuName == menuName);
       item.quantity++;
 
       await _firestore
-          .collection('users')
+          .collection('signup')
           .doc(_userId)
           .collection('cart')
           .doc(item.id)
@@ -142,13 +209,18 @@ class CartProvider with ChangeNotifier {
 
   // 수량 감소
   Future<void> decrementQuantity(String menuName) async {
+    if (_userId.isEmpty) {
+      print("[DEBUG] decrementQuantity() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
+      return;
+    }
+
     try {
       final item = _items.firstWhere((item) => item.menuName == menuName);
       if (item.quantity > 1) {
         item.quantity--;
 
         await _firestore
-            .collection('users')
+            .collection('signup')
             .doc(_userId)
             .collection('cart')
             .doc(item.id)
@@ -164,11 +236,16 @@ class CartProvider with ChangeNotifier {
 
   // 메뉴 제거
   Future<void> removeItem(String menuName) async {
+    if (_userId.isEmpty) {
+      print("[DEBUG] removeItem() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
+      return;
+    }
+
     try {
       final item = _items.firstWhere((item) => item.menuName == menuName);
 
       await _firestore
-          .collection('users')
+          .collection('signup')
           .doc(_userId)
           .collection('cart')
           .doc(item.id)
@@ -183,10 +260,15 @@ class CartProvider with ChangeNotifier {
 
   // 장바구니 비우기
   Future<void> clear() async {
+    if (_userId.isEmpty) {
+      print("[DEBUG] clear() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
+      return;
+    }
+
     try {
       final batch = _firestore.batch();
       final cartSnapshot = await _firestore
-          .collection('users')
+          .collection('signup')
           .doc(_userId)
           .collection('cart')
           .get();
