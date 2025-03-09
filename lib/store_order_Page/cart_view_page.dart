@@ -1,3 +1,4 @@
+import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/providers/cart_provider.dart';
@@ -10,8 +11,22 @@ class CartViewPage extends StatefulWidget {
 }
 
 class _CartViewPageState extends State<CartViewPage> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    CartOverlayManager.hideOverlay();
+  }
   @override
   Widget build(BuildContext context) {
+
+    // (1) 매 build마다 오버레이가 떠 있는지 확인
+    if (CartOverlayManager.isOverlayActive) {
+      // (2) 떠 있다면 즉시 hideOverlay() 호출
+      print('[DEBUG] CartViewPage build() - overlay가 있어서 hideOverlay() 수행');
+      CartOverlayManager.hideOverlay();
+    }
     // 장바구니 Provider 사용
     final cartProvider = Provider.of<CartProvider>(context);
     final cartItems = cartProvider.items;
