@@ -124,7 +124,11 @@ class HomeContent extends StatelessWidget {
               leadingWidth: 40,
               leading: Padding(
                 padding: EdgeInsets.only(left: padding1),
-                child: Icon(Icons.near_me, color: Colors.yellow, size: 20),
+                child: IconButton(
+                    onPressed: (){
+                      Navigator.pushReplacementNamed(context, '/navermapAPI');
+                    },
+                    icon: Icon(Icons.near_me, color: Colors.yellow,)),
               ),
               title: Row(
                 children: [
