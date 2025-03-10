@@ -1,0 +1,249 @@
+[33mcommit 5f5b224c4b8b579a4121ee3b1c52e5aeb77a61c9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Tue Mar 4 14:45:37 2025 +0900
+
+    fix: 머지 후 오류 수정, UI 정상화
+
+[33mcommit ef31b3a7e732f1ca1e58ec01615bafcda949585f[m
+Merge: 396df23 e4554bd
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Mar 4 13:34:53 2025 +0900
+
+    Merge pull request #15 from baeys2005/feature/logic_firebase
+    
+    Feature/logic firebase
+
+[33mcommit e4554bd5dfd9eba8811531ac547b926c28ed9f99[m
+Merge: 09899f7 396df23
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Mar 4 13:33:35 2025 +0900
+
+    Merge branch 'main' into feature/logic_firebase
+
+[33mcommit 396df238aaf1538094ac29e7428aaa2ddf7818ae[m
+Merge: b618f19 9357bc2
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Mar 4 13:17:57 2025 +0900
+
+    Merge pull request #14 from baeys2005/feature/storeorderPage-viewcartbutton
+    
+    Feature/storeorder page viewcartbutton
+
+[33mcommit 9357bc27ecd350604aa4c773614271ac35f0a383[m
+Merge: 68135fc b618f19
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Mar 4 13:17:49 2025 +0900
+
+    Merge branch 'main' into feature/storeorderPage-viewcartbutton
+
+[33mcommit b618f191241a08a9761479e4adb9441e9de37a2a[m
+Merge: 67e2465 f1d5a61
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Mar 4 13:10:26 2025 +0900
+
+    Merge pull request #13 from baeys2005/feature/storeorderPage
+    
+    Feature/storeorder page
+
+[33mcommit f1d5a61e82720e9f23ae46caf4b6b8ea5a443c2e[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Mar 4 12:49:38 2025 +0900
+
+    feat : how many food url image 연결
+
+[33mcommit bcf0ad0149490fcfa2af085564208ac6102b48bb[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Mon Mar 3 11:58:07 2025 +0900
+
+    chore: 장바구니 담기 버튼 onpressed 다시 작성함
+
+[33mcommit 8789cd83ad6baeac7cecaac8790db5e4a62f3450[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Wed Feb 26 22:42:18 2025 +0900
+
+    실수
+
+[33mcommit 73c812d356b829733e360dce06df0ca9f33223d7[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Wed Feb 26 22:42:18 2025 +0900
+
+    fix : 'A RenderViewport expected a child of type RenderSliver but received a child of type RenderPositionedBox.' 해결
+
+[33mcommit 09899f761598d0c683a239c09c8aa4e45923fd7b[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Thu Feb 27 16:21:48 2025 +0900
+
+    chore: _tabController삭제
+
+[33mcommit b97a9664a60d6592f79f5c35f339586160ed7f89[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Thu Feb 27 16:16:51 2025 +0900
+
+    feat: storePage.dart 가게정보 연결
+
+[33mcommit 2b2cd2686b611266dc433f7689c8150f51eace87[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Thu Feb 27 01:06:45 2025 +0900
+
+    feat: '카트내역보기' 및 firebase에 음식 저장하기
+
+[33mcommit 68135fc71c2368c93345a1eeec971f4603392bc0[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Thu Feb 27 00:03:01 2025 +0900
+
+    feat: home_page.dart에 스위치 오버라이딩. 스위치 크기 조절
+
+[33mcommit 8d6a610f69e01d3121078e9021edb1b13ef6847d[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Wed Feb 26 23:26:29 2025 +0900
+
+    feat: switch_store_provider.dart 메인페이지/ 사장님페이지 왔다갔다하는 스위치 위젯 구현
+
+[33mcommit 303cefe363799d125e64583685ac295340dcf633[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Wed Feb 26 22:42:18 2025 +0900
+
+    feat: 음식 '배달 카트'에 담기 버튼 만듦
+
+[33mcommit 67ecc43182f50a09609d299189f1223d0f6171e5[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Wed Feb 26 22:32:08 2025 +0900
+
+    feat: owner_category_edit.dart추가
+
+[33mcommit 2cc19cdb88562877ed295336640e1fa73a4bc166[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Wed Feb 26 19:29:12 2025 +0900
+
+    feat: storeownerPage.dart, owner_menu.dart, owner_info_basic.dart,owner_info_others.dart 계정연결완료, 메뉴추가 Range error 해결
+
+[33mcommit 7e5cb9f7980cdecbbf1f35e06d546ca8f495601e[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Tue Feb 25 16:38:14 2025 +0900
+
+    feat: user_info_provider.dart만들기, storeownerPage.dart 에 데이터 불러오기 연결
+
+[33mcommit ea108c2ea5c27b42988ecbd119545ecc270cd65e[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Tue Feb 25 15:50:29 2025 +0900
+
+    feat: store_info.dart 매장정보 페이지 만들기 완료, providers 파일 옮김 provider 폴더에다가
+
+[33mcommit 67e2465c289729a7f9dbaf0dbf914745b484181a[m
+Merge: 8e90972 7c528bb
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Feb 25 13:41:50 2025 +0900
+
+    Merge pull request #11 from baeys2005/feature/signupPage
+    
+    feat: 로그아웃 기능 추가
+
+[33mcommit 7c528bb6ab7321c1f632d15cb77df5ca2e6906f4[m
+Merge: 4e63689 8e90972
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Feb 25 13:41:07 2025 +0900
+
+    Merge branch 'main' into feature/signupPage
+
+[33mcommit 8e90972773cb8464777dfa4ac7cbb95fe5ae0c0c[m
+Merge: 5c8ef3c 2038d90
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Feb 25 13:36:31 2025 +0900
+
+    Merge pull request #10 from baeys2005/feature/ownerbutton
+    
+    Feature/ownerbutton
+
+[33mcommit 5c8ef3ce874d51186edc8f1e082979ef19ec8553[m
+Merge: d5e3473 cca581e
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Feb 25 13:35:41 2025 +0900
+
+    Merge pull request #9 from baeys2005/feature/owner_util
+    
+    Feature/owner util
+
+[33mcommit d5e34736c788ba4176254c91ac8937d66a873097[m
+Merge: 4464a66 28214a6
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Tue Feb 25 13:32:01 2025 +0900
+
+    Merge pull request #8 from baeys2005/feature/logoutandUI
+    
+    Feature/logoutand UI
+
+[33mcommit cca581eb4306990572d30d6bcad1d9b3e95894d9[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Tue Feb 25 13:30:15 2025 +0900
+
+    feat: 페이지 연결
+
+[33mcommit 2038d902ad61c58578272bb76ea079592f73fe6a[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Mon Feb 24 16:08:27 2025 +0900
+
+    chore : 앱바 컬러 흰색으로 고정 / 스크롤하면 사라지도록
+
+[33mcommit 25f031a708629a64947518e5bd658f9555ac84a2[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Mon Feb 24 15:56:58 2025 +0900
+
+    feat : 어드민 페이지로 연결되는 버튼 완성
+
+[33mcommit 4da2f89f15308c9d8e1760c1df095be9a8a029df[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Sun Feb 23 10:52:52 2025 +0900
+
+    chore : myeats페이지에 Switch버튼 추가함
+
+[33mcommit 28214a646d9952c36e3c86e78842f57ca18e0351[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Sun Feb 23 10:35:17 2025 +0900
+
+    design : '쿠팡이츠 로그인' 바텀시트 UI 수정
+
+[33mcommit cfb921c1e0a20abd1b17225312f63e7e936e6380[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Fri Feb 21 20:31:15 2025 +0900
+
+    feat: 로그아웃 기능 추가
+
+[33mcommit 5778b23bff41d10cbb14fc601ccbf5c1f4907416[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Sat Feb 22 15:52:25 2025 +0900
+
+    chore : 브랜치 간 동기화 이슈 처리하려고
+
+[33mcommit 5c3a8d09fbb55096387d5278b22fe1b2cdd8b4a3[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Sat Feb 22 20:18:31 2025 +0900
+
+    feat: storePage.dart 카테고리, 메뉴 불러오기, 가게이미지 불러오기, 인디케이터 추가 완
+
+[33mcommit dd92c0456c8c2e86d3f57a146674758e34c7e345[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Sat Feb 22 18:35:06 2025 +0900
+
+    feat: storePage.dart UI수정, main.dart provider 패키지 추가,provider 관련 파일 생성
+
+[33mcommit 01a29b355bd3d4060c411d711fdf89b5d2d3afd1[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Sat Feb 22 17:21:43 2025 +0900
+
+    fix: store_info.dart 메뉴 UI 수정, store_appBar.dart 추가
+
+[33mcommit e4138d199f4beca0491c47394cb1eb40caa1e372[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Sat Feb 22 15:52:25 2025 +0900
+
+    feat/design: 로그아웃 기능 추가 및 로그인/회원가입 관련 UI 수정
+
+[33mcommit 4e636896ec84cf10e2c5c46abd5b34440f5a54db[m
+Author: baeys2005 <baeys2005@gmail.com>
+Date:   Fri Feb 21 20:31:15 2025 +0900
+
+    feat: 로그아웃 기능 추가
+
+[33mcommit a94a36fd5a87a530e0ad17d02a4072f3d63af1c9[m
+Author: qoranreh <qoranreh@gmail.com>
+Date:   Thu Feb 20 17:54:34 2025 +0

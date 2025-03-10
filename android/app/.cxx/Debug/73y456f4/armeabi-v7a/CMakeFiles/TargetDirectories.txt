@@ -1,0 +1,2 @@
+C:/Users/qoran/StudioProjects/coupangeats2/android/app/.cxx/Debug/73y456f4/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/qoran/StudioProjects/coupangeats2/android/app/.cxx/Debug/73y456f4/armeabi-v7a/CMakeFiles/rebuild_cache.dir
