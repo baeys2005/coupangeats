@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'myaddress_save.dart';
+
 class MyLocationPage extends StatefulWidget {
   const MyLocationPage({Key? key}) : super(key: key);
 
@@ -44,6 +46,17 @@ class _MyLocationPageState extends State<MyLocationPage> {
     debugPrint('설정하기 버튼 클릭, 저장되는 위치: $_centerLatLng');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('위치가 저장되었습니다.\n($_centerLatLng)')),
+    );
+
+    // MyAddressSave 페이지로 현재 좌표를 전달 (예: 좌표는 NLatLng를 Map으로 변환)
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyAddressSave(
+          latitude: _centerLatLng!.latitude,
+          longitude: _centerLatLng!.longitude,
+        ),
+      ),
     );
   }
 

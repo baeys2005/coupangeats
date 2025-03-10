@@ -174,6 +174,8 @@ class HomeContent extends StatelessWidget {
               leading: Padding(
                 padding: EdgeInsets.only(left: padding1),
                 child: IconButton(onPressed: (){
+
+                  CartOverlayManager.hideOverlay();
                   Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -1,7 +1,8 @@
-
 import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/user_info_provider.dart';
 import 'myaddress_location_page.dart';
 
 class MyaddressPage extends StatefulWidget {
@@ -14,6 +15,9 @@ class MyaddressPage extends StatefulWidget {
 class _MyaddressPageState extends State<MyaddressPage> {
   @override
   Widget build(BuildContext context) {
+// ★ UserInfoProvider에서 addressName, latitude, longitude를 가져옴
+    final userInfo = Provider.of<UserInfoProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('주소관리'),
@@ -21,10 +25,10 @@ class _MyaddressPageState extends State<MyaddressPage> {
       body: Column(
         children: [
           ListTile(
-            onTap: (){
+            onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>MyLocationPage()),
+                MaterialPageRoute(builder: (context) => MyLocationPage()),
               );
             },
             leading: Icon(
@@ -69,7 +73,36 @@ class _MyaddressPageState extends State<MyaddressPage> {
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 20),
           ),
-          dividerLine
+          dividerLine,
+          // ★ 저장된 주소 목록을 표시하는 부분
+          Expanded(
+            child: userInfo.isLoading
+                ? Center(child: CircularProgressIndicator())
+                : (userInfo.addressName.isEmpty ||
+                userInfo.latitude == null ||
+                userInfo.longitude == null)
+                ? Center(child: Text('저장된 주소가 없습니다.'))
+                : ListView(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.location_on),
+                  title: Text(userInfo.addressName),
+                  subtitle: Text(
+                      '위도: ${userInfo.latitude}, 경도: ${userInfo.longitude}'),
+                  onTap: () {
+                    // 탭하면 스낵바로 좌표 표시
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            '위도: ${userInfo.latitude}, 경도: ${userInfo.longitude}'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
