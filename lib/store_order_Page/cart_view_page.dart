@@ -342,12 +342,23 @@ class _CartViewPageState extends State<CartViewPage> {
   // 주문하기 버튼
   Widget _buildOrderButton(BuildContext context, CartProvider cartProvider) {
     return GestureDetector(
-      onTap: (){ScaffoldMessenger.of(context).showSnackBar(
+      onTap: (){
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('주문이 완료되었습니다.'),
           duration: Duration(seconds: 2),
         ),
-      );},
+      );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => StorePage(
+        //       storeId: widget.storeId,
+        //     ),
+        //   ),
+        // );
+
+        },
       child: Container(
         width: double.infinity,
         height: 60,

@@ -1,4 +1,5 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
+import 'package:coupangeats/navermappage/myaddress_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -172,7 +173,16 @@ class HomeContent extends StatelessWidget {
               leadingWidth: 40,
               leading: Padding(
                 padding: EdgeInsets.only(left: padding1),
-                child: Icon(Icons.near_me, color: Colors.yellow, size: 20),
+                child: IconButton(onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyaddressPage()
+                    ),
+                  );
+
+                }, icon: Icon(Icons.near_me, color: Colors.yellow, size: 20))
+                //child: ,
               ),
               title: Row(
                 children: [
