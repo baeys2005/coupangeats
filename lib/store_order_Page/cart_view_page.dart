@@ -1,7 +1,8 @@
+import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/providers/cart_provider.dart';
-
+//카트 페이지
 class CartViewPage extends StatefulWidget {
   const CartViewPage({Key? key}) : super(key: key);
 
@@ -10,55 +11,79 @@ class CartViewPage extends StatefulWidget {
 }
 
 class _CartViewPageState extends State<CartViewPage> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    CartOverlayManager.hideOverlay();
+  }
   @override
   Widget build(BuildContext context) {
+
+    // (1) 매 build마다 오버레이가 떠 있는지 확인
+    if (CartOverlayManager.isOverlayActive) {
+      // (2) 떠 있다면 즉시 hideOverlay() 호출
+      print('[DEBUG] CartViewPage build() - overlay가 있어서 hideOverlay() 수행');
+      CartOverlayManager.hideOverlay();
+    }
     // 장바구니 Provider 사용
     final cartProvider = Provider.of<CartProvider>(context);
     final cartItems = cartProvider.items;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('장바구니'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+    return WillPopScope(
+      onWillPop: () async {
+        ///다시 home 으로 돌아갈때.
+        // 뒤로가기 시 먼저 오버레이 해제
+        CartOverlayManager.hideOverlay();
+        CartOverlayManager.showOverlay(context,bottom: 0);
+        // true를 리턴하면 실제 pop 진행
+        Navigator.of(context).popUntil((route) => route.isFirst);return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('장바구니'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          actions: [
+            // 장바구니 비우기 버튼
+            if (cartItems.isNotEmpty)
+              IconButton(
+                icon: Icon(Icons.delete_outline),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text('장바구니 비우기'),
+                      content: Text('장바구니를 비우시겠습니까?'),
+                      actions: [
+                        TextButton(
+                          child: Text('취소'),
+                          onPressed: () => Navigator.of(ctx).pop(),
+                        ),
+                        TextButton(
+                          child: Text('확인'),
+                          onPressed: () {
+                            cartProvider.clear();
+                            Navigator.of(ctx).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
-        actions: [
-          // 장바구니 비우기 버튼
-          if (cartItems.isNotEmpty)
-            IconButton(
-              icon: Icon(Icons.delete_outline),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text('장바구니 비우기'),
-                    content: Text('장바구니를 비우시겠습니까?'),
-                    actions: [
-                      TextButton(
-                        child: Text('취소'),
-                        onPressed: () => Navigator.of(ctx).pop(),
-                      ),
-                      TextButton(
-                        child: Text('확인'),
-                        onPressed: () {
-                          cartProvider.clear();
-                          Navigator.of(ctx).pop();
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-        ],
+        body: cartItems.isEmpty
+            ? _buildEmptyCart() // 장바구니가 비어있을 때
+            : _buildCartList(cartItems, cartProvider), // 장바구니에 아이템이 있을 때
+        bottomNavigationBar: cartItems.isEmpty
+            ? null
+            : _buildOrderButton(context, cartProvider), // 주문하기 버튼
       ),
-      body: cartItems.isEmpty
-          ? _buildEmptyCart() // 장바구니가 비어있을 때
-          : _buildCartList(cartItems, cartProvider), // 장바구니에 아이템이 있을 때
-      bottomNavigationBar: cartItems.isEmpty
-          ? null
-          : _buildOrderButton(context, cartProvider), // 주문하기 버튼
     );
   }
 
@@ -316,37 +341,29 @@ class _CartViewPageState extends State<CartViewPage> {
 
   // 주문하기 버튼
   Widget _buildOrderButton(BuildContext context, CartProvider cartProvider) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 0,
-            blurRadius: 10,
-            offset: Offset(0, -3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: ElevatedButton(
-          onPressed: () {
-            // 주문 처리 로직 구현
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('주문이 완료되었습니다.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            padding: EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: (){ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('주문이 완료되었습니다.'),
+          duration: Duration(seconds: 2),
+        ),
+      );},
+      child: Container(
+        width: double.infinity,
+        height: 60,
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: Offset(0, -3),
             ),
-          ),
+          ],
+        ),
+        child:  Center(
           child: Text(
             '${cartProvider.totalAmount + 3000}원 결제하기',
             style: TextStyle(

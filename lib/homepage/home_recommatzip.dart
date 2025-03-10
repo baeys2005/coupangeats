@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../orderpage/storePage.dart';
+import '../orderpage/store_cart_bar.dart';
 import '../theme.dart';
 
 class HomeRecommatzip extends StatefulWidget {
@@ -94,6 +95,8 @@ class _matzipBoxState extends State<matzipBox> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        CartOverlayManager.hideOverlay();
+        CartOverlayManager.showOverlay(context,bottom: 0);
         // tap 시 StorePage로 이동하며 storeId 전달
         Navigator.push(
           context,
