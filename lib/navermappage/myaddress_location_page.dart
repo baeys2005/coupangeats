@@ -1,6 +1,9 @@
 import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'myaddress_save.dart';
 
 class MyLocationPage extends StatefulWidget {
   const MyLocationPage({Key? key}) : super(key: key);
@@ -10,12 +13,51 @@ class MyLocationPage extends StatefulWidget {
 }
 
 class _MyLocationPageState extends State<MyLocationPage> {
+  // 지도 중앙 좌표를 추적할 변수
+  NLatLng? _centerLatLng;
+  NaverMapController? _controller;
 
+  NCameraPosition _mapPosition = const NCameraPosition(target: NLatLng(37.5665, 126.9780), zoom: 15);
+  NCameraPosition get mapPosition => _mapPosition;
 
   @override
   void initState() {
     // TODO: implement initState
+    _permission();
     super.initState();
+  }
+
+  void _permission() async {
+    var requestStatus = await Permission.location.request();
+    var status = await Permission.location.status;
+    if (requestStatus.isPermanentlyDenied || status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+  /// [설정하기] 버튼 클릭 시 현재 저장된 _centerLatLng 값으로 저장 및 디버깅 출력
+  void _onPressedSave() {
+
+    if (_centerLatLng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('지도를 움직여 위치를 확인 후 저장하세요.')),
+      );
+      return;
+    }
+    debugPrint('설정하기 버튼 클릭, 저장되는 위치: $_centerLatLng');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('위치가 저장되었습니다.\n($_centerLatLng)')),
+    );
+
+    // MyAddressSave 페이지로 현재 좌표를 전달 (예: 좌표는 NLatLng를 Map으로 변환)
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyAddressSave(
+          latitude: _centerLatLng!.latitude,
+          longitude: _centerLatLng!.longitude,
+        ),
+      ),
+    );
   }
 
 
@@ -32,7 +74,46 @@ class _MyLocationPageState extends State<MyLocationPage> {
 
           Expanded(
             flex: 7,
-            child: Container(child: Text('네이버맵'),),
+            child: NaverMap(
+              // [1] 지도 기본 옵션
+              options: const NaverMapViewOptions(
+                initialCameraPosition: NCameraPosition(
+                  target: NLatLng(37.5665, 126.9780), // 서울 시청 근처
+                  zoom: 15,
+                ),
+                mapType: NMapType.basic,
+                locationButtonEnable: true, // 우측 하단 내 위치 버튼
+              ),
+              // [2] 스크롤 충돌 방지 여부
+              forceGesture: true,
+              // [3] 지도 준비 시점에 콜백
+              onMapReady: (controller) async {
+                _controller = controller; // 이 줄 추가!
+                // 이 버전에서는 setMap() / moveCamera() 등이 없다면
+                // 별도 동적 호출 없이 초기 설정만 진행
+                final marker = NMarker(id: "test", position: NLatLng(37.5665, 126.9780));
+                controller.addOverlay(marker);
+
+                debugPrint('네이버 지도 로딩 완료: $controller');
+              },
+              // [4] 기타 이벤트 콜백
+              onMapTapped: (point, latLng) {
+                debugPrint('지도 탭: $latLng');
+              },
+              onCameraChange: (position, reason) {
+
+                debugPrint('카메라 이동: $position, reason: $reason');
+              },
+              onCameraIdle: () async {
+                NCameraPosition cameraPosition = await _controller!.getCameraPosition();
+                debugPrint("카메라위치 " + cameraPosition.toString());
+                setState(() {
+                  _mapPosition = cameraPosition; // 수정: 현재 카메라 위치를 _mapPosition에 저장
+                  _centerLatLng = cameraPosition.target; // 화면 중앙 좌표도 _centerLatLng에 저장
+                });
+
+              },
+            ),
           ),
           Expanded(
               flex: 3,
@@ -50,7 +131,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
                       child: ElevatedButton(
 
                         onPressed: () {
-
+                          _onPressedSave();
 
                           // 버튼 클릭 시 실행할 코드
                         },
