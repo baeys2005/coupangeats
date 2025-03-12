@@ -7,15 +7,13 @@ import '../orderpage/store_cart_bar.dart';
 import '../providers/cart_provider.dart';
 import '../providers/user_info_provider.dart';
 import '../switch_store_provider.dart';
-import 'home_search.dart';
 import 'home_fooldtile.dart';
-import 'home_wowad.dart';
 import 'home_recommatzip.dart';
 import 'home_gollamukmatzip.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/myeatspage/myeatsPage.dart';
 import 'package:coupangeats/homepage/home_search.dart';
-import 'package:coupangeats/login/login_bottom_sheet.dart';
+
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -29,14 +27,15 @@ class _HomepageState extends State<Homepage> {
 
   OverlayEntry? _overlayEntry;//사장님 버튼 오버레이 관리
 
-
-
   void _showSwitchOverlay() {
+    // 기존 오버레이가 있다면 제거
+    _removeSwitchOverlay();
+
     final overlay = Overlay.of(context);
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(context).padding.top + 10,
-        right: 10,
+        right: 20, // 오른쪽으로 이동
         child: Material(
           color: Colors.transparent,
           child: OwnerSwitch(), // 오버레이로 띄우고 싶은 위젯
@@ -52,14 +51,11 @@ class _HomepageState extends State<Homepage> {
     _overlayEntry = null;
   }
 
-
-
   Widget get _currentPage => _pages[_currentIndex];
-
 
   final List<Widget> _pages = [
     HomeContent(),
-    SearchPage(),
+    Search(),
     FavoritesPage(),
     OrderHistoryPage(),
     myeatsPage(),
@@ -82,34 +78,47 @@ class _HomepageState extends State<Homepage> {
       _currentIndex = index;
     });
   }
+
   @override
   void initState() {
-
     super.initState();
-    // 위젯 트리 구성 완료 후 오버레이 추가
+
+    // 기존 오버레이 제거 (안전장치)
+    _removeSwitchOverlay();
+
+    // 위젯 트리 구성 완료 후 작업 수행
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showSwitchOverlay();
-    });
-    // 2) 사용자 정보 로드 → UID 세팅
-    final userInfoProv = Provider.of<UserInfoProvider>(context, listen: false);
-    userInfoProv.loadUserInfo().then((_) async {
-      final uid = userInfoProv.userUid;
-      if (uid.isNotEmpty) {
-        final cartProv = Provider.of<CartProvider>(context, listen: false);
-        // Firestore 장바구니 로드
-        await cartProv.setUserId(uid);
+      // 강제로 상태 업데이트하여 UI 갱신
+      setState(() {
+        // 빈 setState로 UI 갱신 트리거
+      });
 
-        // ★ 로드가 끝난 후, 아이템이 1개 이상이면 즉시 오버레이 표시
-        if (cartProv.totalItemCount > 0) {
-          debugPrint('오버레이 표시');
-          CartOverlayManager.showOverlay(context, bottom:60);
-        } else {
-          CartOverlayManager.hideOverlay();
+      // 지연 시간을 두고 오버레이 표시 (UI가 완전히 렌더링된 후)
+      Future.delayed(Duration(milliseconds: 100), () {
+        _showSwitchOverlay();
+      });
+
+      // Provider 작업
+      final userInfoProv = Provider.of<UserInfoProvider>(context, listen: false);
+      userInfoProv.loadUserInfo().then((_) async {
+        final uid = userInfoProv.userUid;
+        if (uid.isNotEmpty) {
+          final cartProv = Provider.of<CartProvider>(context, listen: false);
+          // Firestore 장바구니 로드
+          await cartProv.setUserId(uid);
+
+          // 로드가 끝난 후, 아이템이 1개 이상이면 즉시 오버레이 표시
+          if (cartProv.totalItemCount > 0) {
+            debugPrint('오버레이 표시');
+            CartOverlayManager.showOverlay(context, bottom: 60);
+          } else {
+            CartOverlayManager.hideOverlay();
+          }
         }
-      }
+      });
     });
 
-    // 3) 장바구니 변화 감시 → 추가/삭제/수량 변경 시에도 오버레이 갱신
+    // 장바구니 변화 감시 → 추가/삭제/수량 변경 시에도 오버레이 갱신
     final cartProv = Provider.of<CartProvider>(context, listen: false);
     cartProv.addListener(() {
       print('[DEBUG] HomePage - 장바구니 변경됨');
@@ -121,21 +130,21 @@ class _HomepageState extends State<Homepage> {
 
       if (cartProv.totalItemCount > 0) {
         debugPrint("오버레이 표시 ");
-        CartOverlayManager.showOverlay(context, bottom:60);
+        CartOverlayManager.showOverlay(context, bottom: 60);
       } else {
         CartOverlayManager.hideOverlay();
       }
     });
   }
+
   @override
   void dispose() {
 
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       body: _currentPage,
       bottomNavigationBar: BottomNavigationBar(
@@ -205,7 +214,7 @@ class HomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            Search(),//dd
+            Search(),
 
             // HomeFooldtile - 기존 코드 그대로 (이미 SliverToBoxAdapter 반환)
             HomeFooldtile(),
@@ -248,11 +257,6 @@ class HomeContent extends StatelessWidget {
             ),
             // HomeGollamukmatzip - Sliver 위젯을 반환하도록 수정되었음
             HomeGollamukmatzip(),
-
-
-
-
-
 
             // 여기서는 HomeGollamukmatzip을 또 호출하지 않습니다.
             // 기존 코드에 있었다면 제거하거나,

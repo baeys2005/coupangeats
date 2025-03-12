@@ -44,8 +44,26 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
       // 예시로 고정 "store123" 사용
       // 실제에선 로그인 정보나 전달받은 storeId 로 대체하세요
       final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+
+      if (storeId == null || storeId.isEmpty) {
+        // 오류 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('연결된 매장 정보가 없습니다. 매장을 먼저 등록해주세요.')),
+        );
+        return; // 함수 종료
+      }
+
+// 바로 아래에 같은 코드가 또 있습니다
+      if (storeId == null || storeId.isEmpty) {
+        // ...
+      }
+
+
       final storeRef =
       FirebaseFirestore.instance.collection('stores').doc(storeId);
+
+
+
 
       // 문서 조회
       final docSnap = await storeRef.get();
@@ -79,6 +97,15 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
     try {
       // 예시로 고정 "store123" 사용
       final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+
+      if (storeId == null || storeId.isEmpty) {
+        // 오류 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('연결된 매장 정보가 없습니다. 매장을 먼저 등록해주세요.')),
+        );
+        return; // 함수 종료
+      }
+
       final storeRef =
       FirebaseFirestore.instance.collection('stores').doc(storeId);
 

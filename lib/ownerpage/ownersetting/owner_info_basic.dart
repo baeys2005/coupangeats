@@ -68,6 +68,16 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
       // 예시로 고정 "store123" 사용. 실제론 로그인된 점주나
       // 선택된 매장의 storeId 를 가져오셔야 합니다.
       final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+
+      if (storeId == null || storeId.isEmpty) {
+        // 오류 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('연결된 매장 정보가 없습니다. 매장을 먼저 등록해주세요.')),
+        );
+        return; // 함수 종료
+      }
+
+
       final storeRef = FirebaseFirestore.instance
           .collection("stores")
           .doc(storeId);
@@ -98,6 +108,16 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
     try {
       // 실제론 storeId를 로그인 정보 등에서 가져오면 됩니다.
       final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
+
+      if (storeId == null || storeId.isEmpty) {
+        // 오류 메시지 표시
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('연결된 매장 정보가 없습니다. 매장을 먼저 등록해주세요.')),
+        );
+        return; // 함수 종료
+      }
+
+
       final storeRef = FirebaseFirestore.instance.collection('stores').doc(storeId);
 
       final docSnap = await storeRef.get();

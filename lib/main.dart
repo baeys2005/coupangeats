@@ -15,7 +15,6 @@ import 'package:provider/provider.dart';
 import 'providers/store_info_provider.dart';
 import 'providers/store_menus_provider.dart';
 import 'providers/cart_provider.dart';
-import 'providers/user_info_provider.dart';
 
 
 //머지할떄 메인 지우기
