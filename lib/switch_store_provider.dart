@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'homepage/home_page.dart';
 import 'package:coupangeats/myeatspage/owner_registration_dialog.dart';
-
-import 'myeatspage/owner_registration_dialog.dart';
 import 'ownerpage/storeownerPage.dart';
 
 class SwitchState with ChangeNotifier {
