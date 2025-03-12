@@ -1,3 +1,4 @@
+import 'package:coupangeats/diliverypage/dilivery.dart';
 import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,6 @@ class _CartViewPageState extends State<CartViewPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     CartOverlayManager.hideOverlay();
   }
@@ -347,16 +347,16 @@ class _CartViewPageState extends State<CartViewPage> {
         SnackBar(
           content: Text('주문이 완료되었습니다.'),
           duration: Duration(seconds: 2),
+
         ),
+
       );
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => StorePage(
-        //       storeId: widget.storeId,
-        //     ),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dilivery()
+          ),
+        );
 
         },
       child: Container(

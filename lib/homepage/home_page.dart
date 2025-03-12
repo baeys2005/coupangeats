@@ -1,5 +1,5 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
-import 'package:coupangeats/navermappage/myaddress_page.dart';
+import 'package:coupangeats/mymappage/myaddress_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +84,7 @@ class _HomepageState extends State<Homepage> {
   }
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     // 위젯 트리 구성 완료 후 오버레이 추가
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -129,7 +129,7 @@ class _HomepageState extends State<Homepage> {
   }
   @override
   void dispose() {
-    // TODO: implement dispose
+
     super.dispose();
   }
   @override

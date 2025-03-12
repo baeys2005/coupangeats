@@ -4,7 +4,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'myaddress_save.dart';
-
+//TODO: 지도 중앙 마커 stack 으로 구현.
 class MyLocationPage extends StatefulWidget {
   const MyLocationPage({Key? key}) : super(key: key);
 
@@ -22,7 +22,7 @@ class _MyLocationPageState extends State<MyLocationPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
+
     _permission();
     super.initState();
   }

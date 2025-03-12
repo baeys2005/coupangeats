@@ -398,7 +398,6 @@ class _OwnerMenuState extends State<OwnerMenu> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     fetchMenusFromFirebase();
   }

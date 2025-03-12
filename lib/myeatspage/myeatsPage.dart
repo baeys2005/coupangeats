@@ -32,7 +32,7 @@ class _myeatsPageState extends State<myeatsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     _loadUserData();
   }

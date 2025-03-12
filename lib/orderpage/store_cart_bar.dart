@@ -23,7 +23,6 @@ class StoreCartBar extends StatelessWidget {
       final cartProvider = Provider.of<CartProvider>(context);
 
       // 장바구니가 비어있으면 표시하지 않음
-      //TODO: 임시 허용
       if (cartProvider.totalItemCount == 0) {
         return SizedBox.shrink();
       }

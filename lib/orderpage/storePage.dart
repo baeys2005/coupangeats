@@ -163,6 +163,7 @@ class _StorePageState extends State<StorePage>
         builder: (context) => storeorderPage(
           menuName: menuItem['name'] ?? '메뉴 이름 없음',
           menuPrice: int.tryParse(menuItem['price'] ?? '0') ?? 0,
+          storeId: widget.storeId, // [수정] 가게 ID 추가
         ),
       ),
     );
