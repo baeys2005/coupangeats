@@ -2,7 +2,7 @@ import 'package:coupangeats/orderpage/store_appBar.dart';
 import 'package:flutter/material.dart';
 import 'package:coupangeats/orderpage/store_info.dart';
 import '../homepage/home_wowad.dart';
-
+//editor 하연: 스토어페이지 앱바 - 배달
 class StoreInfoDelivery extends StatefulWidget {
   const StoreInfoDelivery({super.key});
 

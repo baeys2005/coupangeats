@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //UI 함수화 .
-
+//editor  하연: 가게 메뉴 UI
 var imgAddButton = Container(
   width: 60,
   height: 60,

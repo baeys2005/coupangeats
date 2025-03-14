@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/user_info_provider.dart';
 import '../../theme.dart';
-
+//editor  하연: 가게정보 기타 저장
 class OwnerInfoOthers extends StatefulWidget {
   const OwnerInfoOthers({super.key});
 

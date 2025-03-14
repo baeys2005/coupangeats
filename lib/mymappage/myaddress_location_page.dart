@@ -4,6 +4,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'myaddress_save.dart';
+//editor 하연: 내주소 저장 페이지
 //TODO: 지도 중앙 마커 stack 으로 구현.
 class MyLocationPage extends StatefulWidget {
   const MyLocationPage({Key? key}) : super(key: key);

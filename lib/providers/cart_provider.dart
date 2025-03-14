@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+//editor 하연,윤선: 카트관련 프로바이더 
 class CartItem {
   final String menuName;
   final int price;

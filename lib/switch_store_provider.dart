@@ -9,7 +9,7 @@ import 'package:coupangeats/myeatspage/owner_registration_dialog.dart';
 
 import 'myeatspage/owner_registration_dialog.dart';
 import 'ownerpage/storeownerPage.dart';
-
+//editor 하연:가게-홈메인 전환 스위치
 class SwitchState with ChangeNotifier {
   bool _isChecked = false;
 

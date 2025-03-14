@@ -13,7 +13,7 @@ import '../switch_store_provider.dart';
 
 import '../switch_store_provider.dart';
 
-
+//editor 윤선: 마이잇츠 페이지
 
 class myeatsPage extends StatefulWidget {
   const myeatsPage({super.key});

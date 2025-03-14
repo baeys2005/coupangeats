@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../providers/store_info_provider.dart';
-
+//editor 하연: 가게 이미지 슬라이더 위젯
 /// 가게 이미지 슬라이더 위젯
 /// 가게의 이미지를 슬라이드 형태로 표시
 class StoreImageSlider extends StatelessWidget {

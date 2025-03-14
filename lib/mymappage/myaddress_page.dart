@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/user_info_provider.dart';
 import 'myaddress_location_page.dart';
-
+//editor 하연: 내 주소 관리
 class MyaddressPage extends StatefulWidget {
   const MyaddressPage({super.key});
 

@@ -16,7 +16,7 @@ import '../switch_store_provider.dart';
 import 'storeowner_images_util.dart';
 
 //사장님페이지
-
+//editor  하연: 가게설정페이지 홈.
 class Storeownerpage extends StatefulWidget {
   const Storeownerpage({super.key});
 

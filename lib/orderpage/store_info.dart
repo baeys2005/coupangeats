@@ -1,7 +1,7 @@
 import 'package:coupangeats/providers/store_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+//editor 하연: 가게정보 페이지
 class StoreInfos extends StatefulWidget {
   const StoreInfos({super.key});
 

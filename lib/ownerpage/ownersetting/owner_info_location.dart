@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../providers/store_info_provider.dart';
 import 'package:coupangeats/providers/store_info_provider.dart';
 //TODO: 지도 중앙 마커 stack 으로 구현.
+//editor  하연: 가게정보 위치 저장
 class OwnerInfoLocationPage extends StatefulWidget {
   const OwnerInfoLocationPage({Key? key}) : super(key: key);
 

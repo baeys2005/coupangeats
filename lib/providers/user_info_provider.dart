@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+//editor 하연: 사용자정보 프로바이더
 class UserInfoProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;

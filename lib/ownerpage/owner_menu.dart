@@ -9,7 +9,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../providers/user_info_provider.dart';
 import 'owner_category_edit.dart';
-
+//editor 하연: 메뉴저장
 //FirestoreService: 파이어베이스에 메뉴 저장
 //class MenuItem : 메뉴 저장용 class
 //

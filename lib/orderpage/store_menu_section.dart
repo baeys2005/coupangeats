@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
-
+//editor 하연: 메뉴 메뉴 섹션 위젯
 /// 메뉴 섹션 위젯
 /// 카테고리별 메뉴 목록을 표시하는 위젯
 class StoreMenuSection extends StatelessWidget {

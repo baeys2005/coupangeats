@@ -1,3 +1,4 @@
+//editor 윤선:
 class UserRole {
   static const String OWNER = '사장님';
   static const String CUSTOMER = '일반';

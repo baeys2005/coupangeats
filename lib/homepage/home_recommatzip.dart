@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import '../orderpage/storePage.dart';
 import '../orderpage/store_cart_bar.dart';
 import '../theme.dart';
-
+//editor 하연,윤선: 홈화면 추천 맛집 부분 UI
 class HomeRecommatzip extends StatefulWidget {
   const HomeRecommatzip({Key? key}) : super(key: key);
 

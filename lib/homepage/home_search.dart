@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
-
+//editor 윤선: 검색페이지 제작
 class Search extends StatelessWidget {
   const Search({super.key});
 

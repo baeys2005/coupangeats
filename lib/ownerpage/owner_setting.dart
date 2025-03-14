@@ -6,7 +6,7 @@ import 'package:coupangeats/theme.dart';
 import 'ownersetting/owner_info_basic.dart';
 import 'ownersetting/owner_info_location.dart';
 import 'ownersetting/owner_info_others.dart';
-
+//editor  하연: 가게정보 설정페이지
 class OwnerSetting extends StatefulWidget {
   const OwnerSetting({Key? key}) : super(key: key);
 

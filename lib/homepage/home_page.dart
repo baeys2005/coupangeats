@@ -16,7 +16,7 @@ import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/myeatspage/myeatsPage.dart';
 import 'package:coupangeats/homepage/home_search.dart';
 import 'package:coupangeats/login/login_bottom_sheet.dart';
-
+//editor 하연,윤선: 홈화면UI ,윤선이 전반적 UI 수정
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
 

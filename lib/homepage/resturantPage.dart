@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
-
+//editor -:
 class RestaurantPage extends StatelessWidget {
   final int index;
 

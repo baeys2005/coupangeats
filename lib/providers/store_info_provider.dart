@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+//editor 하연: 가게 정보 프로바이더
 /// StoreProvider: 특정 가게(stores/{storeId})의 상세정보를 불러와 전역 관리
 class StoreProvider with ChangeNotifier {
   bool _isLoading = false;

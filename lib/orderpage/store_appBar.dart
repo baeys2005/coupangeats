@@ -2,7 +2,7 @@ import 'package:coupangeats/orderpage/storePage.dart';
 import 'package:coupangeats/orderpage/store_appBar_delivery.dart';
 import 'package:coupangeats/orderpage/store_appBar_takeout.dart';
 import 'package:flutter/material.dart';
-
+//editor 하연: 스토어페이지 앱바 위젯화
 class StoreInfo extends StatefulWidget {
   final int selectedContent;
   final Function(int) onContentChange;

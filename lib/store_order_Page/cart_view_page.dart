@@ -3,6 +3,8 @@ import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/providers/cart_provider.dart';
+
+//editor 하연,윤선: 카트페이지
 //카트 페이지
 class CartViewPage extends StatefulWidget {
   const CartViewPage({Key? key}) : super(key: key);

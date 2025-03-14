@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../orderpage/storePage.dart';
 import 'home_recommatzip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+//editor 하연,윤선: 홈화면 골라먹는 맛집 부분 UI
 class GollamukmatzipBar extends StatefulWidget {
   const GollamukmatzipBar({super.key});
 

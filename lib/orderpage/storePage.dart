@@ -10,7 +10,7 @@ import 'package:shimmer/shimmer.dart';
 import '../providers/cart_provider.dart';
 import '../store_order_Page/storeorderPage.dart';
 import '../theme.dart';
-
+//editor 하연,윤선: 스토어페이지(주문페이지) UI , 윤선이UI 보완.
 class StorePage extends StatefulWidget {
   final String storeId; // storeId 받아서 가게정보 띄우기
   const StorePage({super.key, required this.storeId});

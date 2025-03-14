@@ -1,7 +1,7 @@
 import 'package:coupangeats/providers/store_info_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+//editor 하연: 스토어페이지 앱바 - 테이크아웃
 class StoreInfoTakeout extends StatelessWidget {
   const StoreInfoTakeout({super.key});
 

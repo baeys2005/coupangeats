@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+//editor 윤선: 로그인 페이지
 class MainLoginpage extends StatefulWidget {
   const MainLoginpage({super.key});
 

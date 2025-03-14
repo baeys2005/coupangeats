@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:coupangeats/providers/cart_provider.dart';
 
 import '../store_order_Page/cart_view_page.dart';
-
+//editor 윤선: 장바구니 하단 바 위젯
+// /// 추가된 메뉴 개수와 총 금액을 표시하고, 클릭 시 장바구니 페이지로 이동
 /// 장바구니 하단 바 위젯
 /// 추가된 메뉴 개수와 총 금액을 표시하고, 클릭 시 장바구니 페이지로 이동
 //-카트바 위젯

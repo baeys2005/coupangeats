@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
-
+//editor  하연: 가게이미지 함수
 /// 1) ImgBB 업로드를 위한 함수
 /// 파일을 넣으면 업로드 후 다운로드 URL 반환
 Future<String?> uploadImageToImgBB(File imageFile) async {

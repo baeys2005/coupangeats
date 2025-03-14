@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_info_provider.dart';
+//editor  하연: 가게정보 기본 저장
 class OwnerBasicInfoTab extends StatefulWidget {
   const OwnerBasicInfoTab({Key? key}) : super(key: key);
 

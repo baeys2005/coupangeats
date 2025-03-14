@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_info_provider.dart';
-
+//editor 하연: 카테고리 수정 다이얼로그
 /// 카테고리 이름 수정 다이얼로그
 /// [context]: BuildContext
 /// [currentCategory]: 기존 카테고리 이름 (문서 ID)

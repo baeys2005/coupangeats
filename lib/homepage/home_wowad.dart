@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
-
+//editor -:
 class adImage extends StatelessWidget {
   const adImage({super.key});
 

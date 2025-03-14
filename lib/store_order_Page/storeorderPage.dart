@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../orderpage/store_cart_bar.dart';
 import '../providers/cart_provider.dart';
 
-//메뉴를 클릭하면 나타나는 주문페이지
-
+//editor 윤선: 메뉴를 클릭하면 나타나는 주문페이지
 class storeorderPage extends StatefulWidget {
   final String menuName;
   final int menuPrice;

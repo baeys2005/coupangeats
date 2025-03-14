@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+//editor 하연: 가게메뉴 관련 프로바이더
 /// [OptionModel] : 메뉴 1개에 속한 옵션 정보
 class OptionModel {
   final String optionId;

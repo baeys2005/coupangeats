@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+//editor 윤선: 사장님 등록을 위한 다이얼로그를 표시하는 위젯
 
-// 사장님 등록을 위한 다이얼로그를 표시하는 위젯
 class OwnerRegistrationDialog extends StatefulWidget {
   // 사장님 등록 상태가 변경될 때 호출되는 콜백 함수
   final Function(bool) onOwnershipChanged;
