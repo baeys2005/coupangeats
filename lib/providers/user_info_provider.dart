@@ -15,6 +15,11 @@ class UserInfoProvider with ChangeNotifier {
   String userRole = '';
   String userMyStore = ''; // 추가: mystore 필드
   String userUid = '';
+  // ★ 수정: 단일 주소 필드
+  String addressName = '';      // 예: "집"
+  double? latitude;             // 예: 37.1234
+  double? longitude;            // 예: 127.5678
+
   /// Firestore의 signup/{uid}에서 사용자 정보 가져오기
   Future<void> loadUserInfo() async {
     _isLoading = true;
@@ -47,6 +52,11 @@ class UserInfoProvider with ChangeNotifier {
           userRole     = data['role'] ?? '일반'; // 기본값 "일반" 등
           // 추가: mystore 필드가 있으면 불러오기
           userMyStore = data['mystore'] ?? '';
+
+          // ★ 수정: addressName, latitude, longitude 필드 읽기
+          addressName = data['addressName'] ?? '';
+          latitude    = data['latitude'];
+          longitude   = data['longitude'];
         } else {
           userName = '문서가 존재하지 않습니다.';
         }
@@ -59,6 +69,9 @@ class UserInfoProvider with ChangeNotifier {
         userRole = '';
         userCreateAt = null;
         userMyStore = '';
+        addressName = '';
+        latitude = null;
+        longitude = null;
       }
     } catch (e) {
       debugPrint('loadUserInfo 실패: $e');

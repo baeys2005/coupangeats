@@ -7,6 +7,7 @@ class CartItem {
   int quantity;
   String? menuImage;
   String? id; // Firestore 문서 ID
+  final String storeId; // [추가] 가게 ID 필드
 
   CartItem({
     required this.menuName,
@@ -14,6 +15,7 @@ class CartItem {
     required this.quantity,
     this.menuImage,
     this.id,
+    required this.storeId, // [추가]
   });
 
   int get totalPrice => price * quantity;
@@ -24,6 +26,7 @@ class CartItem {
       'price': price,
       'quantity': quantity,
       'menuImage': menuImage,
+      'storeId': storeId, // [추가] 가게 ID 저장
       'timestamp': FieldValue.serverTimestamp(),
     };
   }
@@ -35,6 +38,7 @@ class CartItem {
       quantity: map['quantity'] ?? 1,
       menuImage: map['menuImage'],
       id: id,
+      storeId: map['storeId'] ?? '', // [추가] storeId 파싱
     );
   }
 }
@@ -113,19 +117,15 @@ class CartProvider with ChangeNotifier {
   }
 
   // 메뉴 추가
-  Future<void> addItem(String menuName, int price, int quantity, {String? menuImage}) async {
+  Future<void> addItem(String menuName, int price, int quantity, {String? menuImage, required String storeId}) async {
+
+    // 이미 있는 메뉴이면서 같은 가게의 메뉴인지 확인
+    final existingItemIndex = _items.indexWhere((item) => item.menuName == menuName && item.storeId == storeId);
     // ★ _userId가 비어 있다면 스킵
     if (_userId.isEmpty) {
       print("[DEBUG] addItem() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
       return;
     }
-
-    print('[DEBUG] addItem() 호출됨');
-    print('  - userId: $_userId');
-    print('  - menuName: $menuName, price: $price, quantity: $quantity, menuImage: $menuImage');
-
-    final existingItemIndex = _items.indexWhere((item) => item.menuName == menuName);
-    print('[DEBUG] 기존 아이템 인덱스: $existingItemIndex  ( -1이면 없음 )');
 
     try {
       if (existingItemIndex >= 0) {
@@ -155,6 +155,7 @@ class CartProvider with ChangeNotifier {
           'quantity': quantity,
           'menuImage': menuImage,
           'timestamp': FieldValue.serverTimestamp(),
+          'storeId': storeId, // [추가] 가게 ID 저장
         });
 
         _items.add(CartItem(
@@ -163,18 +164,11 @@ class CartProvider with ChangeNotifier {
           quantity: quantity,
           menuImage: menuImage,
           id: docRef.id,
+          storeId: storeId, // [추가]
         ));
 
-        print('[DEBUG] 새 아이템 Firestore 문서 생성 완료');
-        print('  - docId: ${docRef.id}');
       }
 
-      // 현재 장바구니 상태 출력
-      print('[DEBUG] notifyListeners() 호출 전 장바구니 아이템 목록:');
-      for (var i = 0; i < _items.length; i++) {
-        final it = _items[i];
-        print('  - index $i: menuName=${it.menuName}, quantity=${it.quantity}, docId=${it.id}');
-      }
 
       notifyListeners();
       print('[DEBUG] addItem() 메서드 종료');

@@ -53,6 +53,21 @@ class _OwnerRegistrationDialogState extends State<OwnerRegistrationDialog> {
             .collection('stores')
             .doc();  // doc()에 파라미터 없이 호출하면 랜덤 ID 자동 생성
 
+        // 4) storeRef에 매장 정보 저장 (storeOwnerName과 createdAt)
+        await storeRef.set({
+          'storeOwnerName': userName,
+          'createdAt': FieldValue.serverTimestamp(),
+          // 필요시 추가 필드를 여기서 저장 가능
+        });
+        print('[DEBUG] 매장 문서에 정보 저장 완료');
+
+        // 5) signup 문서에 mystore 필드를 업데이트 (새 매장 문서의 ID 저장)
+        print('[DEBUG] signup 문서의 mystore 필드 업데이트 시도 (mystore: ${storeRef.id})');
+        await FirebaseFirestore.instance
+            .collection('signup')
+            .doc(uid)
+            .update({'mystore': storeRef.id});
+        print('[DEBUG] mystore 업데이트 완료');
         // storeOwnerName 필드에 사용자 이름을 저장 + createdAt 등 필요하면 추가
         await storeRef.set({
           'storeOwnerName': userName,

@@ -42,7 +42,6 @@ class _StoreownerpageState extends State<Storeownerpage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     final userInfoProv = Provider.of<UserInfoProvider>(context, listen: false);
     userInfoProv.loadUserInfo().then((_) {

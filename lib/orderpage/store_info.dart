@@ -12,7 +12,7 @@ class StoreInfos extends StatefulWidget {
 class _StoreInfosState extends State<StoreInfos> {
   @override
   void initState() {
-    // TODO: implement initState
+
 
     super.initState();
     final storeProv = Provider.of<StoreProvider>(context, listen: false);

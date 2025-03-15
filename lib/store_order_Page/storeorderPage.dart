@@ -10,12 +10,14 @@ class storeorderPage extends StatefulWidget {
   final String menuName;
   final int menuPrice;
   final String? menuImage;
+  final String storeId; // [추가] 가게 ID 추가
 
   const storeorderPage({
     Key? key,
     required this.menuName,
     required this.menuPrice,
     this.menuImage,
+    required this.storeId, // [추가]
   }) : super(key: key);
 
   @override
@@ -259,6 +261,7 @@ class _storeorderPageState extends State<storeorderPage> {
                     widget.menuPrice,
                     _quantity,
                     menuImage: widget.menuImage,
+                    storeId: widget.storeId, // [추가] 가게 ID 전달
                   );
 
                   ScaffoldMessenger.of(context).showSnackBar(

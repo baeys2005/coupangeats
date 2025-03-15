@@ -4,6 +4,7 @@ import 'package:coupangeats/theme.dart';
 
 // 분리된 파일 import
 import 'ownersetting/owner_info_basic.dart';
+import 'ownersetting/owner_info_location.dart';
 import 'ownersetting/owner_info_others.dart';
 
 class OwnerSetting extends StatefulWidget {
@@ -21,7 +22,7 @@ class _OwnerSettingState extends State<OwnerSetting> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // 6개 탭
+      length: 3, // 6개 탭
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -33,7 +34,8 @@ class _OwnerSettingState extends State<OwnerSetting> {
             indicatorColor: Colors.black,
             tabs: [
               Tab(text: '기본정보'),
-              Tab(text: '매장정보')
+              Tab(text: '매장정보'),
+              Tab(text: '매장위치 설정')
             ],
           ),
         ),
@@ -44,6 +46,7 @@ class _OwnerSettingState extends State<OwnerSetting> {
 
             // 2) 나머지 탭들
             OwnerInfoOthers(),
+            OwnerInfoLocationPage(),
           ],
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:coupangeats/diliverypage/dilivery.dart';
 import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +15,6 @@ class _CartViewPageState extends State<CartViewPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     CartOverlayManager.hideOverlay();
   }
@@ -342,12 +342,23 @@ class _CartViewPageState extends State<CartViewPage> {
   // 주문하기 버튼
   Widget _buildOrderButton(BuildContext context, CartProvider cartProvider) {
     return GestureDetector(
-      onTap: (){ScaffoldMessenger.of(context).showSnackBar(
+      onTap: (){
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('주문이 완료되었습니다.'),
           duration: Duration(seconds: 2),
+
         ),
-      );},
+
+      );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dilivery()
+          ),
+        );
+
+        },
       child: Container(
         width: double.infinity,
         height: 60,

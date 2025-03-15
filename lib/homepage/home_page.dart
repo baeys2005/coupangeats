@@ -1,4 +1,5 @@
 import 'package:coupangeats/login/login_bottom_sheet.dart';
+import 'package:coupangeats/mymappage/myaddress_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -138,7 +139,7 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+
     super.dispose();
   }
 
@@ -181,12 +182,18 @@ class HomeContent extends StatelessWidget {
               leadingWidth: 40,
               leading: Padding(
                 padding: EdgeInsets.only(left: padding1),
-                child: Icon(
-                  Icons.location_on_outlined,
-                  color: Colors.black38,
-                  size: 20,
-                  key: UniqueKey(), // 강제 리빌드를 위한 고유 키 추가
-                ),
+                child: IconButton(onPressed: (){
+
+                  CartOverlayManager.hideOverlay();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyaddressPage()
+                    ),
+                  );
+
+                }, icon: Icon(Icons.near_me, color: Colors.yellow, size: 20))
+                //child: ,
               ),
               title: Row(
                 children: [
