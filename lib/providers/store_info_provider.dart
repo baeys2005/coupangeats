@@ -7,8 +7,7 @@ class StoreProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   // ▷ 불러올 필드들
-  String storeId = ''; // [추가] 현재 가게 문서 ID 저장 (업데이트 시 필요)
-  // ▷ 불러올 필드들
+  String storeId = '';
   String storeAddress = '';
   String storeBizNumber = '';
   List<String> storeImages = [];
@@ -19,16 +18,18 @@ class StoreProvider with ChangeNotifier {
   String storeOwnerName = '';
   String storeTime = '';
   String storeTip = '';
-  // [추가] 가게 위치 좌표 (GeoPoint 형식)
-  GeoPoint? storeLocation;
-
+  // [수정] 기존 GeoPoint storeLocation 대신 별도의 latitude, longitude 필드로 저장
+  double? latitude;
+  double? longitude;
   /// [resetStoreData] : 이전 store 데이터가 남아있지 않도록 초기화(StorePage문제해결)
   void resetStoreData() {
     _isLoading = true;
-    storeId = ''; // [추가] 초기화
+    storeId = '';
     storeName = '';
     storeImages = [];
-    storeLocation = null; // [추가] 위치 초기화
+    latitude = null; // [수정] 초기화
+    longitude = null; // [수정] 초기화
+
     // ... 등등 다른 필드도 기본값으로
     notifyListeners();
   }
@@ -68,8 +69,16 @@ class StoreProvider with ChangeNotifier {
         storeOwnerName = data['storeOwnerName'] ?? '';
         storeTime = data['storeTime'] ?? '';
         storeTip = data['storeTip'] ?? '';
-// [추가] storeLocation 필드 파싱 (GeoPoint 형식)
-        storeLocation = data['storeLocation'] as GeoPoint?;
+// [수정] 기존 storeLocation 필드를 읽는 대신, 별도의 latitude, longitude 필드 읽기
+        if (data.containsKey('latitude') && data.containsKey('longitude')) {
+          double? lat = data['latitude'] is num ? (data['latitude'] as num).toDouble() : null;
+          double? lon = data['longitude'] is num ? (data['longitude'] as num).toDouble() : null;
+          latitude = lat;
+          longitude = lon;
+        } else {
+          latitude = null;
+          longitude = null;
+        }
         // storeImages는 배열이므로, null 체크 후 map을 통해 String 리스트로 변환
         final List<dynamic>? images = data['storeImages'] as List<dynamic>?;
         if (images != null) {
@@ -91,20 +100,22 @@ class StoreProvider with ChangeNotifier {
   }
 
   /// [updateStoreLocation] : 가게 위치 좌표를 Firestore에 저장하는 메서드
-  Future<void> updateStoreLocation(double latitude, double longitude) async {
+  Future<void> updateStoreLocation(double newLatitude, double newLongitude) async {
     // storeId가 유효한지 확인
     if (storeId.isEmpty) {
       print('❌ updateStoreLocation 실패: storeId가 비어있음');
       return;
     }
     try {
-      // Firestore의 stores/{storeId} 문서의 storeLocation 필드를 업데이트
+      // [수정] Firestore의 stores/{storeId} 문서에 별도의 latitude, longitude 필드 업데이트
       await FirebaseFirestore.instance.collection('stores').doc(storeId).update({
-        'storeLocation': GeoPoint(latitude, longitude),
+        'latitude': newLatitude,
+        'longitude': newLongitude,
       });
-      // 로컬 변수도 업데이트 (필요한 경우)
-      storeLocation = GeoPoint(latitude, longitude);
-      print('[DEBUG] updateStoreLocation 완료: ($latitude, $longitude)');
+      // 로컬 변수 업데이트
+      latitude = newLatitude;
+      longitude = newLongitude;
+      print('[DEBUG] updateStoreLocation 완료: ($newLatitude, $newLongitude)');
       notifyListeners();
     } catch (e) {
       print('❌ updateStoreLocation 실패: $e');

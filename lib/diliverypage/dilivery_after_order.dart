@@ -4,7 +4,13 @@ import 'dart:async'; // Timer를 사용하기 위해 추가
 //TODO: 지도에 내 집과 가게 표시. 두 좌표간의 거리로 배달시간 추적
 //TODO: 주소정보 불러오기.
 class DiliveryAfterOrder extends StatefulWidget {
-  const DiliveryAfterOrder({super.key});
+  // [추가] 예상 배달 시간을 전달받는 매개변수
+  // 예상 배달 시간(분)과 거리를 전달받는 매개변수 추가
+  final int estimatedMinutes; // 예: 45
+  final String distanceString; // 예: "3.25" (km 단위, 소수점 둘째자리)
+  final String deliveryAddress;
+  const DiliveryAfterOrder({super.key, required this.estimatedMinutes,
+    required this.distanceString,required this.deliveryAddress,});
 
   @override
   State<DiliveryAfterOrder> createState() => _DiliveryAfterOrderState();
@@ -55,22 +61,22 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
           ),
         ),
 
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: '0', // 숫자는 크게
-                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: '분', // "분"은 작게
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-                ),
-              ],
+        Row(
+          children: [
+            Text(
+              widget.estimatedMinutes.toString(),
+              style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
             ),
-          ),
+            const Text(
+              '분',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+            ),
+            const Spacer(), // 좌측 텍스트와 우측 텍스트 사이에 빈 공간을 채워줌
+            Text(
+              '약 ${widget.distanceString} km',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+            ),
+          ],
         ),
 // 수직 타임라인 추가
         OrderTimeline(currentStep: currentStep),
@@ -84,7 +90,7 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
-        Text('주소')
+        Text(widget.deliveryAddress)
       ],
     );
   }

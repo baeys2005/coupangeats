@@ -351,10 +351,15 @@ class _CartViewPageState extends State<CartViewPage> {
         ),
 
       );
+        // [수정] 장바구니에 담긴 메뉴의 storeId를 추출 (모든 아이템이 동일한 가게라고 가정)
+        String storeId = "";
+        if (cartProvider.items.isNotEmpty) {
+          storeId = cartProvider.items.first.storeId;
+        }
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Dilivery()
+            builder: (context) => Dilivery(storeId: storeId)
           ),
         );
 
