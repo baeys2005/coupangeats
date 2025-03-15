@@ -342,7 +342,7 @@ class _CartViewPageState extends State<CartViewPage> {
   // 주문하기 버튼
   Widget _buildOrderButton(BuildContext context, CartProvider cartProvider) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('주문이 완료되었습니다.'),
@@ -351,6 +351,7 @@ class _CartViewPageState extends State<CartViewPage> {
         ),
 
       );
+
         // [수정] 장바구니에 담긴 메뉴의 storeId를 추출 (모든 아이템이 동일한 가게라고 가정)
         String storeId = "";
         if (cartProvider.items.isNotEmpty) {
