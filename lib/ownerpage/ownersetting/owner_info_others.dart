@@ -144,6 +144,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
             controller: _T1,
             decoration: const InputDecoration(
               hintText: "ex) 버스정류장 앞에 가게가 있습니다",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,
@@ -167,6 +168,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
             controller: _T2,
             decoration: const InputDecoration(
               hintText: "ex) 화~일: 16:00~24:00",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,
@@ -190,6 +192,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
             maxLines: null,
             decoration: const InputDecoration(
               hintText: "ex)안녕하세요! 봉국사옆 명가통닭 가천대 두산위브점 입니다!",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,
@@ -216,6 +219,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
             maxLines: null,
             decoration: const InputDecoration(
               hintText: "ex) 안녕하세요! 봉국사옆 명가통닭 가천대 두산위브점 입니다!",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,
@@ -240,6 +244,7 @@ class _OwnerInfoOthersState extends State<OwnerInfoOthers> {
             maxLines: 50,
             decoration: const InputDecoration(
               hintText: "ex)치킨 닭고기 국내산 하림",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,

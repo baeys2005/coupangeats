@@ -73,6 +73,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
             _storeImageUrls = imageUrls;
           });
         }
+
       }
     } catch (e) {
       debugPrint("Firestore storeImages 로드 실패: $e");
@@ -482,23 +483,10 @@ class _StoreownerpageState extends State<Storeownerpage> {
                                 );
                               } else {
                                 // 저장된 이미지가 없을 때는 기본이미지 1장을 보여줍니다
-                                return Image.network(
-                                  'https://i.ibb.co/JwCxP9br/1000007044.jpg',
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Center(
-                                        child: Icon(Icons.broken_image, size: 50));
-                                  },
+                                return Container(
+                                  width: double.infinity,
+                                  height: 200, // 필요한 높이로 조정
+                                  color: Colors.grey[400],
                                 );
                               }
                             },
@@ -571,7 +559,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
                             height: 120, //글자상자 높이
                             child: Center(
                               child: Text(
-                                storeProv.storeName,
+                                storeProv.storeName.isEmpty ? "가게명을 추가해주세요" : storeProv.storeName,
                                 style: pagetitle1,
                               ),
                             ),

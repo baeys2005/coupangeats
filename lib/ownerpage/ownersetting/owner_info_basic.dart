@@ -179,6 +179,7 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
             controller: _storeBizNumberController,
             decoration: const InputDecoration(
               hintText: "ex)1010103239",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,
@@ -202,6 +203,7 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
             controller: _storeNameController,
             decoration: const InputDecoration(
               hintText: "ex)봉구통닭",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,
@@ -225,6 +227,7 @@ class _OwnerBasicInfoTabState extends State<OwnerBasicInfoTab> {
             controller: _storeAddressController,
             decoration: const InputDecoration(
               hintText: "ex)서울 어쩌고",
+              hintStyle: TextStyle(color: Colors.grey), // 힌트 텍스트 색상을 회색으로 지정
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.black12),
                 borderRadius: BorderRadius.zero,

@@ -55,7 +55,11 @@ class _HomepageState extends State<Homepage> {
 
   final List<Widget> _pages = [
     HomeContent(),
-    Search(),
+    CustomScrollView(
+      slivers: [
+        Search(),
+      ],
+    ),
     FavoritesPage(),
     OrderHistoryPage(),
     myeatsPage(),

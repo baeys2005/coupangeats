@@ -68,9 +68,6 @@ class _OwnerInfoLocationPageState extends State<OwnerInfoLocationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('가게위치 저장'), // [수정] 앱바 제목 변경
-      ),
       body: Column(
         children: [
           Expanded(
