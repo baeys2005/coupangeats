@@ -27,6 +27,8 @@ class _DiliveryState extends State<Dilivery> {
 
   NCameraPosition get mapPosition => _mapPosition;
   bool _showAfterOrder = false; // 상태 변수 추가
+  // [추가] 카메라 업데이트가 이미 수행되었는지 여부를 저장하는 상태 변수
+  bool _isCameraUpdated = false;
   @override
   void initState() {
     super.initState();
@@ -65,8 +67,9 @@ class _DiliveryState extends State<Dilivery> {
     return minutes;
   }
   // [추가] 사용자와 가게 마커가 모두 보이도록 카메라를 업데이트하는 함수
-  void _updateCameraToShowMarkers(
-      double userLat, double userLon, double storeLat, double storeLon) {
+  // [추가] 사용자와 가게 좌표를 기반으로 마커가 모두 보이도록 카메라를 업데이트하는 함수
+  // [추가] 사용자와 가게 마커가 모두 보이도록 카메라를 업데이트하는 함수
+  void _updateCameraToShowMarkers(double userLat, double userLon, double storeLat, double storeLon) {
     final swLat = math.min(userLat, storeLat);
     final swLon = math.min(userLon, storeLon);
     final neLat = math.max(userLat, storeLat);
@@ -75,10 +78,26 @@ class _DiliveryState extends State<Dilivery> {
       NLatLng(swLat, swLon),
       NLatLng(neLat, neLon),
     ]);
-    // [추가] 적절한 padding을 설정 (예: 50)
     final cameraUpdate = NCameraUpdate.fitBounds(bounds, padding: const EdgeInsets.all(50));
     _controller?.updateCamera(cameraUpdate);
     debugPrint('[DEBUG] Camera updated to fit markers: SW=($swLat, $swLon), NE=($neLat, $neLon)');
+
+    // [수정] 약간의 지연 후 카메라 타겟을 북쪽으로 오프셋하여 업데이트 (한 번만 수행)
+    const double offsetLat = -0.003;
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      if (_controller != null) {
+        NCameraPosition currentPosition = await _controller!.getCameraPosition();
+        double newTargetLat = currentPosition.target.latitude + offsetLat;
+        NCameraPosition newPosition = NCameraPosition(
+          target: NLatLng(newTargetLat, currentPosition.target.longitude),
+          zoom: currentPosition.zoom,
+          bearing: currentPosition.bearing,
+          tilt: currentPosition.tilt,
+        );
+        _controller!.updateCamera(NCameraUpdate.fromCameraPosition(newPosition));
+        debugPrint('[DEBUG] Camera target shifted upward to: ($newTargetLat, ${currentPosition.target.longitude})');
+      }
+    });
   }
   // [추가] 사용자 및 가게 좌표를 기반으로 마커를 지도에 표시하는 함수
   void _updateMarkers(double userLat, double userLon, double storeLat, double storeLon) {
@@ -124,10 +143,13 @@ class _DiliveryState extends State<Dilivery> {
       distanceStr = distance.toStringAsFixed(2);
       debugPrint('[DEBUG] 계산된 거리: $distance km, 예상 배달 시간: $estimatedMinutes분');
       // 마커 업데이트 호출 (빌드 완료 후)
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _updateMarkers(userLat, userLon, storeLat, storeLon);
-        _updateCameraToShowMarkers(userLat, userLon, storeLat, storeLon);
-      });
+      if (!_isCameraUpdated) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateMarkers(userLat, userLon, storeLat, storeLon);
+          _updateCameraToShowMarkers(userLat, userLon, storeLat, storeLon);
+        });
+        _isCameraUpdated = true; // 업데이트 완료 후 플래그 설정
+      }
     }
     return Scaffold(
       body: Stack(
