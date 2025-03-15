@@ -67,7 +67,7 @@ Future<void> _initialize()async{
   );
 
 }
-
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
       title: 'coupangeats',
 
       initialRoute: '/',
-
+      navigatorObservers: [routeObserver], // 여기 추가
       routes: {
         '/': (context) => const Homepage(),
         '/signup': (context) => const SignupPage(),

@@ -101,7 +101,7 @@ class _StoreownerpageState extends State<Storeownerpage> {
               int availableSlot = 4 - totalCount; // 최대 4장까지 가능
 
               // 넘어가면 안내
-              if (pickedFiles.length > availableSlot) {
+              if (pickedFiles.length >= availableSlot) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("이미지는 최대 4장까지 가능합니다. (남은 슬롯: $availableSlot장)"),
@@ -138,12 +138,16 @@ class _StoreownerpageState extends State<Storeownerpage> {
 
             // 3) "이미지를 추가하시겠습니까? 예" -> 로컬이미지들 업로드 & Firestore 반영
             Future<void> uploadTempLocalImages() async {
+              // [추가] 업로드 시작 전 스낵바 메시지 표시
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("사진을 저장중입니다 잠시만 기다려주세요")),
+              );
               if (_tempLocalImages.isEmpty) {
                 Navigator.pop(context);
                 return;
               }
 
-              // [수정됨] 기존에 저장된 storeImages 삭제할 때 userInfoProv.userMyStore 사용
+
               final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
               // 0) Firestore의 기존 'storeImages' 필드를 먼저 전부 삭제
               final docRef = FirebaseFirestore.instance.collection('stores').doc(storeId);
@@ -300,81 +304,6 @@ class _StoreownerpageState extends State<Storeownerpage> {
     );
   }
 
-
-  /// 1) 갤러리에서 다중 이미지를 선택(최대 4장)
-  Future<void> _pickMultipleImages() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile>? pickedFiles = await picker.pickMultiImage();
-
-    if (pickedFiles == null || pickedFiles.isEmpty) {
-      return; // 아무것도 선택안함
-    }
-
-    if (pickedFiles.length > 4) {
-      // 4장 초과 선택 시 알림
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("이미지는 최대 4장까지만 선택 가능합니다."),
-        ),
-      );
-      return;
-    }
-
-    // 선택한 만큼 업로드 진행
-    List<String> uploadedUrls = [];
-
-    for (var file in pickedFiles) {
-      File imageFile = File(file.path);
-
-      // ImgBB 업로드 (재사용)
-      String? imageUrl = await uploadImageToImgBB(imageFile);
-
-      if (imageUrl != null) {
-        uploadedUrls.add(imageUrl);
-      }
-    }
-
-    // 업로드된 URL들을 Firestore에 저장
-    if (uploadedUrls.isNotEmpty) {
-      // 기존 저장된 이미지에 덧붙이는 형태인지, 완전히 새로 덮어쓰는지 결정
-      // 여기는 "덮어쓰기" 혹은 "이어붙이기" 예시
-      // 1) 기존 _storeImageUrls + 새로 업로드된 URL 합치기
-      List<String> newList = [..._storeImageUrls, ...uploadedUrls];
-
-      // 만약 최대 4장 제한을 Firestore에서도 보장해야 한다면
-      // newList = newList.take(4).toList();
-      // [수정됨] 기존 _storeId 대신, UserInfoProvider의 mystore 값을 사용
-      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
-      await saveStoreImagesToFirestore(storeId, newList);
-      setState(() {
-        _storeImageUrls = newList; // UI 갱신
-      });
-    }
-  }
-
-  /// 2) 카메라로 단일 이미지 촬영 & 업로드 (필요시)
-  Future<void> _pickSingleImage(ImageSource source) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile == null) return;
-
-    File imageFile = File(pickedFile.path);
-    String? imageUrl = await uploadImageToImgBB(imageFile);
-    if (imageUrl != null) {
-      List<String> newList = [..._storeImageUrls, imageUrl];
-      // 최대 4장으로 제한
-      if (newList.length > 4) {
-        newList = newList.take(4).toList();
-      }
-      // [수정됨] 기존 _storeId 대신, UserInfoProvider의 mystore 값을 사용
-      final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
-      await saveStoreImagesToFirestore(storeId, newList);
-      setState(() {
-        _storeImageUrls = newList;
-      });
-    }
-  }
 
   /// 직사각형(가로로 넓은) 이미지 위젯 빌더
   /// - [imgUrl]이 있으면 Network 이미지, [file]이 있으면 File 이미지

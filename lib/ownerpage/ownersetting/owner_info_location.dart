@@ -28,6 +28,10 @@ class _OwnerInfoLocationPageState extends State<OwnerInfoLocationPage> {
   void initState() {
     _requestPermission();
     super.initState();
+    // Delay unfocus to ensure the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).unfocus();
+    });
   }
 
   // [수정] 위치 권한 요청 함수
@@ -60,7 +64,7 @@ class _OwnerInfoLocationPageState extends State<OwnerInfoLocationPage> {
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('가게위치가 저장되었습니다.\n($_centerLatLng)')),
+      SnackBar(content: Text('가게위치가 저장되었습니다.')),
     );
     Navigator.pop(context);
   }
