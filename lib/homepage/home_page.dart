@@ -219,22 +219,22 @@ class HomeContent extends StatelessWidget {
               elevation: 0,
               leadingWidth: 10,
               leading: Padding(
-                  padding: EdgeInsets.only(left: 0),
-                  child: Container(
-                    margin: EdgeInsets.only(left: 12),
-                    child: IconButton(
-                        onPressed: () {
-                          CartOverlayManager.hideOverlay();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MyaddressPage()
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.location_on_outlined, color: Color(0xff222B34), size: 20)
-                    ),
+                padding: EdgeInsets.only(left: 0),
+                child: Container(
+                  margin: EdgeInsets.only(left: 12),
+                  child: IconButton(
+                      onPressed: () {
+                        CartOverlayManager.hideOverlay();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MyaddressPage()
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.location_on_outlined, color: Color(0xff222B34), size: 20)
                   ),
+                ),
               ),
               titleSpacing: 20,
               title: Row(
@@ -271,7 +271,7 @@ class HomeContent extends StatelessWidget {
             HomePopularRestaurants(),
 
             // 주문 하기 전 추가 혜택 받기 이미지
-           HomeWowBanner(),
+            HomeWowBanner(),
 
             // 이츠 추천 맛집 타이틀
             SliverPadding(
@@ -289,15 +289,24 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
+            SliverToBoxAdapter(
+              child: SizedBox(height: 10,),
+            ),
 
             // 추천 맛집
             HomeRecommatzip(),
 
+            // 변경: 추천 맛집과 회색 구분선 사이에 간격 추가
+            SliverToBoxAdapter(
+              child: SizedBox(height: 20), // 간격 추가
+            ),
+
             SliverToBoxAdapter(
               child: Container(
                 height: 12,
-                color: Color(0xFFEEEEEE), // 얇은 회색
-                margin: EdgeInsets.symmetric(vertical: 0),
+                color: Color(0xFFF5F6F8), // 얇은 회색
+                // 변경: margin 추가
+                margin: EdgeInsets.symmetric(vertical: 10),
               ),
             ),
 

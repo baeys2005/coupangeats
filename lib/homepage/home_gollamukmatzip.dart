@@ -119,6 +119,14 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
 
                 final storeName = data['storeName'] ?? '이름없는 가게';
 
+                // 변경: 추가 매장 정보
+                final rating = data['rating'] ?? 5.0;
+                final reviewCount = data['reviewCount'] ?? 1348;
+                final distance = data['distance'] ?? '0.5km';
+                final deliveryTime = data['deliveryTime'] ?? '21분';
+                final deliveryFee = data['deliveryFee'] ?? '0원~3,600원';
+                final saveDeliveryDiscount = data['saveDeliveryDiscount'] ?? '1,000원 세이브배달 할인';
+
                 return Padding(
                   padding: EdgeInsets.all(padding1 * 2.5),
                   child: gollaMatzipBox(
@@ -128,6 +136,13 @@ class _HomeGollamukmatzipState extends State<HomeGollamukmatzip> {
                     storeName: storeName,
                     storeImages: storeImages,
                     storeId: storeId, // gollaMatzipBox에 전달
+                    // 변경: 추가 데이터 전달
+                    rating: rating,
+                    reviewCount: reviewCount,
+                    distance: distance,
+                    deliveryTime: deliveryTime,
+                    deliveryFee: deliveryFee,
+                    saveDeliveryDiscount: saveDeliveryDiscount,
                   ),
                 );
               },
@@ -147,6 +162,13 @@ class gollaMatzipBox extends StatefulWidget {
   final String storeName;
   final List<String> storeImages;
   final String storeId; // 추가: 스토어 문서 ID
+  // 변경: 추가 매장 정보 필드
+  final dynamic rating;
+  final dynamic reviewCount;
+  final String distance;
+  final String deliveryTime;
+  final String deliveryFee;
+  final String saveDeliveryDiscount;
 
   const gollaMatzipBox({
     super.key,
@@ -156,6 +178,13 @@ class gollaMatzipBox extends StatefulWidget {
     required this.storeName,
     required this.storeImages,
     required this.storeId,
+    // 변경: 추가 매장 정보 필드 required 설정
+    required this.rating,
+    required this.reviewCount,
+    required this.distance,
+    required this.deliveryTime,
+    required this.deliveryFee,
+    required this.saveDeliveryDiscount,
   });
 
   @override
@@ -188,6 +217,8 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
       },
       child: Container(
         width: widget.bW,
+        // 변경: 컨테이너 너비 제한 명시
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -274,57 +305,174 @@ class _gollaMatzipBoxState extends State<gollaMatzipBox> {
                     ],
                   ),
                 ),
+                // 변경: WOW 배너 디자인 변경 (recommatzip.dart와 동일하게)
                 Positioned(
                   bottom: -13.0,
                   left: 4,
                   right: 4,
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
                     decoration: BoxDecoration(
-                      color: Color(0xff1976D2),
+                      color: Color(0xff1A2F65), // 네이비 색상
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: Text(
-                      'wow 매 주문 무료배달 적용 매장',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // 변경: WOW 텍스트 추가 (사이즈 축소)
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: Color(0xff407CD2),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Text(
+                            'WOW',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        // 변경: 배달 정보 텍스트 추가
+                        Text(
+                          '매 주문 무료배달 적용 매장',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
+            // 변경: 매장명과 배달 시간을 같은 줄에 표시
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // 변경: 매장명 스타일 변경
                 Expanded(
                   child: Text(
                     widget.storeName,
-                    style: title1,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                // 변경: 배달 시간 별도 표시
                 Text(
-                  'wow+즉시할인',
+                  widget.deliveryTime,
                   style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 12,
+                    fontSize: 14,
+                    color: Colors.grey[600],
                   ),
                 ),
               ],
             ),
+            SizedBox(height: 4),
+            // 변경: 평점, 리뷰 수, 거리, 배달비 정보 업데이트
             Row(
               children: [
-                Icon(Icons.star, color: Colors.yellow, size: 16),
-                SizedBox(width: 4),
-                Text(
-                  '5.0(251) · 0.8km · 30분',
-                  style: TextStyle(fontSize: 12),
+                Flexible(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        // 변경: 별 아이콘 색상 변경
+                        Icon(Icons.star, color: Colors.amber, size: 16),
+                        SizedBox(width: 4),
+                        // 변경: 평점 표시
+                        Text(
+                          '${widget.rating}',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        SizedBox(width: 2),
+                        // 변경: 리뷰 수 표시
+                        Text(
+                          '(${widget.reviewCount})',
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                        Text(
+                          ' · ',
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                        // 변경: 거리 표시
+                        Text(
+                          widget.distance,
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                        Text(
+                          ' · ',
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                        // 변경: 배달비 표시
+                        Text(
+                          '배달비 ${widget.deliveryFee}',
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
+            SizedBox(height: 4),
+            // 변경: 세이브 배달 할인 정보 표시
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              constraints: BoxConstraints(maxWidth: widget.bW),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 변경: 세이브 아이콘 추가
+                  Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.amber,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'W',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  // 변경: 할인 정보 텍스트
+                  Flexible(
+                    child: Text(
+                      widget.saveDeliveryDiscount,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // 변경: 'wow+즉시할인' 텍스트 제거 (이미 위에 반영됨)
           ],
         ),
       ),
