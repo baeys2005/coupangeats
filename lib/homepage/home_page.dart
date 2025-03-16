@@ -78,7 +78,10 @@ class _HomepageState extends State<Homepage> with RouteAware {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(10))
             ),
-            builder: (context) => LoginBottomSheet());
+            builder: (context) {
+              CartOverlayManager.hideOverlay();
+              return LoginBottomSheet();
+            });
         return;
       }
     }
