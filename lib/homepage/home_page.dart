@@ -14,7 +14,8 @@ import 'home_gollamukmatzip.dart';
 import 'package:coupangeats/theme.dart';
 import 'package:coupangeats/myeatspage/myeatsPage.dart';
 import 'package:coupangeats/homepage/home_search.dart';
-
+import 'package:coupangeats/homepage/home_wow_promotion.dart';
+import 'home_popular_restaurants.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -26,7 +27,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> with RouteAware {
   int _currentIndex = 0;
 
-  OverlayEntry? _overlayEntry;//사장님 버튼 오버레이 관리
+  OverlayEntry? _overlayEntry; // 사장님 버튼 오버레이 관리
 
   void _showSwitchOverlay() {
     // 기존 오버레이가 있다면 제거
@@ -66,10 +67,10 @@ class _HomepageState extends State<Homepage> with RouteAware {
     myeatsPage(),
   ];
 
-  void _handleTabTap (int index){
-    if (index == 4){
+  void _handleTabTap(int index) {
+    if (index == 4) {
       final user = FirebaseAuth.instance.currentUser;
-      if(user == null){
+      if(user == null) {
         showModalBottomSheet(
             context: context,
             shape: RoundedRectangleBorder(
@@ -141,18 +142,21 @@ class _HomepageState extends State<Homepage> with RouteAware {
       }
     });
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // 현재 라우트를 구독 (context에서 현재 ModalRoute를 가져옴)
     routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
+
   @override
   void dispose() {
-// 홈페이지가 dispose 될 때 오버레이 제거
+    // 홈페이지가 dispose 될 때 오버레이 제거
     routeObserver.unsubscribe(this);
     super.dispose();
   }
+
   // 다른 페이지에서 돌아왔을 때 호출됨
   @override
   void didPopNext() {
@@ -162,12 +166,14 @@ class _HomepageState extends State<Homepage> with RouteAware {
       CartOverlayManager.showOverlay(context, bottom: 60);
     }
   }
-// 다른 라우트가 이 라우트를 덮을 때 호출됨.
+
+  // 다른 라우트가 이 라우트를 덮을 때 호출됨.
   @override
   void didPushNext() {
     // 예: 다른 페이지로 이동할 때 오버레이 숨기기
     CartOverlayManager.hideOverlay();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,40 +201,51 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return[
+            const PromotionalBanner(),
+          ];
+        },
+        body: CustomScrollView(
           slivers: [
-            // SliverAppBar
+            // SliverAppBar - 위치 정보
             SliverAppBar(
               floating: true,
               snap: true,
               backgroundColor: Colors.white,
               elevation: 0,
-              leadingWidth: 40,
+              leadingWidth: 10,
               leading: Padding(
-                padding: EdgeInsets.only(left: padding1),
-                child: IconButton(onPressed: (){
-
-                  CartOverlayManager.hideOverlay();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyaddressPage()
+                  padding: EdgeInsets.only(left: 0),
+                  child: Container(
+                    margin: EdgeInsets.only(left: 12),
+                    child: IconButton(
+                        onPressed: () {
+                          CartOverlayManager.hideOverlay();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MyaddressPage()
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.location_on_outlined, color: Color(0xff222B34), size: 20)
                     ),
-                  );
-
-                }, icon: Icon(Icons.near_me, color: Colors.yellow, size: 20))
-                //child: ,
+                  ),
               ),
+              titleSpacing: 20,
               title: Row(
                 children: [
                   Expanded(
                     child: Text(
                       '경기도 성남시 수정구 성담대로1390번길',
                       style: title1,
-                      overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow.visible, // 말줄임표 제거
+                      maxLines: 1, // 여러 줄로 표시 허용
                     ),
                   ),
+                  SizedBox(width: 60),
                   Icon(Icons.expand_more, color: Colors.blue, size: 30),
                 ],
               ),
@@ -239,10 +256,40 @@ class HomeContent extends StatelessWidget {
                 ),
               ],
             ),
+
+            // 검색창
             Search(),
 
-            // HomeFooldtile - 기존 코드 그대로 (이미 SliverToBoxAdapter 반환)
+            // 카테고리 타일 그리드
             HomeFooldtile(),
+
+            // WOW 광고 (이미지로 대체)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Image.asset(
+                  'assets/FT9.jpg', // 매 주문 무료배달 이미지 (실제 파일명으로 수정 필요)
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+
+            // 인기 레스토랑 섹션
+            HomePopularRestaurants(),
+
+            // 주문 하기 전 추가 혜택 받기 이미지
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Image.asset(
+                  'assets/FT8.jpg', // 추가 혜택 이미지 (실제 파일명으로 수정 필요)
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+
             // 이츠 추천 맛집 타이틀
             SliverPadding(
               padding: EdgeInsets.symmetric(
@@ -260,7 +307,7 @@ class HomeContent extends StatelessWidget {
               ),
             ),
 
-            // HomeRecommatzip - Sliver 위젯을 반환하도록 수정되었음
+            // 추천 맛집
             HomeRecommatzip(),
 
             // 골라먹는맛집 타이틀
@@ -273,6 +320,7 @@ class HomeContent extends StatelessWidget {
                 child: Text('골라먹는맛집', style: title1),
               ),
             ),
+
             // 골라먹는맛집 바
             SliverToBoxAdapter(
               child: Padding(
@@ -280,12 +328,9 @@ class HomeContent extends StatelessWidget {
                 child: GollamukmatzipBar(),
               ),
             ),
-            // HomeGollamukmatzip - Sliver 위젯을 반환하도록 수정되었음
-            HomeGollamukmatzip(),
 
-            // 여기서는 HomeGollamukmatzip을 또 호출하지 않습니다.
-            // 기존 코드에 있었다면 제거하거나,
-            // HomeGollamukmatzip이 일반 위젯을 반환하도록 수정하고 SliverToBoxAdapter로 감싸야 합니다.
+            // 골라먹는맛집 목록
+            HomeGollamukmatzip(),
           ],
         ),
       ),

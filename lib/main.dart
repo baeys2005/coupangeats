@@ -80,7 +80,9 @@ class MyApp extends StatelessWidget {
           appBarTheme: AppBarTheme(
               backgroundColor: Colors.white,
               iconTheme: IconThemeData(color: Colors.white),
-          surfaceTintColor: Colors.white)),
+          surfaceTintColor: Colors.white),
+        fontFamily: 'Neo Sans Pro'
+      ),
       title: 'coupangeats',
 
       initialRoute: '/',
