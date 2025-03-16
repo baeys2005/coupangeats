@@ -14,7 +14,7 @@ class HomePopularRestaurants extends StatelessWidget {
         children: [
           // Title with flame icon
           Padding(
-            padding: EdgeInsets.fromLTRB(padding1 * 2.5, padding1 * 2, padding1 * 2.5, padding1),
+            padding: EdgeInsets.fromLTRB(padding1 * 2.5, padding1 * 2, padding1 * 2.5, padding1/8),
             child: Row(
               children: [
                 const Text(
@@ -24,7 +24,7 @@ class HomePopularRestaurants extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 2),
                 Icon(Icons.local_fire_department, color: Colors.red, size: 24),
               ],
             ),
@@ -41,6 +41,7 @@ class HomePopularRestaurants extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(height: 10,),
 
           // Horizontal list of restaurants
           SizedBox(

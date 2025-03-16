@@ -1,3 +1,5 @@
+import 'package:coupangeats/homepage/home_wow_ad.dart';
+import 'package:coupangeats/homepage/home_wow_banner.dart';
 import 'package:coupangeats/login/login_bottom_sheet.dart';
 import 'package:coupangeats/mymappage/myaddress_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -264,31 +266,12 @@ class HomeContent extends StatelessWidget {
             HomeFooldtile(),
 
             // WOW 광고 (이미지로 대체)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Image.asset(
-                  'assets/FT9.jpg', // 매 주문 무료배달 이미지 (실제 파일명으로 수정 필요)
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-
+            HomeWowAd(),
             // 인기 레스토랑 섹션
             HomePopularRestaurants(),
 
             // 주문 하기 전 추가 혜택 받기 이미지
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Image.asset(
-                  'assets/FT8.jpg', // 추가 혜택 이미지 (실제 파일명으로 수정 필요)
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+           HomeWowBanner(),
 
             // 이츠 추천 맛집 타이틀
             SliverPadding(
@@ -310,11 +293,20 @@ class HomeContent extends StatelessWidget {
             // 추천 맛집
             HomeRecommatzip(),
 
+            SliverToBoxAdapter(
+              child: Container(
+                height: 12,
+                color: Color(0xFFEEEEEE), // 얇은 회색
+                margin: EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+
+
             // 골라먹는맛집 타이틀
             SliverPadding(
               padding: EdgeInsets.symmetric(
                 horizontal: padding1 * 2.5,
-                vertical: padding1,
+                vertical: padding1*3,
               ),
               sliver: SliverToBoxAdapter(
                 child: Text('골라먹는맛집', style: title1),

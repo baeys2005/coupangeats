@@ -1,124 +1,164 @@
 import 'package:flutter/material.dart';
 import 'package:coupangeats/theme.dart';
 
-class HomeWowBanner extends StatefulWidget {
+class HomeWowBanner extends StatelessWidget {
   const HomeWowBanner({Key? key}) : super(key: key);
 
   @override
-  State<HomeWowBanner> createState() => _HomeWowBannerState();
-}
-
-class _HomeWowBannerState extends State<HomeWowBanner> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-  final List<String> _bannerImages = [
-    'assets/homepage_wow_1.png',
-    'assets/homepage_wow_2.png',
-    'assets/homepage_wow_3.png',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    // Auto slide the banner every 5 seconds
-    Future.delayed(Duration.zero, () {
-      _autoSlide();
-    });
-  }
-
-  void _autoSlide() {
-    Future.delayed(const Duration(seconds: 5), () {
-      if (_pageController.hasClients) {
-        final nextPage = (_currentPage + 1) % _bannerImages.length;
-        _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-        if (mounted) {
-          _autoSlide();
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(padding1),
-      height: 180,
-      child: Stack(
-        children: [
-          // Banner images
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemCount: _bannerImages.length,
-            itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  _bannerImages[index],
-                  fit: BoxFit.cover,
-                ),
-              );
-            },
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
+        child: Container(
+          width: double.infinity,
+          height: 130, // Increased height to accommodate bottom padding
+          padding: const EdgeInsets.only(bottom: 20), // Added bottom padding
+          decoration: BoxDecoration(
+            color: const Color(0xFF6A3DEA), // 진한 보라색 배경
+            borderRadius: BorderRadius.circular(0),
           ),
-
-          // Close button
-          Positioned(
-            right: 8,
-            top: 8,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 20,
-                ),
-                onPressed: () {
-                  // Hide banner logic can be added here
-                },
-              ),
-            ),
-          ),
-
-          // Page indicator
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: Row(
-              children: List.generate(
-                _bannerImages.length,
-                    (index) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  width: 8,
-                  height: 8,
+          child: Stack(
+            children: [
+              // 동그라미 패턴 장식 (왼쪽 상단)
+              Positioned(
+                top: -15,
+                left: -15,
+                child: Container(
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
                     shape: BoxShape.circle,
-                    color: _currentPage == index
-                        ? Colors.blue
-                        : Colors.grey.withOpacity(0.5),
                   ),
                 ),
               ),
-            ),
+
+              // 작은 동그라미 패턴 (오른쪽 위)
+              Positioned(
+                top: 15,
+                right: 100,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+
+              // 쿠팡 카드 이미지
+              Positioned(
+                left: 20,
+                bottom: 10,
+                child: Transform.rotate(
+                  angle: -0.1, // 약간 회전
+                  child: Container(
+                    width: 80,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B96FF), // 쿠팡 카드 파란색
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        "COUPANG",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // 금색 동전들
+              Positioned(
+                bottom: 25,
+                left: 70,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFD700),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 40,
+                left: 90,
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFD700),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+
+              // 텍스트 부분
+              Positioned(
+                top: 25,
+                left: 140,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "쿠팡 와우회원이라면",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "주문 하기 전\n추가 혜택 받기",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 날짜와 전체보기 버튼
+              Positioned(
+                bottom: 10,
+                right: 15,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: const Text(
+                    "11 / 11 전체보기",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

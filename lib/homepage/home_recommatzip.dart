@@ -18,7 +18,7 @@ class _HomeRecommatzipState extends State<HomeRecommatzip> {
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: SizedBox(
-        height: 300,
+        height: 250,
         child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('stores').snapshots(),
             builder: (context, snapshot) {
