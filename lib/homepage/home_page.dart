@@ -242,11 +242,14 @@ class HomeContent extends StatelessWidget {
               titleSpacing: 20,
               title: Row(
                 children: [
+                  SizedBox(width: MediaQuery.of(context).size.width < 375 ? 20 : 0),//오른쪽 아이폰, 왼쪽 z플립
                   Expanded(
                     child: Text(
                       '경기도 성남시 수정구 성담대로1390번길',
                       style: title1,
-                      overflow: TextOverflow.visible, // 말줄임표 제거
+                      overflow: MediaQuery.of(context).size.width < 375
+                          ? TextOverflow.ellipsis // 아이폰보다 폭이 작으면 말줄임표(...)
+                          : TextOverflow.visible, // 아이폰 이상 크기에서는 전체 표시
                       maxLines: 1, // 여러 줄로 표시 허용
                     ),
                   ),
