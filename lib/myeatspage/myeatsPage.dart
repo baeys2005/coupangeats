@@ -161,6 +161,7 @@ class _myeatsPageState extends State<myeatsPage> {
               },
             ),
             if (_isOwner) const OwnerPageButton(), //사장님 ㅇㅋ면 사장님 페이지 버튼 표시
+            SizedBox(height: 100,)
           ],
         ),
       ),
