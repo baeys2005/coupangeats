@@ -82,9 +82,20 @@ class _SignupPageState extends State<SignupPage> {
             );
             Navigator.pushNamed(context, '/');
           }
-        } on FirebaseAuthException catch (e) {
+        }  on FirebaseAuthException catch (e) {
+          String message;
+
+          // FirebaseAuth 제공 Error Code에 따른 분기 처리
+          switch (e.code) {
+            case 'email-already-in-use':
+              message = '이미 있는 계정정보 입니다.';
+              break;
+            default:
+              message = '회원가입에 실패하였습니다.';
+          }
+
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.message}')),
+            SnackBar(content: Text(message)),
           );
         }
       }

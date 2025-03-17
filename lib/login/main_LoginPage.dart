@@ -153,8 +153,26 @@ class _MainLoginpageState extends State<MainLoginpage> {
                 Navigator.pushReplacementNamed(context, '/');
               }
             } on FirebaseAuthException catch (e) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('Error: ${e.message}')));
+              String message;
+
+              // FirebaseAuth 제공 Error Code에 따른 분기 처리
+              switch (e.code) {
+                case 'wrong-password':
+                  message = '비밀번호가 잘못되었습니다.';
+                  break;
+                case 'user-not-found':
+                  message = '계정정보가 없습니다.';
+                  break;
+                case 'invalid-email':
+                  message = '아이디가 잘못되었습니다.'; // 이메일 형식 자체가 잘못된 경우
+                  break;
+                default:
+                  message = '로그인에 실패했습니다.';
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(message)),
+              );
             }
           }
         },
