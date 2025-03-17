@@ -19,7 +19,10 @@ class _StoreInfosState extends State<StoreInfos> {
 
     super.initState();
     final storeProv = Provider.of<StoreProvider>(context, listen: false);
-    storeProv.loadStoreData("store123");
+    // 2) (선택) 기존 데이터 초기화
+    storeProv.resetStoreData();
+    // 3) _tempStoreId 로 불러오기
+    storeProv.loadStoreData(storeProv.tempStoreId);
   }
 
   @override

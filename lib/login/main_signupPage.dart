@@ -14,6 +14,7 @@ class _SignupPageState extends State<SignupPage> {
   final _key = GlobalKey<FormState>();
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+  bool _isHidden = true;  // <-- 수정된 부분
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pwdController = TextEditingController();
@@ -83,15 +84,31 @@ class _SignupPageState extends State<SignupPage> {
             Navigator.pushNamed(context, '/');
           }
         }  on FirebaseAuthException catch (e) {
+          print('Error code: ${e.code}');
           String message;
 
           // FirebaseAuth 제공 Error Code에 따른 분기 처리
           switch (e.code) {
             case 'email-already-in-use':
-              message = '이미 있는 계정정보 입니다.';
+            // 이미 사용 중인 이메일 주소
+              message = '이미 사용 중인 이메일 계정입니다.';
+              break;
+            case 'invalid-email':
+            // 이메일 형식이 올바르지 않음
+              message = '유효하지 않은 이메일 주소입니다.';
+              break;
+            case 'operation-not-allowed':
+            // 이메일/비번 가입이 비활성화된 경우 (Firebase Console에서 해당 방식이 off)
+              message = '현재 이메일 가입이 불가능합니다. 관리자에게 문의해주세요.';
+              break;
+            case 'weak-password':
+            // 비밀번호가 6자리 미만 등 보안적으로 취약
+              message = '비밀번호가 보안에 취약합니다. 더 복잡하게 설정해주세요.';
               break;
             default:
+            // 그 외 처리되지 않은 에러
               message = '회원가입에 실패하였습니다.';
+              break;
           }
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -230,7 +247,7 @@ class _SignupPageState extends State<SignupPage> {
   TextFormField passwordInput() {
     return TextFormField(
       controller: _pwdController,
-      obscureText: true,
+      obscureText: _isHidden,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.grey[100],
@@ -240,6 +257,18 @@ class _SignupPageState extends State<SignupPage> {
         ),
         hintText: '비밀번호를 입력하세요',
         prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+        // 3) suffixIcon에 IconButton 추가해 _isHidden을 토글
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isHidden ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _isHidden = !_isHidden; // <-- 비밀번호 보임/가림 상태 토글
+            });
+          },
+        ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
@@ -358,8 +387,35 @@ class _SignupPageState extends State<SignupPage> {
                 Navigator.pushNamed(context, "/");
               }
             } on FirebaseAuthException catch (e) {
+              print('Error code: ${e.code}');
+              String message;
+
+              // FirebaseAuth 제공 Error Code에 따른 분기 처리
+              switch (e.code) {
+                case 'email-already-in-use':
+                // 이미 사용 중인 이메일 주소
+                  message = '이미 사용 중인 이메일 계정입니다.';
+                  break;
+                case 'invalid-email':
+                // 이메일 형식이 올바르지 않음
+                  message = '유효하지 않은 이메일 주소입니다.';
+                  break;
+                case 'operation-not-allowed':
+                // 이메일/비번 가입이 비활성화된 경우 (Firebase Console에서 해당 방식이 off)
+                  message = '현재 이메일 가입이 불가능합니다. 관리자에게 문의해주세요.';
+                  break;
+                case 'weak-password':
+                // 비밀번호가 6자리 미만 등 보안적으로 취약
+                  message = '비밀번호가 보안에 취약합니다. 더 복잡하게 설정해주세요.';
+                  break;
+                default:
+                // 그 외 처리되지 않은 에러
+                  message = '회원가입에 실패하였습니다.';
+                  break;
+              }
+
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Error: ${e.message}')),
+                SnackBar(content: Text(message)),
               );
             }
           }

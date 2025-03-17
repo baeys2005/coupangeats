@@ -68,6 +68,8 @@ class _StorePageState extends State<StorePage>
     final storeProv = Provider.of<StoreProvider>(context, listen: false);
     // 1) 이전 데이터가 남아있지 않도록 초기화
     storeProv.resetStoreData();
+    // (2) 임시 storeID에 저장
+    storeProv.setTempStoreId(widget.storeId);  // ← 추가
     // 2) 새 storeId로 로딩
     storeProv.loadStoreData(widget.storeId);
 

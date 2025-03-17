@@ -63,9 +63,11 @@ class _OwnerSwitchState extends State<OwnerSwitch> {
       child: CupertinoSwitch(
         value: switchState.isChecked,
         activeColor: Colors.blue,
-        onChanged: (value) {
+        onChanged: (value) async {
           // 스위치를 켤 때
           if (value) {
+            // 1) 항상 최신 role을 불러온다. (Firestore -> userInfo.userRole)
+            await userInfo.loadUserInfo();
             debugPrint("역할"+userInfo.userRole);
             // role이 "사장님"이면 Storeownerpage로 이동
             if (userInfo.userRole == "사장님") {
@@ -79,9 +81,14 @@ class _OwnerSwitchState extends State<OwnerSwitch> {
               showDialog(
                 context: context,
                 builder: (context) => OwnerRegistrationDialog(
-                  onOwnershipChanged: (bool isOwner) {
+                  onOwnershipChanged: (bool isOwner) async {
                     // 예를 들어, 사장님 등록이 성공했을 때 추가 작업을 할 수 있음
                     debugPrint("Owner status changed: $isOwner");
+                    // 다이얼로그에서 사장님 등록이 성공(isOwner == true)했다면
+                    // 다시 userInfo를 reload해서 최신화할 수 있음
+                    if (isOwner) {
+                      await userInfo.loadUserInfo();
+                    }
                   },
                 ),
               ).then((_) {
