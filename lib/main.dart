@@ -73,6 +73,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final switchState = Provider.of<SwitchState>(context, listen: false);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -89,12 +90,24 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       navigatorObservers: [routeObserver], /// 오버레이 관리를 위한 라우터
       routes: {
-        '/': (context) => const Homepage(),
-        '/signup': (context) => const SignupPage(),
-        '/login': (context) => const MainLoginpage(),
-        '/MainLoginpage': (context) => const MainLoginpage(),
-        '/owner': (context) => const Storeownerpage(),
-        '/Howmanyfood': (context) => const HowManyFood()
+        '/': (context) {
+          return const Homepage();
+        },
+        '/signup': (context) {
+          return const SignupPage();
+        },
+        '/login': (context) {
+          return const MainLoginpage();
+        },
+        '/MainLoginpage': (context) {
+          return const MainLoginpage();
+        },
+        '/owner': (context) {
+          return const Storeownerpage();
+        },
+        '/Howmanyfood': (context) {
+          return const HowManyFood();
+        }
       },
     );
   }

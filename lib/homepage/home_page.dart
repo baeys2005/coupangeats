@@ -70,6 +70,15 @@ class _HomepageState extends State<Homepage> with RouteAware {
   ];
 
   void _handleTabTap(int index) {
+    // ★ index == 2인 버튼(=FavoritesPage)을 누르면 임의로 doSomething() 실행
+    if (index == 0) {
+      final switchState = Provider.of<SwitchState>(context, listen: false);
+      switchState.showOwnerSwitch();
+    }
+    if (index == 1||index == 2||index ==3) {
+      final switchState = Provider.of<SwitchState>(context, listen: false);
+      switchState.hideOwnerSwitch();
+    }
     if (index == 4) {
       final user = FirebaseAuth.instance.currentUser;
       if(user == null) {
