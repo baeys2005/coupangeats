@@ -1,5 +1,6 @@
 import 'package:coupangeats/providers/store_info_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:provider/provider.dart';
 
 class StoreInfos extends StatefulWidget {
@@ -10,6 +11,8 @@ class StoreInfos extends StatefulWidget {
 }
 
 class _StoreInfosState extends State<StoreInfos> {
+
+  NaverMapController? _controller;
   @override
   void initState() {
 
@@ -22,6 +25,11 @@ class _StoreInfosState extends State<StoreInfos> {
   @override
   Widget build(BuildContext context) {
     final storeProv = Provider.of<StoreProvider>(context);
+// 좌표가 null이 아닐 경우, GeoPoint를 NLatLng로 변환
+    final double storeLat = storeProv.latitude ?? 37.5665;
+    final double storeLon = storeProv.longitude ?? 126.9780;
+    final NLatLng storeLatLng = NLatLng(storeLat, storeLon);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -32,9 +40,29 @@ class _StoreInfosState extends State<StoreInfos> {
           child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 네이버 지도를 표시하는 부분
           Container(
-            color: Colors.grey,
             height: 200,
+            // 지도 위젯: 가게 좌표를 초기 카메라 위치로 사용
+            child: NaverMap(
+              options: NaverMapViewOptions(
+                initialCameraPosition: NCameraPosition(
+                  target: storeLatLng,
+                  zoom: 15,
+                ),
+                mapType: NMapType.basic,
+                locationButtonEnable: false,
+              ),
+              onMapReady: (controller) {
+                _controller = controller;
+                // 마커 추가
+                final marker = NMarker(
+                  id: "storeMarker",
+                  position: storeLatLng,
+                );
+                controller.addOverlay(marker);
+              },
+            ),
           ),
           titleText(storeProv.storeName),
           bodyText(storeProv.storeAddress),

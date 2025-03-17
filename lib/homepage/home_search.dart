@@ -8,7 +8,7 @@ class Search extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20, 3, 20, 10),
+        padding: EdgeInsets.fromLTRB(20, 40, 20, 10),
         child: GestureDetector(
           onTap: () {
             Navigator.push(

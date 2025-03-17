@@ -2,7 +2,8 @@ import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
 
 class DiliveryBeforeOrder extends StatefulWidget {
-  const DiliveryBeforeOrder({super.key});
+  final String deliveryAddress;
+  const DiliveryBeforeOrder({super.key,required this.deliveryAddress});
 
   @override
   State<DiliveryBeforeOrder> createState() => _DiliveryBeforeOrderState();
@@ -54,7 +55,7 @@ class _DiliveryBeforeOrderState extends State<DiliveryBeforeOrder> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
-        Text('주소')
+        Text(widget.deliveryAddress)
       ],
     );
   }

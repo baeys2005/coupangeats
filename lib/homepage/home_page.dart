@@ -3,6 +3,7 @@ import 'package:coupangeats/mymappage/myaddress_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../main.dart';
 import '../orderpage/store_cart_bar.dart';
 import '../providers/cart_provider.dart';
 import '../providers/user_info_provider.dart';
@@ -22,7 +23,7 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _HomepageState extends State<Homepage> with RouteAware {
   int _currentIndex = 0;
 
   OverlayEntry? _overlayEntry;//사장님 버튼 오버레이 관리
@@ -55,7 +56,11 @@ class _HomepageState extends State<Homepage> {
 
   final List<Widget> _pages = [
     HomeContent(),
-    Search(),
+    CustomScrollView(
+      slivers: [
+        Search(),
+      ],
+    ),
     FavoritesPage(),
     OrderHistoryPage(),
     myeatsPage(),
@@ -136,13 +141,33 @@ class _HomepageState extends State<Homepage> {
       }
     });
   }
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 현재 라우트를 구독 (context에서 현재 ModalRoute를 가져옴)
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
   @override
   void dispose() {
-
+// 홈페이지가 dispose 될 때 오버레이 제거
+    routeObserver.unsubscribe(this);
     super.dispose();
   }
-
+  // 다른 페이지에서 돌아왔을 때 호출됨
+  @override
+  void didPopNext() {
+    // 예: 장바구니에 아이템이 있으면 카트 바를 다시 표시
+    final cartProv = Provider.of<CartProvider>(context, listen: false);
+    if (cartProv.totalItemCount > 0) {
+      CartOverlayManager.showOverlay(context, bottom: 60);
+    }
+  }
+// 다른 라우트가 이 라우트를 덮을 때 호출됨.
+  @override
+  void didPushNext() {
+    // 예: 다른 페이지로 이동할 때 오버레이 숨기기
+    CartOverlayManager.hideOverlay();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

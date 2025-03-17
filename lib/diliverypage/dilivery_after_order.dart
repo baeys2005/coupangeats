@@ -1,10 +1,21 @@
 import 'package:coupangeats/theme.dart';
 import 'package:flutter/material.dart';
-import 'dart:async'; // Timer를 사용하기 위해 추가
+import 'package:provider/provider.dart';
+import 'dart:async';
+
+import '../homepage/home_page.dart';
+import '../orderpage/store_cart_bar.dart';
+import '../providers/cart_provider.dart'; // Timer를 사용하기 위해 추가
 //TODO: 지도에 내 집과 가게 표시. 두 좌표간의 거리로 배달시간 추적
 //TODO: 주소정보 불러오기.
 class DiliveryAfterOrder extends StatefulWidget {
-  const DiliveryAfterOrder({super.key});
+  // [추가] 예상 배달 시간을 전달받는 매개변수
+  // 예상 배달 시간(분)과 거리를 전달받는 매개변수 추가
+  final int estimatedMinutes; // 예: 45
+  final String distanceString; // 예: "3.25" (km 단위, 소수점 둘째자리)
+  final String deliveryAddress;
+  const DiliveryAfterOrder({super.key, required this.estimatedMinutes,
+    required this.distanceString,required this.deliveryAddress,});
 
   @override
   State<DiliveryAfterOrder> createState() => _DiliveryAfterOrderState();
@@ -19,13 +30,38 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
     super.initState();
     _startAutoStepChange(); // [추가] 자동 단계 변경 시작
   }
+  // [수정/추가] 타이머 콜백에서 currentStep이 3일 때 0으로 리셋되면 페이지를 종료하고 Homepage로 이동
+  // 타이머 콜백에서는 async 없이 currentStep 증가 처리
   void _startAutoStepChange() {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      setState(() {
-        currentStep = (currentStep + 1) % 4; // 3초마다 단계 변경
-      });
+      if (currentStep == 3) {
+        timer.cancel();
+        _onOrderCompleted(); // 주문 완료 처리 (비동기 함수 호출)
+      } else {
+        setState(() {
+          currentStep++;
+        });
+      }
     });
   }
+  // 주문 완료 시 실행할 비동기 함수
+  Future<void> _onOrderCompleted() async {
+    // 배달 완료 스낵바 표시
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('배달이 완료되었습니다.')),
+    );
+    // Firestore의 cart 컬렉션 삭제 (장바구니 비우기)
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    await cartProvider.clear();
+    // 페이지를 닫고 Homepage로 이동 (모든 이전 경로 제거)
+    CartOverlayManager.showOverlay(context, bottom: 60);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const Homepage()),
+          (route) => false,
+    );
+  }
+
 
   @override
   void dispose() {
@@ -55,22 +91,22 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
           ),
         ),
 
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: '0', // 숫자는 크게
-                  style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: '분', // "분"은 작게
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-                ),
-              ],
+        Row(
+          children: [
+            Text(
+              widget.estimatedMinutes.toString(),
+              style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
             ),
-          ),
+            const Text(
+              '분',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+            ),
+            const Spacer(), // 좌측 텍스트와 우측 텍스트 사이에 빈 공간을 채워줌
+            Text(
+              '약 ${widget.distanceString} km',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+            ),
+          ],
         ),
 // 수직 타임라인 추가
         OrderTimeline(currentStep: currentStep),
@@ -84,7 +120,7 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
-        Text('주소')
+        Text(widget.deliveryAddress)
       ],
     );
   }
