@@ -25,6 +25,7 @@ class Storeownerpage extends StatefulWidget {
 }
 
 class _StoreownerpageState extends State<Storeownerpage> {
+
   /// 최대 4장 이미지 URL 보관할 리스트
   List<String> _storeImageUrls = [];
 
@@ -96,15 +97,12 @@ class _StoreownerpageState extends State<Storeownerpage> {
               final List<XFile>? pickedFiles = await picker.pickMultiImage();
               if (pickedFiles == null || pickedFiles.isEmpty) return;
 
-              // 현재 등록된 파일(업로드된 + 로컬) 개수
-              int totalCount = _storeImageUrls.length + _tempLocalImages.length;
-              int availableSlot = 4 - totalCount; // 최대 4장까지 가능
-
-              // 넘어가면 안내
-              if (pickedFiles.length >= availableSlot) {
+              // [수정됨] 기존 저장된 사진 수와는 무관하게,
+              // '새로 추가하는' 사진들의 총 개수가 4장을 넘지 않도록 체크
+              if (pickedFiles.length > 4) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("이미지는 최대 4장까지 가능합니다. (남은 슬롯: $availableSlot장)"),
+                  const SnackBar(
+                    content: Text("이미지는 한 번에 최대 4장까지 선택할 수 있습니다."),
                   ),
                 );
                 return;
@@ -112,6 +110,19 @@ class _StoreownerpageState extends State<Storeownerpage> {
 
               // File로 변환 -> 로컬목록에 추가
               List<File> newFiles = pickedFiles.map((x) => File(x.path)).toList();
+
+              // [수정됨] '이미 추가하려고 담은' 이미지(_tempLocalImages)와 합쳐서도 4장 이하인지 확인
+              if (_tempLocalImages.length + newFiles.length > 4) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "추가하려는 사진이 총 4장을 초과합니다.",
+                    ),
+                  ),
+                );
+                return;
+              }
+
               setModalState(() {
                 _tempLocalImages.addAll(newFiles);
               });
@@ -123,10 +134,12 @@ class _StoreownerpageState extends State<Storeownerpage> {
               final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
               if (pickedFile == null) return;
 
-              int totalCount = _storeImageUrls.length + _tempLocalImages.length;
-              if (totalCount >= 4) {
+              // [수정됨] 카메라는 1장씩이므로, 현재 로컬목록에 3장 이하만 허용
+              if (_tempLocalImages.length >= 4) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("이미지는 최대 4장까지 가능합니다.")),
+                  const SnackBar(
+                    content: Text("이미지는 최대 4장까지 가능합니다."),
+                  ),
                 );
                 return;
               }
@@ -146,11 +159,22 @@ class _StoreownerpageState extends State<Storeownerpage> {
                 Navigator.pop(context);
                 return;
               }
+              // [수정됨] '새로 추가하는' 사진만 체크.
+              // 4장 초과 시 -> 바로 종료
+              if (_tempLocalImages.length > 4) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("최대 4장까지 업로드 가능합니다."),
+                  ),
+                );
+                return;
+              }
 
 
               final storeId = Provider.of<UserInfoProvider>(context, listen: false).userMyStore;
               // 0) Firestore의 기존 'storeImages' 필드를 먼저 전부 삭제
               final docRef = FirebaseFirestore.instance.collection('stores').doc(storeId);
+              // [수정됨] 기존 사진 제거
               await docRef.update({'storeImages': FieldValue.delete()});
 
               List<String> uploadedUrls = [];
@@ -162,8 +186,8 @@ class _StoreownerpageState extends State<Storeownerpage> {
               }
 
               if (uploadedUrls.isNotEmpty) {
-                // 기존 이미지 + 새로 업로드한 이미지
-                List<String> newList = [..._storeImageUrls, ...uploadedUrls];
+                // [수정됨] 기존 _storeImageUrls를 합치지 않고, 새 업로드만 저장
+                List<String> newList = uploadedUrls;
                 // 4장 초과 시 잘라내기
                 if (newList.length > 4) {
                   newList = newList.take(4).toList();
@@ -353,225 +377,233 @@ class _StoreownerpageState extends State<Storeownerpage> {
   Widget build(BuildContext context) {
     final storeProv = Provider.of<StoreProvider>(context);
     final userInfoProv = Provider.of<UserInfoProvider>(context);
+    final switchState = Provider.of<SwitchState>(context, listen: false);
     print('폰넘버'+userInfoProv.userPhone);
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: ()async {
+        //switchState.hideOwnerSwitch();
+        switchState.isChecked = false;
+        return true;
+      },
+      child: Scaffold(
 
-      body: Container(
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 50,
-            ),
-            Column(
-              children: [
-                Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    // 1) 배경 이미지
-                    Column(
-                      children: [
-                        // (1) 이미지 슬라이더 PageView
-                        SizedBox(
-                          height: 200,
-                          width: double.infinity,
-                          child: PageView.builder(
-                            controller: _pageController,
-                            itemCount: _storeImageUrls.isNotEmpty
-                                ? _storeImageUrls.length
-                                : 1, // 최소 1장(기본이미지)
-                            onPageChanged: (index) {
-                              setState(() {
-                                _currentPage = index;
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              if (_storeImageUrls.isNotEmpty) {
-                                // 실제 저장된 이미지를 보여줍니다
-                                final imageUrl = _storeImageUrls[index];
-                                return Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
-                                        color: Colors.white,
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.network(
-                                      'https://i.ibb.co/JwCxP9br/1000007044.jpg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                );
-                              } else {
-                                // 저장된 이미지가 없을 때는 기본이미지 1장을 보여줍니다
-                                return Container(
-                                  width: double.infinity,
-                                  height: 200, // 필요한 높이로 조정
-                                  color: Colors.grey[400],
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                        SizedBox(height: 50,)
-                      ],
-                    ),
-                    Positioned(
-                      bottom: 100,
-                      left: 0,
-                      right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          _storeImageUrls.isNotEmpty
-                              ? _storeImageUrls.length
-                              : 1, // 이미지가 없으면 1개짜리 인디케이터
-                              (index) {
-                            bool isActive = (index == _currentPage);
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              width: isActive ? 10 : 8,
-                              height: isActive ? 10 : 8,
-                              decoration: BoxDecoration(
-                                color: isActive ? Colors.white : Colors.grey,
-                                shape: BoxShape.circle,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                        right: 10,
-                        top: 20,
-                        child: IconButton(
-                          onPressed: () {
-                            _openImageManagementBottomSheet();
-                          },
-                          icon: Material(
-                            elevation: 5.0, // 그림자 높이
-                            shape: CircleBorder(), // 아이콘 버튼이 원형이라면 CircleBorder 사용
-                            shadowColor: Colors.black, // 그림자 색상
-                            color: Colors.transparent, // 배경을 투명하게 유지
-                            child: Icon(Icons.image, color: Colors.white, size: 30),
-                          ),
-                        ),),
-                    // 2) 텍스트만큼만 폭을 차지하며, 아래쪽에 위치
-                    Positioned(
-                      bottom: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1), // 그림자 색상
-                                offset: const Offset(-5, 0), // 왼쪽 그림자
-                                blurRadius: 7,
-                              ),
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1), // 그림자 색상
-                                offset: const Offset(5, 0), // 오른쪽 그림자
-                                blurRadius: 7,
-                              ),
-                        ],),
-                        child: Container(
-                            color: Colors.white,
-                            width: 300,
-                            height: 120, //글자상자 높이
-                            child: Center(
-                              child: Text(
-                                storeProv.storeName.isEmpty ? "가게명을 추가해주세요" : storeProv.storeName,
-                                style: pagetitle1,
-                              ),
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 50,
+              ),
+              Column(
+                children: [
+                  Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      // 1) 배경 이미지
+                      Column(
+                        children: [
+                          // (1) 이미지 슬라이더 PageView
+                          SizedBox(
+                            height: 200,
+                            width: double.infinity,
+                            child: PageView.builder(
+                              controller: _pageController,
+                              itemCount: _storeImageUrls.isNotEmpty
+                                  ? _storeImageUrls.length
+                                  : 1, // 최소 1장(기본이미지)
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentPage = index;
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                if (_storeImageUrls.isNotEmpty) {
+                                  // 실제 저장된 이미지를 보여줍니다
+                                  final imageUrl = _storeImageUrls[index];
+                                  return Image.network(
+                                    imageUrl,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.network(
+                                        'https://i.ibb.co/JwCxP9br/1000007044.jpg',
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  // 저장된 이미지가 없을 때는 기본이미지 1장을 보여줍니다
+                                  return Container(
+                                    width: double.infinity,
+                                    height: 200, // 필요한 높이로 조정
+                                    color: Colors.grey[400],
+                                  );
+                                }
+                              },
                             ),
                           ),
+                          SizedBox(height: 50,)
+                        ],
                       ),
-                    ),
-                  ],
-                ),
+                      Positioned(
+                        bottom: 100,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            _storeImageUrls.isNotEmpty
+                                ? _storeImageUrls.length
+                                : 1, // 이미지가 없으면 1개짜리 인디케이터
+                                (index) {
+                              bool isActive = (index == _currentPage);
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                width: isActive ? 10 : 8,
+                                height: isActive ? 10 : 8,
+                                decoration: BoxDecoration(
+                                  color: isActive ? Colors.white : Colors.grey,
+                                  shape: BoxShape.circle,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                          right: 10,
+                          top: 20,
+                          child: IconButton(
+                            onPressed: () {
+                              _openImageManagementBottomSheet();
+                            },
+                            icon: Material(
+                              elevation: 5.0, // 그림자 높이
+                              shape: CircleBorder(), // 아이콘 버튼이 원형이라면 CircleBorder 사용
+                              shadowColor: Colors.black, // 그림자 색상
+                              color: Colors.transparent, // 배경을 투명하게 유지
+                              child: Icon(Icons.image, color: Colors.white, size: 30),
+                            ),
+                          ),),
+                      // 2) 텍스트만큼만 폭을 차지하며, 아래쪽에 위치
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1), // 그림자 색상
+                                  offset: const Offset(-5, 0), // 왼쪽 그림자
+                                  blurRadius: 7,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1), // 그림자 색상
+                                  offset: const Offset(5, 0), // 오른쪽 그림자
+                                  blurRadius: 7,
+                                ),
+                          ],),
+                          child: Container(
+                              color: Colors.white,
+                              width: 300,
+                              height: 120, //글자상자 높이
+                              child: Center(
+                                child: Text(
+                                  storeProv.storeName.isEmpty ? "가게명을 추가해주세요" : storeProv.storeName,
+                                  style: pagetitle1,
+                                ),
+                              ),
+                            ),
+                        ),
+                      ),
+                    ],
+                  ),
 
-                //여기서 오류남 긍아ㅏ앙ㄱ
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  userInfoProv.userEmail,
-                  style: pagebody1,
-                ),
-                Text(
-                  userInfoProv.userPhone,//아니 숫자 왜 안뜸?
-                  style: pagebody1,
-                ),
-                SizedBox(
-                  height: 20,
-                )
-              ],
-            ),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.black12, width: 1)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return OwnerMenu();
-                        }));
-                      },
-                      child: Column(
-                        children: [
-                          Icon(Icons.menu_book),
-                          Text('메뉴관리'),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return OwnerSetting();
-                        }));
-                      },
-                      child: Column(
-                        children: [
-                          Icon(Icons.store_mall_directory_outlined),
-                          Text('가게설정'),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return OwnerMenu();
-                        }));
-                      },
-                      child: Column(
-                        children: [
-                          Icon(Icons.monetization_on_outlined),
-                          Text('수익관리'),
-                        ],
-                      ),
-                    ),
-
-                  ],
-                ),
+                  //여기서 오류남 긍아ㅏ앙ㄱ
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    userInfoProv.userEmail,
+                    style: pagebody1,
+                  ),
+                  Text(
+                    userInfoProv.userPhone,//아니 숫자 왜 안뜸?
+                    style: pagebody1,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  )
+                ],
               ),
-            )
-          ],
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.all(20),
+                  padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.black12, width: 1)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (c) {
+                            return OwnerMenu();
+                          }));
+                        },
+                        child: Column(
+                          children: [
+                            Icon(Icons.menu_book),
+                            Text('메뉴관리'),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (c) {
+                            return OwnerSetting();
+                          }));
+                        },
+                        child: Column(
+                          children: [
+                            Icon(Icons.store_mall_directory_outlined),
+                            Text('가게설정'),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (c) {
+                            return OwnerMenu();
+                          }));
+                        },
+                        child: Column(
+                          children: [
+                            Icon(Icons.monetization_on_outlined),
+                            Text('수익관리'),
+                          ],
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

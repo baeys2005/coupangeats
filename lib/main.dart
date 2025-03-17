@@ -85,8 +85,9 @@ class MyApp extends StatelessWidget {
       ),
       title: 'coupangeats',
 
+
       initialRoute: '/',
-      navigatorObservers: [routeObserver], // 여기 추가
+      navigatorObservers: [routeObserver], /// 오버레이 관리를 위한 라우터
       routes: {
         '/': (context) => const Homepage(),
         '/signup': (context) => const SignupPage(),

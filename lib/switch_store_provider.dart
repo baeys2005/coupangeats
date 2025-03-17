@@ -10,12 +10,26 @@ import 'ownerpage/storeownerPage.dart';
 
 class SwitchState with ChangeNotifier {
   bool _isChecked = false;
-
+  bool _hideOwnerSwitch = false; // ★ 추가: 사장님스위치 숨김 여부
   bool get isChecked => _isChecked;
-
+  bool get isHideOwnerSwitch => _hideOwnerSwitch;
   set isChecked(bool value) {
     if (_isChecked != value) {
       _isChecked = value;
+      notifyListeners();
+    }
+  }
+  // ★ 추가
+  void hideOwnerSwitch() {
+    if (!_hideOwnerSwitch) {
+      _hideOwnerSwitch = true;
+      notifyListeners();
+    }
+  }
+
+  void showOwnerSwitch() {
+    if (_hideOwnerSwitch) {
+      _hideOwnerSwitch = false;
       notifyListeners();
     }
   }
@@ -34,6 +48,15 @@ class _OwnerSwitchState extends State<OwnerSwitch> {
     // Provider에서 전역 스위치 상태와 사용자 정보를 가져옴
     final switchState = Provider.of<SwitchState>(context);
     final userInfo = Provider.of<UserInfoProvider>(context);
+
+    // 예: isHideOwnerSwitch 라는 bool 값이 SwitchState에 추가됐다 가정
+    final isHide = switchState.isHideOwnerSwitch;
+
+    // 만약 hide 상태면, SizedBox.shrink()로 대체
+    if (isHide) {
+      return const SizedBox.shrink();
+    }
+
 
     return Transform.scale(
       scale: 0.8,
