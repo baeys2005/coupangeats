@@ -151,12 +151,13 @@ class _StoreownerpageState extends State<Storeownerpage> {
 
             // 3) "이미지를 추가하시겠습니까? 예" -> 로컬이미지들 업로드 & Firestore 반영
             Future<void> uploadTempLocalImages() async {
+              // [수정] 버튼 누르는 즉시 BottomSheet 닫기
+              Navigator.pop(context);
               // [추가] 업로드 시작 전 스낵바 메시지 표시
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("사진을 저장중입니다 잠시만 기다려주세요")),
               );
               if (_tempLocalImages.isEmpty) {
-                Navigator.pop(context);
                 return;
               }
               // [수정됨] '새로 추가하는' 사진만 체크.

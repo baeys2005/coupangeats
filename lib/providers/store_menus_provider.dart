@@ -20,12 +20,15 @@ class MenuModel {
   final String name;
   final int price;
   final List<OptionModel> options;
+  // [수정 부분] 메뉴 이미지 URL 필드 추가
+  final String foodImgUrl;  // Firestore의 "foodimgurl"을 담을 필드
 
   MenuModel({
     required this.menuId,
     required this.name,
     required this.price,
     required this.options,
+    required this.foodImgUrl, // [수정 부분]
   });
 }
 
@@ -80,8 +83,12 @@ class StoreMenusProvider with ChangeNotifier {
         for (final menuDoc in menusSnapshot.docs) {
           final menuId = menuDoc.id;
           final menuData = menuDoc.data();
-          final menuName = menuData['name'] ?? '이름 없는 메뉴';
-          final menuPrice = menuData['price'] ?? 0;
+
+          // [수정 부분] 'name', 'price'뿐 아니라 'foodimgurl'도 같이 불러옴
+          final menuName = menuData['name'] ?? menuData['menuName'] ?? '이름 없는 메뉴';
+          final menuPrice = menuData['price'] ?? menuData['menuPrice'] ?? 0;
+          final foodImgUrl = menuData['foodimgurl'] ?? '';
+          // 만약 key 값이 'foodimgurl'이 아닐 경우, 실제 Firestore key 에 맞춰 수정해주세요
 
           // 3) 해당 메뉴의 옵션 목록 가져오기
           final optionsSnapshot =
@@ -98,6 +105,7 @@ class StoreMenusProvider with ChangeNotifier {
               optionId: optId,
               name: optName,
               price: optPrice,
+
             ));
           }
 
@@ -107,6 +115,7 @@ class StoreMenusProvider with ChangeNotifier {
               name: menuName,
               price: menuPrice,
               options: tempOptions,
+              foodImgUrl: foodImgUrl, // [수정 부분]
             ),
           );
         }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../orderpage/store_cart_bar.dart';
 import '../providers/cart_provider.dart';
+import '../providers/store_menus_provider.dart';
 
 //메뉴를 클릭하면 나타나는 주문페이지
 
@@ -11,6 +12,9 @@ class storeorderPage extends StatefulWidget {
   final int menuPrice;
   final String? menuImage;
   final String storeId; // [추가] 가게 ID 추가
+  // [추가] categoryId, menuId 필드
+  final String categoryId;
+  final String menuId;
 
   const storeorderPage({
     Key? key,
@@ -18,6 +22,9 @@ class storeorderPage extends StatefulWidget {
     required this.menuPrice,
     this.menuImage,
     required this.storeId, // [추가]
+    // [추가] 생성자 파라미터
+    required this.categoryId,
+    required this.menuId,
   }) : super(key: key);
 
   @override
@@ -50,9 +57,27 @@ class _storeorderPageState extends State<storeorderPage> {
   @override
   Widget build(BuildContext context) {
 
+
+// [수정 부분] 1) StoreMenusProvider에서 로딩된 데이터 접근
+    final storeMenusProv = Provider.of<StoreMenusProvider>(context);
+
+    // 로딩 중이면 로딩 표시
+    if (storeMenusProv.isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    // categoryId와 menuId로 실제 MenuModel 찾기
+    final category = storeMenusProv.categories.firstWhere(
+          (cat) => cat.categoryId == widget.categoryId,
+      orElse: () => throw Exception('Category not found'),
+    );
+    final menuModel = category.menus.firstWhere(
+          (m) => m.menuId == widget.menuId,
+      orElse: () => throw Exception('Menu not found'),
+    );
     // ★ CartProvider 인스턴스 가져오기 (listen: false 권장)
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-
     return WillPopScope(
       onWillPop: () async {
         ///다시 home 으로 돌아갈때.
@@ -88,21 +113,20 @@ class _storeorderPageState extends State<storeorderPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 메뉴 이미지
+                    // 메뉴 이미지
                     Container(
                       width: double.infinity,
                       height: 300,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                      ),
-                      child: widget.menuImage != null
+                      decoration: BoxDecoration(color: Colors.grey[200]),
+                      child: (menuModel.foodImgUrl.isNotEmpty)
                           ? Image.network(
-                        widget.menuImage!,
+                        menuModel.foodImgUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Center(
+                        errorBuilder: (_, __, ___) => const Center(
                           child: Icon(Icons.restaurant, size: 80, color: Colors.grey),
                         ),
                       )
-                          : Center(
+                          : const Center(
                         child: Icon(Icons.restaurant, size: 80, color: Colors.grey),
                       ),
                     ),

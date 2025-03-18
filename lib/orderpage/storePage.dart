@@ -166,6 +166,9 @@ class _StorePageState extends State<StorePage>
           menuName: menuItem['name'] ?? '메뉴 이름 없음',
           menuPrice: int.tryParse(menuItem['price'] ?? '0') ?? 0,
           storeId: widget.storeId, // [수정] 가게 ID 추가
+          // [추가] categoryId, menuId
+          categoryId: menuItem['categoryId'] ?? '',
+          menuId: menuItem['menuId'] ?? '',
         ),
       ),
     );
@@ -359,6 +362,8 @@ class _StorePageState extends State<StorePage>
                         return {
                           'name': m.name,
                           'price': m.price.toString(),
+                          'categoryId': category.categoryId, // [추가] 어떤 카테고리의 메뉴인지
+                          'menuId': m.menuId,               // [추가] 실제 메뉴 문서 ID
                         };
                       }).toList();
       
