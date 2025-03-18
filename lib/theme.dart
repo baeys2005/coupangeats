@@ -116,3 +116,64 @@ var searchButtonTheme=ElevatedButton.styleFrom(
   ),
   elevation: 1, // 버튼 그림자 높이
 );
+
+var mapPin=  IgnorePointer(
+  // 지도 위에서 터치 이벤트를 막지 않으려면 IgnorePointer 사용
+  child: Column(
+    mainAxisSize: MainAxisSize.min, // 내용물만큼만 크기 차지
+    children: [
+      // 1) 검정색 원 + 가운데 흰색 아웃라인 사람 아이콘
+      Container(
+        width: 40,
+        height: 40,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.black,
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.person_outline,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+
+      // 2) 작은 삼각형 (핀 꼬리 부분)
+      //  - CustomPaint로 직접 그려주거나, Transform을 이용할 수도 있음
+      Transform.translate(
+        offset: const Offset(0, -4), // 여기서 높이 조절 (예: -4)
+        child: CustomPaint(
+          size: const Size(14, 12),
+          painter: _TrianglePainter(Colors.black),
+        ),
+      ),
+    ],
+  ),
+);
+/// 삼각형을 그리는 CustomPainter
+class _TrianglePainter extends CustomPainter {
+  final Color color;
+  _TrianglePainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+    // 삼각형의 왼쪽 상단에서 시작
+      ..moveTo(0, 0)
+    // 오른쪽 상단으로 선
+      ..lineTo(size.width, 0)
+    // 아래쪽 중앙으로 선
+      ..lineTo(size.width / 2, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TrianglePainter oldDelegate) => false;
+}
