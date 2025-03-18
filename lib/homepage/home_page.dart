@@ -73,6 +73,7 @@ class _HomepageState extends State<Homepage> with RouteAware {
     // ★ index == 2인 버튼(=FavoritesPage)을 누르면 임의로 doSomething() 실행
     if (index == 0) {
       final switchState = Provider.of<SwitchState>(context, listen: false);
+      CartOverlayManager.showOverlay(context,bottom: 60);
       switchState.showOwnerSwitch();
     }
     if (index == 1||index == 2||index ==3) {
@@ -275,7 +276,48 @@ class HomeContent extends StatelessWidget {
             ),
 
             // 검색창
-            Search(),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SearchPage()),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(width: 1, color: Colors.grey.withOpacity(0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.search, color: Colors.black87),
+                        SizedBox(width: 12),
+                        Text(
+                          '음식, 가게를 검색해보세요',
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
             // 카테고리 타일 그리드
             HomeFooldtile(),
