@@ -1,29 +1,46 @@
-import 'package:coupangeats/providers/store_info_provider.dart';
+import 'package:coupangeats/orderpage/storePage.dart';
+import 'package:coupangeats/orderpage/store_appBar_delivery.dart';
+import 'package:coupangeats/orderpage/store_appBar_takeout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:provider/provider.dart';
 
-class StoreInfos extends StatefulWidget {
-  const StoreInfos({super.key});
+
+class StoreInfo extends StatefulWidget {
+  final int selectedContent;
+  final Function(int) onContentChange;
+
+  const StoreInfo({
+    super.key,
+    required this.selectedContent,
+    required this.onContentChange,
+  });
 
   @override
-  State<StoreInfos> createState() => _StoreInfosState();
+  State<StoreInfo> createState() => _StoreInfoState();
 }
 
-class _StoreInfosState extends State<StoreInfos> {
 
-  NaverMapController? _controller;
+class _StoreInfoState extends State<StoreInfo> {
+  int _selectedContent = 0; // 0: 배달, 1: 포장
+  double flexibleSpace = 600;
+  void _changeContent(int index) {
+    setState(() {
+      _selectedContent = index;
+    });
+  }
+
+
   @override
   void initState() {
-
-
     super.initState();
-    final storeProv = Provider.of<StoreProvider>(context, listen: false);
-    storeProv.loadStoreData("store123");
+    // 초기값으로 상위 위젯에서 전달받은 선택 값 사용
+    _selectedContent = widget.selectedContent;
   }
 
   @override
   Widget build(BuildContext context) {
+
     final storeProv = Provider.of<StoreProvider>(context);
 // 좌표가 null이 아닐 경우, GeoPoint를 NLatLng로 변환
     final double storeLat = storeProv.latitude ?? 37.5665;
@@ -42,102 +59,89 @@ class _StoreInfosState extends State<StoreInfos> {
         children: [
           // 네이버 지도를 표시하는 부분
           Container(
-            height: 200,
-            // 지도 위젯: 가게 좌표를 초기 카메라 위치로 사용
-            child: NaverMap(
-              options: NaverMapViewOptions(
-                initialCameraPosition: NCameraPosition(
-                  target: storeLatLng,
-                  zoom: 15,
-                ),
-                mapType: NMapType.basic,
-                locationButtonEnable: false,
-              ),
-              onMapReady: (controller) {
-                _controller = controller;
-                // 마커 추가
-                final marker = NMarker(
-                  id: "storeMarker",
-                  position: storeLatLng,
-                );
-                controller.addOverlay(marker);
-              },
+
+            height: 40,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              // 배경색은 흰색으로 설정
+              color: Colors.white,
             ),
+            child: Stack(
+              children: [
+                // 아래 선을 먼저 그립니다 (회색 기본선)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 1, // 얇은 선
+                    color: Colors.grey.withOpacity(0.3), // 연한 회색 선
+                  ),
+                ),
+
+                // 선택된 탭 아래에만 파란색 선 표시 - 수정됨: 두께 강화, 색상 명확히
+                Positioned(
+                  bottom: 0,
+                  left: _selectedContent == 0
+                      ? 0
+                      : MediaQuery.of(context).size.width / 2,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width / 2,
+                    height: 3, // 선택된 탭의 선은 더 굵게 수정
+                    color: Colors.blue, // 파란색 선
+                  ),
+                ),
+
+                // 탭 버튼
+                Row(
+                  children: [
+                    _buildTabButton('배달', 0),
+                    _buildTabButton('포장', 1),
+                  ],
+                ),
+              ],
+            ),
+
           ),
-          titleText(storeProv.storeName),
-          bodyText(storeProv.storeAddress),
-          SizedBox(
-            height: 20,
-          ),
-          buildTitleText('대표자명', storeProv.storeOwnerName),
-          buildTitleText('사업자등록번호', storeProv.storeBizNumber),
-          buildTitleText('상호명', storeProv.storeName),
-          titleText('영업시간'),
-          bodyText(storeProv.storeTime),
-          titleText('매장소개'),
-          bodyText(storeProv.storeIntro),
-          titleText('원산지 정보'),
-          bodyText(storeProv.storeOrigin),
-          SizedBox(height: 25,),
-          Divider(
-            color: Colors.blueGrey.withOpacity(0.1), // 선 색상
-            thickness: 7, // 선 두께
-            height: 20, // 위아래 여백
-          )
-          ,
-          SizedBox(height: 25,),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: Container(child: Text('쿠팡이츠 고객 지원 바로가기 '),),
-          ),
-          SizedBox(height: 25,),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25),
-            child: Container(child: Text('쿠팡은 통신판매중개자로서 통신판매의 당사자가 아니며, 판매자가 등록한 상품정보, 상품의 품질 및 거래에 대해서 일체의 책임을 지지 않습니다.',style: TextStyle(fontSize: 10),),),
-          ),
-          SizedBox(height: 25,),
+          _selectedContent == 0
+              ? const StoreInfoDelivery()
+              : const StoreInfoTakeout(),
         ],
-      )),
+      ),
     );
   }
-}
 
-Widget titleText(String text) {
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(25, 25, 25, 5),
-    child: Container(
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 20, // 글자 크기 크게
-          fontWeight: FontWeight.bold, // 두껍게
+  // 수정: 버튼 클릭 시 상태 변경 및 콜백 호출
+  Widget _buildTabButton(String title, int index) {
+    // 선택된 경우와 그렇지 않은 경우 색상 구분
+    final bool isSelected = _selectedContent == index;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () {
+          // 버튼 클릭 시 상태 변경
+          setState(() {
+            _selectedContent = index;
+          });
+          // 상위 위젯에 변경 알림
+          widget.onContentChange(index);
+        },
+        child: Container(
+          height: 40,
+          alignment: Alignment.center,
+          // 배경색은 항상 흰색으로 유지
+          color: Colors.white,
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              // 선택된 경우 파란색, 선택되지 않은 경우 검은색
+              color: isSelected ? Colors.blue : Colors.black,
+            ),
+          ),
         ),
       ),
-    ),
-  );
-}
-
-Widget bodyText(String text) {
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-    child: Container(
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 15,
-        ),
-      ),
-    ),
-  );
-}
-Widget buildTitleText(String label, String value) {
-  return Container(
-    padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-    child: Text(
-      '$label: $value',
-      style: const TextStyle(
-        fontSize: 15,       // 두껍게
-      ),
-    ),
-  );
+    );
+  }
 }

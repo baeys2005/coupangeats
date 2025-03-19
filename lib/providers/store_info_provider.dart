@@ -11,6 +11,17 @@ class StoreProvider with ChangeNotifier {
   String storeAddress = '';
   String storeBizNumber = '';
   List<String> storeImages = [];
+
+  // 새로 추가된 속성들
+  double _storeRating = 0.0;
+  int _reviewCount = 0;
+  bool _hasWowDiscount = false;
+
+  // 새로 추가된 getter 메서드들
+  double get storeRating => _storeRating;
+  int get reviewCount => _reviewCount;
+  bool get hasWowDiscount => _hasWowDiscount;
+
   String storeIntro = '';
   String storeName = '';
   String storeNotice = '';
@@ -21,6 +32,7 @@ class StoreProvider with ChangeNotifier {
   // [수정] 기존 GeoPoint storeLocation 대신 별도의 latitude, longitude 필드로 저장
   double? latitude;
   double? longitude;
+
   /// [resetStoreData] : 이전 store 데이터가 남아있지 않도록 초기화(StorePage문제해결)
   void resetStoreData() {
     _isLoading = true;
@@ -30,10 +42,14 @@ class StoreProvider with ChangeNotifier {
     latitude = null; // [수정] 초기화
     longitude = null; // [수정] 초기화
 
+    // 새로 추가된 속성들 초기화
+    _storeRating = 0.0;
+    _reviewCount = 0;
+    _hasWowDiscount = false;
+
     // ... 등등 다른 필드도 기본값으로
     notifyListeners();
   }
-
 
   /// Firestore에서 특정 가게 문서(storeId)의 모든 필드 불러오기
   Future<void> loadStoreData(String storeId) async {
@@ -69,7 +85,29 @@ class StoreProvider with ChangeNotifier {
         storeOwnerName = data['storeOwnerName'] ?? '';
         storeTime = data['storeTime'] ?? '';
         storeTip = data['storeTip'] ?? '';
-// [수정] 기존 storeLocation 필드를 읽는 대신, 별도의 latitude, longitude 필드 읽기
+
+        // 별점 데이터 파싱 (새로 추가)
+        if (data.containsKey('storeRating') && data['storeRating'] is num) {
+          _storeRating = (data['storeRating'] as num).toDouble();
+        } else {
+          _storeRating = 4.9; // 기본값
+        }
+
+        // 리뷰 개수 파싱 (새로 추가)
+        if (data.containsKey('reviewCount') && data['reviewCount'] is num) {
+          _reviewCount = (data['reviewCount'] as num).toInt();
+        } else {
+          _reviewCount = 412; // 기본값
+        }
+
+        // WOW 할인 여부 파싱 (새로 추가)
+        if (data.containsKey('hasWowDiscount') && data['hasWowDiscount'] is bool) {
+          _hasWowDiscount = data['hasWowDiscount'] as bool;
+        } else {
+          _hasWowDiscount = true; // 기본값
+        }
+
+        // [수정] 기존 storeLocation 필드를 읽는 대신, 별도의 latitude, longitude 필드 읽기
         if (data.containsKey('latitude') && data.containsKey('longitude')) {
           double? lat = data['latitude'] is num ? (data['latitude'] as num).toDouble() : null;
           double? lon = data['longitude'] is num ? (data['longitude'] as num).toDouble() : null;
@@ -119,6 +157,48 @@ class StoreProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('❌ updateStoreLocation 실패: $e');
+    }
+  }
+
+  /// [updateStoreRating] : 가게의 별점과 리뷰 수를 업데이트하는 메서드 (새로 추가)
+  Future<void> updateStoreRating(double newRating, int newReviewCount) async {
+    if (storeId.isEmpty) {
+      print('❌ updateStoreRating 실패: storeId가 비어있음');
+      return;
+    }
+    try {
+      await FirebaseFirestore.instance.collection('stores').doc(storeId).update({
+        'storeRating': newRating,
+        'reviewCount': newReviewCount,
+      });
+
+      // 로컬 변수 업데이트
+      _storeRating = newRating;
+      _reviewCount = newReviewCount;
+      print('[DEBUG] updateStoreRating 완료: 별점 $newRating, 리뷰 수 $newReviewCount');
+      notifyListeners();
+    } catch (e) {
+      print('❌ updateStoreRating 실패: $e');
+    }
+  }
+
+  /// [updateWowDiscount] : 가게의 WOW 할인 여부를 업데이트하는 메서드 (새로 추가)
+  Future<void> updateWowDiscount(bool hasDiscount) async {
+    if (storeId.isEmpty) {
+      print('❌ updateWowDiscount 실패: storeId가 비어있음');
+      return;
+    }
+    try {
+      await FirebaseFirestore.instance.collection('stores').doc(storeId).update({
+        'hasWowDiscount': hasDiscount,
+      });
+
+      // 로컬 변수 업데이트
+      _hasWowDiscount = hasDiscount;
+      print('[DEBUG] updateWowDiscount 완료: $hasDiscount');
+      notifyListeners();
+    } catch (e) {
+      print('❌ updateWowDiscount 실패: $e');
     }
   }
 }

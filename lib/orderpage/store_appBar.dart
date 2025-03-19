@@ -1,3 +1,6 @@
+// store_appBar.dart 파일에서 수정
+// 배달, 포장 버튼 스타일 변경
+
 import 'package:coupangeats/orderpage/storePage.dart';
 import 'package:coupangeats/orderpage/store_appBar_delivery.dart';
 import 'package:coupangeats/orderpage/store_appBar_takeout.dart';
@@ -39,20 +42,21 @@ class _StoreInfoState extends State<StoreInfo> {
             height: 40,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              // 배경색 제거 (회색 제거)
+              color: Colors.white,
             ),
             child: Stack(
               children: [
                 // 🔹 애니메이션 인디케이터 (배경)
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 100),
-                  left: _selectedContent == 0 ? 0 : 200,
+                  left: _selectedContent == 0 ? 0 : MediaQuery.of(context).size.width / 2,
                   child: Container(
-                    width: 150, // ✅ 버튼과 동일한 너비로 설정
-                    height: 5, // ✅ 버튼과 동일한 높이로 설정
+                    width: MediaQuery.of(context).size.width / 2, // 화면 너비의 절반
+                    height: 40, // 버튼 높이와 동일하게 설정
                     decoration: BoxDecoration(
-                      color: Colors.blue, // ✅ 선택된 탭 색상
-                      borderRadius: BorderRadius.circular(25),
+                      color: Colors.blue, // 선택된 탭 색상
+                      // 경계선 제거하고 완전히 채우기
                     ),
                   ),
                 ),
@@ -76,6 +80,9 @@ class _StoreInfoState extends State<StoreInfo> {
   }
 
   Widget _buildTabButton(String title, int index) {
+    // 선택된 경우와 그렇지 않은 경우 색상 구분
+    final bool isSelected = _selectedContent == index;
+
     return Expanded(
       child: InkWell(
         onTap: () => _changeContent(index),
@@ -87,8 +94,8 @@ class _StoreInfoState extends State<StoreInfo> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color:
-                  widget.selectedContent == index ? Colors.white : Colors.black,
+              // 선택된 경우 흰색, 선택되지 않은 경우 검은색
+              color: isSelected ? Colors.white : Colors.black,
             ),
           ),
         ),
