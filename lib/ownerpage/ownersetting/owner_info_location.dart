@@ -76,39 +76,44 @@ class _OwnerInfoLocationPageState extends State<OwnerInfoLocationPage> {
         children: [
           Expanded(
             flex: 7,
-            child: NaverMap(
-              options: const NaverMapViewOptions(
-                initialCameraPosition: NCameraPosition(
-                  target: NLatLng(37.5665, 126.9780),
-                  zoom: 15,
+            child: Stack(
+              children: [
+                NaverMap(
+                  options: const NaverMapViewOptions(
+                    initialCameraPosition: NCameraPosition(
+                      target: NLatLng(37.5665, 126.9780),
+                      zoom: 15,
+                    ),
+                    mapType: NMapType.basic,
+                    locationButtonEnable: true,
+                  ),
+                  forceGesture: true,
+                  onMapReady: (controller) async {
+                    _controller = controller;
+                    // 기본 마커 추가 (필요에 따라 커스터마이즈 가능)
+                    final marker =
+                    NMarker(id: "storeMarker", position: NLatLng(37.5665, 126.9780));
+                    controller.addOverlay(marker);
+                    debugPrint('네이버 지도 로딩 완료: $controller');
+                  },
+                  onMapTapped: (point, latLng) {
+                    debugPrint('지도 탭: $latLng');
+                  },
+                  onCameraChange: (position, reason) {
+                    debugPrint('카메라 이동: $position, reason: $reason');
+                  },
+                  onCameraIdle: () async {
+                    NCameraPosition cameraPosition =
+                    await _controller!.getCameraPosition();
+                    debugPrint("카메라 위치: " + cameraPosition.toString());
+                    setState(() {
+                      _mapPosition = cameraPosition;
+                      _centerLatLng = cameraPosition.target;
+                    });
+                  },
                 ),
-                mapType: NMapType.basic,
-                locationButtonEnable: true,
-              ),
-              forceGesture: true,
-              onMapReady: (controller) async {
-                _controller = controller;
-                // 기본 마커 추가 (필요에 따라 커스터마이즈 가능)
-                final marker =
-                NMarker(id: "storeMarker", position: NLatLng(37.5665, 126.9780));
-                controller.addOverlay(marker);
-                debugPrint('네이버 지도 로딩 완료: $controller');
-              },
-              onMapTapped: (point, latLng) {
-                debugPrint('지도 탭: $latLng');
-              },
-              onCameraChange: (position, reason) {
-                debugPrint('카메라 이동: $position, reason: $reason');
-              },
-              onCameraIdle: () async {
-                NCameraPosition cameraPosition =
-                await _controller!.getCameraPosition();
-                debugPrint("카메라 위치: " + cameraPosition.toString());
-                setState(() {
-                  _mapPosition = cameraPosition;
-                  _centerLatLng = cameraPosition.target;
-                });
-              },
+                Center(child: mapPin)
+              ],
             ),
           ),
           Expanded(

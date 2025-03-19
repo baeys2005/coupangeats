@@ -67,6 +67,8 @@ class _StorePageState extends State<StorePage>
     final storeProv = Provider.of<StoreProvider>(context, listen: false);
     // 1) 이전 데이터가 남아있지 않도록 초기화
     storeProv.resetStoreData();
+    // (2) 임시 storeID에 저장
+    storeProv.setTempStoreId(widget.storeId);  // ← 추가
     // 2) 새 storeId로 로딩
     storeProv.loadStoreData(widget.storeId);
 
@@ -160,6 +162,9 @@ class _StorePageState extends State<StorePage>
           menuName: menuItem['name'] ?? '메뉴 이름 없음',
           menuPrice: int.tryParse(menuItem['price'] ?? '0') ?? 0,
           storeId: widget.storeId, // [수정] 가게 ID 추가
+          // [추가] categoryId, menuId
+          categoryId: menuItem['categoryId'] ?? '',
+          menuId: menuItem['menuId'] ?? '',
         ),
       ),
     );
@@ -374,35 +379,40 @@ class _StorePageState extends State<StorePage>
             body: storeMenusProv.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: storeMenusProv.categories.length,
-              itemBuilder: (context, catIndex) {
-                final category = storeMenusProv.categories[catIndex];
-                final menus = category.menus;
-                final sectionKey = (catIndex < _sectionKeys.length)
-                    ? _sectionKeys[catIndex]
-                    : null;
 
-                // (1) "items" 리스트로 변환
-                //     _buildMenuSection의 4th 파라미터는
-                //     List<Map<String, String>> 형태여야 함
-                final itemList = menus.map((m) {
-                  return {
-                    'name': m.name,
-                    'price': m.price.toString(),
-                  };
-                }).toList();
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: storeMenusProv.categories.length,
+                    itemBuilder: (context, catIndex) {
+                      final category = storeMenusProv.categories[catIndex];
+                      final menus = category.menus;
+                      final sectionKey = (catIndex < _sectionKeys.length)
+                          ? _sectionKeys[catIndex]
+                          : null;
+      
+                      // (1) "items" 리스트로 변환
+                      //     _buildMenuSection의 4th 파라미터는
+                      //     List<Map<String, String>> 형태여야 함
+                      final itemList = menus.map((m) {
+                        return {
+                          'name': m.name,
+                          'price': m.price.toString(),
+                          'categoryId': category.categoryId, // [추가] 어떤 카테고리의 메뉴인지
+                          'menuId': m.menuId,               // [추가] 실제 메뉴 문서 ID
+                        };
+                      }).toList();
+      
+                      // (2) 카테고리 이름 -> title
+                      return StoreMenuSection(
+                        key: sectionKey,
+                        title: category.name,
+                        color: Colors.grey.shade200,
+                        items: itemList,
+                        onMenuTap: _navigateToOrderPage,
+                      );
+                    },
+                  ),
 
-                // (2) 카테고리 이름 -> title
-                return StoreMenuSection(
-                  key: sectionKey,
-                  title: category.name,
-                  color: Colors.grey.shade200,
-                  items: itemList,
-                  onMenuTap: _navigateToOrderPage,
-                );
-              },
-            ),
+             
           ),
         ),
       ),

@@ -34,8 +34,11 @@ class _StoreInfoState extends State<StoreInfo> {
   @override
   void initState() {
     super.initState();
-    // 초기값으로 상위 위젯에서 전달받은 선택 값 사용
-    _selectedContent = widget.selectedContent;
+    final storeProv = Provider.of<StoreProvider>(context, listen: false);
+    // 2) (선택) 기존 데이터 초기화
+    storeProv.resetStoreData();
+    // 3) _tempStoreId 로 불러오기
+    storeProv.loadStoreData(storeProv.tempStoreId);
   }
 
   @override

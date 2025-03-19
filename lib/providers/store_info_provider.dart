@@ -6,6 +6,15 @@ class StoreProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  /// 임시로 storeId를 따로 저장할 변수
+  String _tempStoreId = '';  // ★ 추가됨
+  String get tempStoreId => _tempStoreId;
+  /// 임시 storeId를 변경하는 메서드
+  void setTempStoreId(String newStoreId) {
+    _tempStoreId = newStoreId;
+    notifyListeners();
+  }
+
   // ▷ 불러올 필드들
   String storeId = '';
   String storeAddress = '';
@@ -54,6 +63,9 @@ class StoreProvider with ChangeNotifier {
   /// Firestore에서 특정 가게 문서(storeId)의 모든 필드 불러오기
   Future<void> loadStoreData(String storeId) async {
     // [추가] storeId가 비어있을 경우 방어 코드 추가
+
+    debugPrint('storeId: $storeId');
+
     if (storeId.isEmpty) {
       print('❌ loadStoreData 실패: storeId가 비어있음');
       storeName = '유효하지 않은 가게 ID';

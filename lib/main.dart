@@ -68,6 +68,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final switchState = Provider.of<SwitchState>(context, listen: false);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -89,6 +90,7 @@ class MyApp extends StatelessWidget {
         '/MainLoginpage': (context) => const MainLoginpage(),
         '/owner': (context) => const Storeownerpage(),
         '/Howmanyfood': (context) => const HowManyFood()
+
       },
     );
   }

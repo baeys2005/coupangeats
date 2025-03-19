@@ -87,8 +87,6 @@ class _MyaddressPageState extends State<MyaddressPage> {
                 ListTile(
                   leading: Icon(Icons.location_on),
                   title: Text(userInfo.addressName),
-                  subtitle: Text(
-                      '위도: ${userInfo.latitude}, 경도: ${userInfo.longitude}'),
                   onTap: () {
                     // 탭하면 스낵바로 좌표 표시
                     ScaffoldMessenger.of(context).showSnackBar(

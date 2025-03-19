@@ -18,6 +18,10 @@ class _MainLoginpageState extends State<MainLoginpage> {
   bool _isValidEmail = false;
   bool _isValidPassword = false;
 
+  // 1) 비밀번호 암호화(가리기) 상태를 위한 변수 추가
+  //    true면 obscureText 적용, false면 평문 표시
+  bool _isHidden = true;  // <-- 수정된 부분
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,6 +119,7 @@ class _MainLoginpageState extends State<MainLoginpage> {
   TextFormField passwordInput() {
     return TextFormField(
       controller: _pwdController,
+      obscureText: _isHidden,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.grey[100],
@@ -123,6 +128,18 @@ class _MainLoginpageState extends State<MainLoginpage> {
             borderRadius: BorderRadius.circular(8)),
         hintText: '비밀번호를 입력하세요',
         prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+        // 3) suffixIcon에 IconButton 추가해 _isHidden을 토글
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isHidden ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _isHidden = !_isHidden; // <-- 비밀번호 보임/가림 상태 토글
+            });
+          },
+        ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
@@ -153,8 +170,39 @@ class _MainLoginpageState extends State<MainLoginpage> {
                 Navigator.pushReplacementNamed(context, '/');
               }
             } on FirebaseAuthException catch (e) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('Error: ${e.message}')));
+              print('Error code: ${e.code}');
+              String message;
+
+              switch (e.code) {
+                case 'invalid-email':
+                // 이메일 주소 형태가 잘못된 경우 (형식 오류)
+                  message = '아이디(이메일) 형식이 잘못되었습니다.';
+                  break;
+                case 'user-not-found':
+                // 가입된 계정이 없는 경우
+                  message = '계정정보가 없습니다. 회원가입을 진행해주세요.';
+                  break;
+                case 'invalid-credential':
+                // 이메일은 올바른데 비밀번호가 틀린 경우
+                  message = '비밀번호가 잘못되었습니다.';
+                  break;
+                case 'user-disabled':
+                // 비활성화된 계정
+                  message = '사용이 중지된 계정입니다. 관리자에게 문의해주세요.';
+                  break;
+                case 'too-many-requests':
+                // 인증 시도 횟수 제한 등
+                  message = '잠시 후 다시 시도해주세요.';
+                  break;
+                default:
+                // 그 외 처리되지 않은 에러
+                  message = '로그인에 실패했습니다.';
+                  break;
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(message)),
+              );
             }
           }
         },
