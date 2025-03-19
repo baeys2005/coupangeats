@@ -2,6 +2,9 @@ import 'package:coupangeats/orderpage/storePage.dart';
 import 'package:coupangeats/orderpage/store_appBar_delivery.dart';
 import 'package:coupangeats/orderpage/store_appBar_takeout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:provider/provider.dart';
+
 
 class StoreInfo extends StatefulWidget {
   final int selectedContent;
@@ -17,6 +20,7 @@ class StoreInfo extends StatefulWidget {
   State<StoreInfo> createState() => _StoreInfoState();
 }
 
+
 class _StoreInfoState extends State<StoreInfo> {
   int _selectedContent = 0; // 0: 배달, 1: 포장
   double flexibleSpace = 600;
@@ -25,6 +29,7 @@ class _StoreInfoState extends State<StoreInfo> {
       _selectedContent = index;
     });
   }
+
 
   @override
   void initState() {
@@ -35,13 +40,26 @@ class _StoreInfoState extends State<StoreInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      height: flexibleSpace * 0.5,
-      width: double.infinity,
-      child: Column(
+
+    final storeProv = Provider.of<StoreProvider>(context);
+// 좌표가 null이 아닐 경우, GeoPoint를 NLatLng로 변환
+    final double storeLat = storeProv.latitude ?? 37.5665;
+    final double storeLon = storeProv.longitude ?? 126.9780;
+    final NLatLng storeLatLng = NLatLng(storeLat, storeLon);
+
+
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
+        title: Text('매장정보'),
+      ),
+      body: SingleChildScrollView(
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 네이버 지도를 표시하는 부분
           Container(
+
             height: 40,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
@@ -83,6 +101,7 @@ class _StoreInfoState extends State<StoreInfo> {
                 ),
               ],
             ),
+
           ),
           _selectedContent == 0
               ? const StoreInfoDelivery()
