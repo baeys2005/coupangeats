@@ -1,6 +1,7 @@
 import 'package:coupangeats/orderpage/store_appBar.dart';
 import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:coupangeats/orderpage/store_menu_section.dart';
+import 'package:coupangeats/orderpage/store_rating_badge.dart'; // 새로 추가
 import 'package:coupangeats/providers/store_info_provider.dart';
 import 'package:coupangeats/providers/store_menus_provider.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +34,6 @@ class _StorePageState extends State<StorePage>
   int _currentPage = 0;
 
   OverlayEntry? _cartOverlayEntry;
-
-
 
   @override
   void initState() {
@@ -75,19 +74,16 @@ class _StorePageState extends State<StorePage>
 
     //메뉴정보 firebase 서 불러오기
     final storeMenusProv =
-        Provider.of<StoreMenusProvider>(context, listen: false);
+    Provider.of<StoreMenusProvider>(context, listen: false);
     storeMenusProv.loadStoreMenus(widget.storeId);
     storeMenusProv.addListener(_updateTabAndSections);
 
     final catCount = storeMenusProv.categories.length;
   }
 
-
-
-
   void _updateTabAndSections() {
     final storeMenusProv =
-        Provider.of<StoreMenusProvider>(context, listen: false);
+    Provider.of<StoreMenusProvider>(context, listen: false);
     if (storeMenusProv.isLoading) return;
 
     final catCount = storeMenusProv.categories.length;
@@ -177,7 +173,7 @@ class _StorePageState extends State<StorePage>
   @override
   void dispose() {
     final storeMenusProv =
-        Provider.of<StoreMenusProvider>(context, listen: false);
+    Provider.of<StoreMenusProvider>(context, listen: false);
     storeMenusProv.removeListener(_updateTabAndSections);
 
     _scrollController.dispose();
@@ -195,7 +191,7 @@ class _StorePageState extends State<StorePage>
     final storeMenusProv = Provider.of<StoreMenusProvider>(context);
     final catCount = storeMenusProv.categories.length;
     debugPrint("catCount is" + catCount.toString());
-    
+
     return WillPopScope(
       onWillPop: () async {
         ///다시 home 으로 돌아갈때.
@@ -221,13 +217,15 @@ class _StorePageState extends State<StorePage>
                       alignment: Alignment.bottomCenter,
                       children: [
                         Column(
+                          mainAxisSize: MainAxisSize.min, // 추가: 컬럼이 최소 공간만 사용하도록 설정
                           children: [
                             SizedBox(
                               height: 220, //배경사진 높이
                               width: double.infinity,
                               child: _buildImageSlider(storeProv),
                             ),
-                            const SizedBox(height: 100),
+                            // SizedBox 높이를 줄임
+                            const SizedBox(height: 80), // 기존 100에서 80으로 줄임
                             StoreInfo(
                               // ✅ StoreInfo 위젯으로 변경
                               selectedContent: _selectedContent,
@@ -236,7 +234,7 @@ class _StorePageState extends State<StorePage>
                           ],
                         ),
                         Positioned(
-                          right: 20,
+                          right: 30,
                           top: 120,
                           child: IconButton(
                             onPressed: () {}, // TODO: 이미지 열람
@@ -250,36 +248,68 @@ class _StorePageState extends State<StorePage>
                             ),
                           ),
                         ),
+                        // 수정된 부분: Column으로 변경하여 StoreRatingBadge 추가
+                        // 수정된 Positioned 부분 (컨테이너의 모든 모서리에 그림자 적용)
                         Positioned(
-                          top: 180, // 기존 60에서 조정하여 다른 요소와 겹치지 않도록 함
-                          child: Container(
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: const Offset(-5, 0),
-                                  blurRadius: 7,
+                          top: 200,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 가게 이름과 별점을 포함하는 단일 컨테이너
+                              Container(
+                                width: 300,
+                                // 그림자 효과를 모든 방향으로 적용
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4), // 약간의 둥근 모서리 적용
+                                  // 모든 방향에 그림자 적용
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2), // 그림자 색상
+                                      offset: const Offset(0, 0), // 중앙에서 모든 방향으로 확산
+                                      blurRadius: 6, // 약간 더 부드러운 그림자
+                                      spreadRadius: 2, // 모든 방향으로 그림자 확산
+                                    ),
+                                  ],
                                 ),
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: const Offset(5, 0),
-                                  blurRadius: 7,
-                                ),
-                              ],
-                            ),
-                            child: Container(
-                              color: Colors.white,
-                              width: 300,
-                              height: 120, //글자상자 높이
-                              child: Center(
-                                child: Text(
-                                  storeProv.storeName,
-                                  style: pagetitle1,
+                                child: Column(
+                                  children: [
+                                    // 가게 이름 부분
+                                    Container(
+                                      width: 300,
+                                      height: 55,
+                                      padding: EdgeInsets.symmetric(horizontal: 10), // 텍스트 좌우 여백 추가
+                                      color: Colors.white,
+                                      child: Center(
+                                        child: Text(
+                                          storeProv.storeName,
+                                          style: pagetitle1,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // 별점 배지 부분
+                                    StoreRatingBadge(
+                                      rating: storeProv.storeRating,
+                                      reviewCount: storeProv.reviewCount,
+                                      hasWowDiscount: storeProv.hasWowDiscount,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
+
+
+
+
+
+
+
                         Positioned(
                             top: 150, // 슬라이더 높이가 220이므로, 적절히 조정
                             left: 0,
@@ -290,17 +320,17 @@ class _StorePageState extends State<StorePage>
                                 storeProv.storeImages.isNotEmpty
                                     ? storeProv.storeImages.length
                                     : 1,
-                                (index) {
+                                    (index) {
                                   bool isActive = (index == _currentPage);
                                   return AnimatedContainer(
                                     duration: const Duration(milliseconds: 300),
                                     margin:
-                                        const EdgeInsets.symmetric(horizontal: 4),
+                                    const EdgeInsets.symmetric(horizontal: 4),
                                     width: isActive ? 10 : 8,
                                     height: isActive ? 10 : 8,
                                     decoration: BoxDecoration(
                                       color:
-                                          isActive ? Colors.white : Colors.grey,
+                                      isActive ? Colors.white : Colors.grey,
                                       shape: BoxShape.circle,
                                     ),
                                   );
@@ -335,6 +365,9 @@ class _StorePageState extends State<StorePage>
                         TabBar(
                           // controller 생략하면 DefaultTabController.of(context)를 자동 연결
                           isScrollable: true,
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.black54,
+                          indicatorColor: Colors.grey,
                           tabs: storeMenusProv.categories
                               .map((cat) => Tab(text: cat.name))
                               .toList(),
@@ -346,6 +379,7 @@ class _StorePageState extends State<StorePage>
             body: storeMenusProv.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
+
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: storeMenusProv.categories.length,
                     itemBuilder: (context, catIndex) {
@@ -377,6 +411,8 @@ class _StorePageState extends State<StorePage>
                       );
                     },
                   ),
+
+             
           ),
         ),
       ),
@@ -469,4 +505,5 @@ class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-double flexibleSpace = 600;
+// 오버플로우가 계속 발생하면 이 값을 650으로 늘려볼 수 있습니다
+double flexibleSpace = 650;
