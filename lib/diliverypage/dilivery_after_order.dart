@@ -78,7 +78,7 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
             backgroundImage: NetworkImage('https://example.com/profile.jpg'), // 프로필 이미지
             radius: 24, // 크기 조정
           ),
-          title: Text('홍길동', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          title: Text('홍길동 기사님', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           subtitle: Text('자동차', style: TextStyle(fontSize: 14, color: Colors.grey)),
           trailing: TextButton(
             onPressed: () {

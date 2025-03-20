@@ -56,9 +56,7 @@ class _storeorderPageState extends State<storeorderPage> {
 
   @override
   Widget build(BuildContext context) {
-
-
-// [수정 부분] 1) StoreMenusProvider에서 로딩된 데이터 접근
+    // [수정 부분] 1) StoreMenusProvider에서 로딩된 데이터 접근
     final storeMenusProv = Provider.of<StoreMenusProvider>(context);
 
     // 로딩 중이면 로딩 표시
@@ -67,6 +65,7 @@ class _storeorderPageState extends State<storeorderPage> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
     // categoryId와 menuId로 실제 MenuModel 찾기
     final category = storeMenusProv.categories.firstWhere(
           (cat) => cat.categoryId == widget.categoryId,
@@ -78,12 +77,13 @@ class _storeorderPageState extends State<storeorderPage> {
     );
     // ★ CartProvider 인스턴스 가져오기 (listen: false 권장)
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
     return WillPopScope(
       onWillPop: () async {
         ///다시 home 으로 돌아갈때.
         // 뒤로가기 시 먼저 오버레이 해제
         CartOverlayManager.hideOverlay();
-        CartOverlayManager.showOverlay(context,bottom: 0);
+        CartOverlayManager.showOverlay(context, bottom: 0);
         // true를 리턴하면 실제 pop 진행
         return true;
       },
@@ -106,13 +106,12 @@ class _storeorderPageState extends State<storeorderPage> {
         ),
         body: Column(
           children: [
-            // 메뉴 이미지
+            // 메뉴 정보 부분
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 메뉴 이미지
                     // 메뉴 이미지
                     Container(
                       width: double.infinity,
@@ -137,33 +136,31 @@ class _storeorderPageState extends State<storeorderPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // NEW 태그 (있을 경우)
-                          Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '[NEW]',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '[NEW]',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
+                            ),
                           ),
                           SizedBox(height: 8),
 
-                          // 메뉴 이름
+                          // 메뉴 이름 - 텍스트 오버플로우 처리 추가
                           Text(
                             widget.menuName,
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                           SizedBox(height: 8),
 
@@ -184,12 +181,16 @@ class _storeorderPageState extends State<storeorderPage> {
                           // 가격 섹션
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                '가격',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                              Expanded(
+                                child: Text(
+                                  '가격',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               Text(
@@ -198,6 +199,7 @@ class _storeorderPageState extends State<storeorderPage> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -207,12 +209,16 @@ class _storeorderPageState extends State<storeorderPage> {
                           // 수량 조절 섹션
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                '수량',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                              Expanded(
+                                child: Text(
+                                  '수량',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               Row(
@@ -273,43 +279,46 @@ class _storeorderPageState extends State<storeorderPage> {
             ),
 
             // 장바구니 담기 버튼
-            Container(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                ///버튼을 클릭하면 스낵바가 뜨면서 카트에 담기면서
-                ///이전페이지로 이동하고 하단 장바구니바 뜸.
-                onPressed: (){
-                  cartProvider.addItem(
-                    widget.menuName,
-                    widget.menuPrice,
-                    _quantity,
-                    menuImage: widget.menuImage,
-                    storeId: widget.storeId, // [추가] 가게 ID 전달
-                  );
+            SafeArea(
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  ///버튼을 클릭하면 스낵바가 뜨면서 카트에 담기면서
+                  ///이전페이지로 이동하고 하단 장바구니바 뜸.
+                  onPressed: (){
+                    cartProvider.addItem(
+                      widget.menuName,
+                      widget.menuPrice,
+                      _quantity,
+                      menuImage: widget.menuImage,
+                      storeId: widget.storeId, // [추가] 가게 ID 전달
+                    );
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('장바구니에 추가되었습니다.'),
-                      duration: Duration(seconds: 2),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('장바구니에 추가되었습니다.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    CartOverlayManager.hideOverlay();
+                    CartOverlayManager.showOverlay(context, bottom: 0);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
                     ),
-                  );
-                  CartOverlayManager.hideOverlay();
-                  CartOverlayManager.showOverlay(context,bottom: 0);
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
                   ),
-                ),
-                child: Text(
-                  '배달 카트에 담기',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  child: Text(
+                    '배달 카트에 담기',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis, // 텍스트 넘침 방지
                   ),
                 ),
               ),

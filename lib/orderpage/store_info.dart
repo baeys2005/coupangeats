@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/store_info_provider.dart';
+
 
 class StoreInfo extends StatefulWidget {
   final int selectedContent;
@@ -111,7 +113,7 @@ class _StoreInfoState extends State<StoreInfo> {
               : const StoreInfoTakeout(),
         ],
       ),
-    );
+    ));
   }
 
   // 수정: 버튼 클릭 시 상태 변경 및 콜백 호출

@@ -3,6 +3,7 @@ import 'package:coupangeats/orderpage/store_cart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/providers/cart_provider.dart';
+import 'package:coupangeats/store_order_Page/delivery_method_selector.dart';
 //카트 페이지
 class CartViewPage extends StatefulWidget {
   const CartViewPage({Key? key}) : super(key: key);
@@ -119,8 +120,27 @@ class _CartViewPageState extends State<CartViewPage> {
     );
   }
 
+  // 배달비 계산 함수
+  int _getDeliveryFee(CartProvider cartProvider) {
+    // 선택된 배달 방법에 따라 배달비 반환
+    final selectedMethodId = cartProvider.selectedDeliveryMethodId;
+
+    if (selectedMethodId == 'standard') {
+      return 5800; // 한집배달 요금
+    } else if (selectedMethodId == 'save') {
+      return 4800; // 세이브배달 요금
+    } else {
+      return 5800; // 기본 배달 요금 (방어 코드)
+    }
+  }
+
   // 장바구니 리스트 위젯
   Widget _buildCartList(List<CartItem> cartItems, CartProvider cartProvider) {
+    // 배달비 계산
+    final deliveryFee = _getDeliveryFee(cartProvider);
+    // 최종 결제 금액 계산 (주문 금액 + 배달비)
+    final finalAmount = cartProvider.totalAmount + deliveryFee;
+
     return ListView(
       children: [
         // 배달 정보 섹션
@@ -138,14 +158,18 @@ class _CartViewPageState extends State<CartViewPage> {
               ),
               SizedBox(height: 8),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(Icons.location_on_outlined, size: 18, color: Colors.grey[600]),
                   SizedBox(width: 8),
-                  Text(
-                    '배달 주소를 입력해주세요',
-                    style: TextStyle(color: Colors.grey[600]),
+                  Expanded(
+                    child: Text(
+                      '배달 주소를 입력해주세요',
+                      style: TextStyle(color: Colors.grey[600]),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  Spacer(),
+                  SizedBox(width: 4), // 아이콘과 텍스트 사이 간격 추가
                   Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[600]),
                 ],
               ),
@@ -154,19 +178,24 @@ class _CartViewPageState extends State<CartViewPage> {
         ),
         Divider(thickness: 8, color: Colors.grey[200]),
 
+        DeliveryMethodSelector(),
+
         // 메뉴 목록 헤더
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                '주문 메뉴',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  '주문 메뉴',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Spacer(),
               Text(
                 '+메뉴 추가하기',
                 style: TextStyle(color: Colors.blue),
@@ -196,13 +225,12 @@ class _CartViewPageState extends State<CartViewPage> {
               SizedBox(height: 16),
               _buildPriceRow('주문 금액', '${cartProvider.totalAmount}원'),
               SizedBox(height: 8),
-              _buildPriceRow('배달비', '3,000원'),
+              _buildPriceRow('배달비', '${deliveryFee}원'),
               Divider(height: 24),
               _buildPriceRow(
-                '총 결제 금액',
-                '${cartProvider.totalAmount + 3000}원',
-                isBold: true,
-              ),
+                  '총 결제 금액',
+                  '${finalAmount}원',
+                  isBold: true),
             ],
           ),
         ),
@@ -253,6 +281,8 @@ class _CartViewPageState extends State<CartViewPage> {
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -303,11 +333,16 @@ class _CartViewPageState extends State<CartViewPage> {
             ),
           ),
 
-          // 총 가격
-          Text(
-            '${item.totalPrice}원',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
+          // 총 가격 - 고정 너비 추가
+          SizedBox(
+            width: 80, // 가격을 위한 고정 너비 설정
+            child: Text(
+              '${item.totalPrice}원',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -319,20 +354,30 @@ class _CartViewPageState extends State<CartViewPage> {
   Widget _buildPriceRow(String label, String value, {bool isBold = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: isBold ? Colors.black : Colors.grey[600],
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: isBold ? 18 : 14,
+        Expanded(  // 라벨에 Expanded 추가
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isBold ? Colors.black : Colors.grey[600],
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              fontSize: isBold ? 18 : 14,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: isBold ? 18 : 14,
+        SizedBox(width: 8),  // 여백 추가
+        SizedBox(
+          width: 100,  // 가격에 고정 너비 추가
+          child: Text(
+            value,
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              fontSize: isBold ? 18 : 14,
+            ),
+            textAlign: TextAlign.right,  // 오른쪽 정렬
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -341,52 +386,57 @@ class _CartViewPageState extends State<CartViewPage> {
 
   // 주문하기 버튼
   Widget _buildOrderButton(BuildContext context, CartProvider cartProvider) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('주문이 완료되었습니다.'),
-          duration: Duration(seconds: 2),
+    // 배달비 계산
+    final deliveryFee = _getDeliveryFee(cartProvider);
+    // 최종 결제 금액 계산 (주문 금액 + 배달비)
+    final finalAmount = cartProvider.totalAmount + deliveryFee;
 
-        ),
-
-      );
-
-        // [수정] 장바구니에 담긴 메뉴의 storeId를 추출 (모든 아이템이 동일한 가게라고 가정)
-        String storeId = "";
-        if (cartProvider.items.isNotEmpty) {
-          storeId = cartProvider.items.first.storeId;
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Dilivery(storeId: storeId)
-          ),
-        );
-
-        },
-      child: Container(
-        width: double.infinity,
-        height: 60,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: 10,
-              offset: Offset(0, -3),
+    return SafeArea(  // SafeArea 추가
+      child: GestureDetector(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('주문이 완료되었습니다.'),
+              duration: Duration(seconds: 2),
             ),
-          ],
-        ),
-        child:  Center(
-          child: Text(
-            '${cartProvider.totalAmount + 3000}원 결제하기',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          );
+
+          // [수정] 장바구니에 담긴 메뉴의 storeId를 추출 (모든 아이템이 동일한 가게라고 가정)
+          String storeId = "";
+          if (cartProvider.items.isNotEmpty) {
+            storeId = cartProvider.items.first.storeId;
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Dilivery(storeId: storeId)
+            ),
+          );
+        },
+        child: Container(
+          width: double.infinity,
+          height: 60,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 0,
+                blurRadius: 10,
+                offset: Offset(0, -3),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              '${finalAmount}원 결제하기',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              overflow: TextOverflow.ellipsis,  // 텍스트 넘침 방지
             ),
           ),
         ),

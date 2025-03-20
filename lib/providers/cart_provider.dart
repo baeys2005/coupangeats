@@ -1,281 +1,138 @@
-import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
+// 장바구니 아이템 클래스
 class CartItem {
   final String menuName;
   final int price;
   int quantity;
-  String? menuImage;
-  String? id; // Firestore 문서 ID
-  final String storeId; // [추가] 가게 ID 필드
+  final String? menuImage;
+  final String storeId; // 가게 ID
+  final String id; // Firestore 문서 ID
 
   CartItem({
     required this.menuName,
     required this.price,
     required this.quantity,
     this.menuImage,
-    this.id,
-    required this.storeId, // [추가]
+    required this.storeId,
+    this.id = '', // 기본값은 빈 문자열
   });
 
+  // 총 가격 계산
   int get totalPrice => price * quantity;
-
-  Map<String, dynamic> toMap() {
-    return {
-      'menuName': menuName,
-      'price': price,
-      'quantity': quantity,
-      'menuImage': menuImage,
-      'storeId': storeId, // [추가] 가게 ID 저장
-      'timestamp': FieldValue.serverTimestamp(),
-    };
-  }
-
-  factory CartItem.fromMap(Map<String, dynamic> map, String id) {
-    return CartItem(
-      menuName: map['menuName'] ?? '',
-      price: map['price'] ?? 0,
-      quantity: map['quantity'] ?? 1,
-      menuImage: map['menuImage'],
-      id: id,
-      storeId: map['storeId'] ?? '', // [추가] storeId 파싱
-    );
-  }
 }
 
+// 장바구니 Provider 클래스
 class CartProvider with ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // ★ 초기에 빈 문자열
-  String _userId = "";
-
+  // 장바구니 아이템 목록
   List<CartItem> _items = [];
-  bool _isLoading = true;
 
-  List<CartItem> get items => _items;
-  bool get isLoading => _isLoading;
-  int get totalItemCount => _items.fold(0, (sum, item) => sum + item.quantity);
-  int get totalAmount => _items.fold(0, (sum, item) => sum + item.totalPrice);
+  // 선택된 배달 방법 ID (기본값: 'standard')
+  String _selectedDeliveryMethodId = 'standard';
 
-  // 생성자
-  CartProvider() {
-    // 여기서 바로 loadCartItems()를 호출하면 userId가 비어 있을 수 있으므로
-    // 원하는 경우, 아래처럼 호출을 막고,
-    // setUserId() 호출 시점에서 loadCartItems()를 실행하는 편이 안전합니다.
-    //
-    // loadCartItems();
+  // 배달비 (기본값: 5800원 - 한집배달)
+  int _deliveryFee = 5800;
+
+  // 사용자 ID (Firestore 연동용)
+  String _userId = '';
+
+  // 장바구니 아이템 목록 getter
+  List<CartItem> get items => [..._items];
+
+  // 선택된 배달 방법 ID getter
+  String get selectedDeliveryMethodId => _selectedDeliveryMethodId;
+
+  // 배달비 getter
+  int get deliveryFee => _deliveryFee;
+
+  // 사용자 ID getter
+  String get userId => _userId;
+
+  // 총 아이템 개수 계산 (수량 고려)
+  int get totalItemCount {
+    return _items.fold(0, (sum, item) => sum + item.quantity);
   }
 
-  /// userId 설정 후 장바구니 재로딩
+  // 총 상품 금액 계산
+  int get totalAmount {
+    return _items.fold(0, (sum, item) => sum + item.totalPrice);
+  }
+
+  // 최종 결제 금액 계산 (상품 금액 + 배달비)
+  int get finalAmount {
+    return totalAmount + _deliveryFee;
+  }
+
+  // 사용자 ID 설정 메서드 (Firestore 연동용)
   Future<void> setUserId(String userId) async {
-    if (userId.isEmpty) {
-      // 빈 UID라면 Firestore 접근 안 함
-      print("[DEBUG] setUserId() - 전달받은 userId가 비어 있음. Firestore 호출 스킵");
-      _userId = "";
-      return;
-    }
-
     _userId = userId;
-    print("[DEBUG] setUserId() - userId 세팅됨: $_userId");
-    await loadCartItems();
+    // 여기에 Firestore에서 장바구니 데이터를 불러오는 로직이 있을 수 있음
+    // 지금은 임시로 비워둠
+    notifyListeners();
+    return Future.value(); // Future<void> 반환
   }
 
-  // 장바구니 데이터 로드
-  Future<void> loadCartItems() async {
-    // ★ _userId가 비어 있다면 로딩 스킵
-    if (_userId.isEmpty) {
-      print("[DEBUG] loadCartItems() - _userId가 비어 있음. 로딩 스킵");
-      _isLoading = false;
-      notifyListeners();
-      return;
-    }
+  // 아이템 추가 메서드
+  void addItem(String menuName, int price, int quantity, {String? menuImage, required String storeId, String id = ''}) {
+    // 이미 있는 메뉴인지 확인
+    final existingItemIndex = _items.indexWhere((item) => item.menuName == menuName);
 
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      print("[DEBUG] loadCartItems() - Firestore에서 장바구니 로드 시작. userId=$_userId");
-      final cartSnapshot = await _firestore
-          .collection('signup')
-          .doc(_userId)
-          .collection('cart')
-          .orderBy('timestamp', descending: true)
-          .get();
-
-      _items = cartSnapshot.docs
-          .map((doc) => CartItem.fromMap(doc.data(), doc.id))
-          .toList();
-
-      print("[DEBUG] loadCartItems() - 로드 완료. 총 ${_items.length}개의 아이템");
-    } catch (e) {
-      print('[DEBUG] 장바구니 로드 중 오류: $e');
-      _items = [];
-    }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  // 메뉴 추가
-  Future<void> addItem(String menuName, int price, int quantity, {String? menuImage, required String storeId}) async {
-
-    // 이미 있는 메뉴이면서 같은 가게의 메뉴인지 확인
-    final existingItemIndex = _items.indexWhere((item) => item.menuName == menuName && item.storeId == storeId);
-    // ★ _userId가 비어 있다면 스킵
-    if (_userId.isEmpty) {
-      print("[DEBUG] addItem() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
-      return;
-    }
-
-    try {
-      if (existingItemIndex >= 0) {
-        final oldQuantity = _items[existingItemIndex].quantity;
-        final newQuantity = oldQuantity + quantity;
-        print('[DEBUG] 기존 아이템 수량 증가 시도');
-        print('  - 기존 수량: $oldQuantity, 추가할 수량: $quantity, 최종 수량: $newQuantity');
-
-        await _firestore
-            .collection('signup')
-            .doc(_userId)
-            .collection('cart')
-            .doc(_items[existingItemIndex].id)
-            .update({'quantity': newQuantity});
-
-        _items[existingItemIndex].quantity = newQuantity;
-        print('[DEBUG] 기존 아이템 업데이트 완료');
-      } else {
-        print('[DEBUG] 새 아이템 추가 시도');
-        final docRef = await _firestore
-            .collection('signup')
-            .doc(_userId)
-            .collection('cart')
-            .add({
-          'menuName': menuName,
-          'price': price,
-          'quantity': quantity,
-          'menuImage': menuImage,
-          'timestamp': FieldValue.serverTimestamp(),
-          'storeId': storeId, // [추가] 가게 ID 저장
-        });
-
-        _items.add(CartItem(
+    if (existingItemIndex >= 0) {
+      // 이미 있는 메뉴면 수량만 증가
+      _items[existingItemIndex].quantity += quantity;
+    } else {
+      // 새 메뉴면 추가
+      _items.add(
+        CartItem(
           menuName: menuName,
           price: price,
           quantity: quantity,
           menuImage: menuImage,
-          id: docRef.id,
-          storeId: storeId, // [추가]
-        ));
+          storeId: storeId,
+          id: id, // Firestore 문서 ID도 함께 저장
+        ),
+      );
+    }
+    notifyListeners();
+  }
 
-      }
-
-
+  // 수량 증가 메서드
+  void incrementQuantity(String menuName) {
+    final index = _items.indexWhere((item) => item.menuName == menuName);
+    if (index >= 0) {
+      _items[index].quantity++;
       notifyListeners();
-      print('[DEBUG] addItem() 메서드 종료');
-    } catch (e) {
-      print('[DEBUG] 장바구니에 추가 중 오류: $e');
     }
   }
 
-  // 수량 증가
-  Future<void> incrementQuantity(String menuName) async {
-    if (_userId.isEmpty) {
-      print("[DEBUG] incrementQuantity() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
-      return;
-    }
-
-    try {
-      final item = _items.firstWhere((item) => item.menuName == menuName);
-      item.quantity++;
-
-      await _firestore
-          .collection('signup')
-          .doc(_userId)
-          .collection('cart')
-          .doc(item.id)
-          .update({'quantity': item.quantity});
-
-      notifyListeners();
-    } catch (e) {
-      print('수량 증가 중 오류: $e');
-    }
-  }
-
-  // 수량 감소
-  Future<void> decrementQuantity(String menuName) async {
-    if (_userId.isEmpty) {
-      print("[DEBUG] decrementQuantity() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
-      return;
-    }
-
-    try {
-      final item = _items.firstWhere((item) => item.menuName == menuName);
-      if (item.quantity > 1) {
-        item.quantity--;
-
-        await _firestore
-            .collection('signup')
-            .doc(_userId)
-            .collection('cart')
-            .doc(item.id)
-            .update({'quantity': item.quantity});
+  // 수량 감소 메서드
+  void decrementQuantity(String menuName) {
+    final index = _items.indexWhere((item) => item.menuName == menuName);
+    if (index >= 0) {
+      if (_items[index].quantity > 1) {
+        _items[index].quantity--;
       } else {
-        removeItem(menuName);
+        // 수량이 1이면 삭제
+        _items.removeAt(index);
       }
       notifyListeners();
-    } catch (e) {
-      print('수량 감소 중 오류: $e');
     }
   }
 
-  // 메뉴 제거
-  Future<void> removeItem(String menuName) async {
-    if (_userId.isEmpty) {
-      print("[DEBUG] removeItem() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
-      return;
-    }
-
-    try {
-      final item = _items.firstWhere((item) => item.menuName == menuName);
-
-      await _firestore
-          .collection('signup')
-          .doc(_userId)
-          .collection('cart')
-          .doc(item.id)
-          .delete();
-
-      _items.removeWhere((item) => item.menuName == menuName);
-      notifyListeners();
-    } catch (e) {
-      print('메뉴 제거 중 오류: $e');
-    }
-  }
-
-  // 장바구니 비우기
+  // 장바구니 비우기 메서드 - 비동기로 변경
   Future<void> clear() async {
-    if (_userId.isEmpty) {
-      print("[DEBUG] clear() - _userId가 비어 있어 Firestore 접근 불가. 스킵");
-      return;
-    }
+    // Firestore에서 카트 데이터 삭제가 필요한 경우 여기에 비동기 코드 추가
+    // 예: if (_userId.isNotEmpty) { await FirebaseFirestore.instance.collection('carts').doc(_userId).delete(); }
 
-    try {
-      final batch = _firestore.batch();
-      final cartSnapshot = await _firestore
-          .collection('signup')
-          .doc(_userId)
-          .collection('cart')
-          .get();
+    _items = [];
+    notifyListeners();
+    return Future.value(); // Future<void> 반환
+  }
 
-      for (var doc in cartSnapshot.docs) {
-        batch.delete(doc.reference);
-      }
-
-      await batch.commit();
-      _items.clear();
-      notifyListeners();
-    } catch (e) {
-      print('장바구니 비우기 중 오류: $e');
-    }
+  // 배달 방법 설정 메서드
+  void setDeliveryMethod(String methodId, int fee) {
+    _selectedDeliveryMethodId = methodId;
+    _deliveryFee = fee;
+    notifyListeners();
   }
 }
