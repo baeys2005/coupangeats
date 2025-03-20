@@ -5,38 +5,39 @@ import 'dart:async';
 
 import '../homepage/home_page.dart';
 import '../orderpage/store_cart_bar.dart';
-import '../providers/cart_provider.dart'; // Timer를 사용하기 위해 추가
-//TODO: 지도에 내 집과 가게 표시. 두 좌표간의 거리로 배달시간 추적
-//TODO: 주소정보 불러오기.
+import '../providers/cart_provider.dart';
+
 class DiliveryAfterOrder extends StatefulWidget {
-  // [추가] 예상 배달 시간을 전달받는 매개변수
-  // 예상 배달 시간(분)과 거리를 전달받는 매개변수 추가
-  final int estimatedMinutes; // 예: 45
-  final String distanceString; // 예: "3.25" (km 단위, 소수점 둘째자리)
+  final int estimatedMinutes;
+  final String distanceString;
   final String deliveryAddress;
-  const DiliveryAfterOrder({super.key, required this.estimatedMinutes,
-    required this.distanceString,required this.deliveryAddress,});
+
+  const DiliveryAfterOrder({
+    super.key,
+    required this.estimatedMinutes,
+    required this.distanceString,
+    required this.deliveryAddress,
+  });
 
   @override
   State<DiliveryAfterOrder> createState() => _DiliveryAfterOrderState();
 }
 
 class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
-  int currentStep = 0; // 현재 진행 상태 (0: 주문 수락, 1: 메뉴 준비중, 2: 배달 중, 3: 배달 완료)
-  Timer? _timer; // [추가] 타이머 변수 선언
+  int currentStep = 0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _startAutoStepChange(); // [추가] 자동 단계 변경 시작
+    _startAutoStepChange();
   }
-  // [수정/추가] 타이머 콜백에서 currentStep이 3일 때 0으로 리셋되면 페이지를 종료하고 Homepage로 이동
-  // 타이머 콜백에서는 async 없이 currentStep 증가 처리
+
   void _startAutoStepChange() {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (currentStep == 3) {
         timer.cancel();
-        _onOrderCompleted(); // 주문 완료 처리 (비동기 함수 호출)
+        _onOrderCompleted();
       } else {
         setState(() {
           currentStep++;
@@ -44,16 +45,13 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
       }
     });
   }
-  // 주문 완료 시 실행할 비동기 함수
+
   Future<void> _onOrderCompleted() async {
-    // 배달 완료 스낵바 표시
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('배달이 완료되었습니다.')),
     );
-    // Firestore의 cart 컬렉션 삭제 (장바구니 비우기)
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     await cartProvider.clear();
-    // 페이지를 닫고 Homepage로 이동 (모든 이전 경로 제거)
     CartOverlayManager.showOverlay(context, bottom: 60);
     Navigator.pushAndRemoveUntil(
       context,
@@ -62,72 +60,221 @@ class _DiliveryAfterOrderState extends State<DiliveryAfterOrder> {
     );
   }
 
-
   @override
   void dispose() {
-    _timer?.cancel(); // [추가] 타이머 해제
+    _timer?.cancel();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage('https://example.com/profile.jpg'), // 프로필 이미지
-            radius: 24, // 크기 조정
+        // 배달원 정보 섹션
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 2),
+              ),
+            ],
           ),
-          title: Text('홍길동', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          subtitle: Text('자동차', style: TextStyle(fontSize: 14, color: Colors.grey)),
-          trailing: TextButton(
-            onPressed: () {
-              print('전화하기 버튼 클릭');
-            },
-            style: TextButton.styleFrom(
-              minimumSize: Size(80, 36), // 버튼 크기 조정
-            ),
-            child: Text('전화하기', style: TextStyle(color: Colors.blue)),
+          padding: EdgeInsets.all(16),
+          margin: EdgeInsets.only(bottom: 20),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.grey.shade200,
+                ),
+                child: Icon(Icons.delivery_dining, color: Colors.blue, size: 30),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '홍길동 기사님',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '배달 진행중',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue,
+                  elevation: 0,
+                  side: BorderSide(color: Colors.blue, width: 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                child: Text('전화하기'),
+              ),
+            ],
           ),
         ),
 
+        // 배달 예상 시간 섹션
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                widget.estimatedMinutes.toString(),
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              SizedBox(width: 4),
+              Text(
+                '분',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Text(
+                  '약 ${widget.distanceString} km',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: 20),
+
+        // 진행 상태 타임라인
+        OrderTimeline(currentStep: currentStep),
+
+        SizedBox(height: 30),
+
+        // 구분선
+        Container(
+          height: 8,
+          color: Colors.grey.shade100,
+          // 에러의 원인: 음수 마진 제거
+          // margin: EdgeInsets.symmetric(horizontal: -30),
+        ),
+
+        SizedBox(height: 20),
+
+        // 배달 주소 섹션
         Row(
           children: [
+            Icon(Icons.location_on, color: Colors.blue, size: 20),
+            SizedBox(width: 8),
             Text(
-              widget.estimatedMinutes.toString(),
-              style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              '분',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
-            ),
-            const Spacer(), // 좌측 텍스트와 우측 텍스트 사이에 빈 공간을 채워줌
-            Text(
-              '약 ${widget.distanceString} km',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+              '배달 주소',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
-// 수직 타임라인 추가
-        OrderTimeline(currentStep: currentStep),
-        // [추가] currentStep 값을 변경하는 버튼 (테스트용)
 
-        dividerLine,
+        SizedBox(height: 10),
+
+        // 주소 텍스트
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.only(left: 28),
           child: Text(
-            '배달주소',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            widget.deliveryAddress,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+            ),
           ),
         ),
-        Text(widget.deliveryAddress)
+
+        SizedBox(height: 20),
+
+        // WOW 배달 표시
+        Padding(
+          padding: const EdgeInsets.only(left: 28),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'WOW',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  '무료배달',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
 }
 
 class OrderTimeline extends StatelessWidget {
-  final int currentStep; // (0: 주문 수락, 1: 메뉴 준비중, 2: 배달 중, 3: 배달 완료)
+  final int currentStep;
 
   const OrderTimeline({super.key, required this.currentStep});
 
@@ -140,66 +287,84 @@ class OrderTimeline extends StatelessWidget {
       {"title": "배달 완료", "time": ""},
     ];
 
-    return Column(
-      children: List.generate(steps.length, (index) {
-        bool isCompleted = index < currentStep; // [수정] 완료 단계
-        bool isCurrent = index == currentStep;  // [수정] 현재 단계
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: List.generate(steps.length, (index) {
+          bool isCompleted = index < currentStep;
+          bool isCurrent = index == currentStep;
 
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              children: [
-                // [수정] 단계별 동그라미 스타일
-                CircleAvatar(
-                  // 완료 단계: 검은색, 현재 단계: 옅은 파랑색, 나머지: 회색
-                  radius: isCurrent ? 8 : 10, // 현재 단계는 작은 동그라미
-                  backgroundColor: isCompleted
-                      ? Colors.black
-                      : isCurrent
-                      ? Colors.lightBlue
-                      : Colors.grey[300],
-                  child: isCompleted
-                      ? Icon(Icons.check, color: Colors.white, size: 14)
-                      : null,
-                ),
-                if (index != steps.length - 1)
-                  Container(
-                    width: 2,
-                    height: 30,
-                    // [수정] 완료 단계는 검은 선, 나머지는 회색 선
-                    color: isCompleted ? Colors.black : Colors.grey[300],
-                  ),
-              ],
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
                 children: [
-                  Text(
-                    steps[index]["title"]!,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                      color: isCompleted
-                          ? Colors.black
-                          : isCurrent
-                          ? Colors.lightBlue
-                          : Colors.grey,
-                    ),
+                  CircleAvatar(
+                    radius: isCurrent ? 8 : 10,
+                    backgroundColor: isCompleted
+                        ? Colors.blue
+                        : isCurrent
+                        ? Colors.blue.withOpacity(0.3)
+                        : Colors.grey.shade300,
+                    child: isCompleted
+                        ? Icon(Icons.check, color: Colors.white, size: 14)
+                        : null,
                   ),
-                  if (steps[index]["time"]!.isNotEmpty)
-                    Text(
-                      steps[index]["time"]!,
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                  if (index != steps.length - 1)
+                    Container(
+                      width: 2,
+                      height: 30,
+                      color: isCompleted ? Colors.blue : Colors.grey.shade300,
                     ),
                 ],
               ),
-            ),
-          ],
-        );
-      }),
+              SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(bottom: index != steps.length - 1 ? 24 : 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        steps[index]["title"]!,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                          color: isCompleted
+                              ? Colors.black
+                              : isCurrent
+                              ? Colors.blue
+                              : Colors.grey,
+                        ),
+                      ),
+                      if (steps[index]["time"]!.isNotEmpty)
+                        Text(
+                          steps[index]["time"]!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
     );
   }
 }

@@ -8,17 +8,21 @@ class UserInfoProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   // Firestore 필드를 여기에 저장
-  DateTime? userCreateAt ;
+  DateTime? userCreateAt;
   String userEmail = '';
   String userName = '';
   String userPhone = '';
   String userRole = '';
   String userMyStore = ''; // 추가: mystore 필드
   String userUid = '';
-  // ★ 수정: 단일 주소 필드
-  String addressName = '';      // 예: "집"
-  double? latitude;             // 예: 37.1234
-  double? longitude;            // 예: 127.5678
+
+  // ★ 주소 관련 필드
+  String addressName = '';      // 주소 명
+  double? latitude;             // 위도
+  double? longitude;            // 경도
+  String detailAddress = '';    // 상세주소 (아파트/동/호)
+  String directions = '';       // 길 안내
+  String addressType = '기타';   // 주소 유형 (집, 회사, 기타)
 
   /// Firestore의 signup/{uid}에서 사용자 정보 가져오기
   Future<void> loadUserInfo() async {
@@ -53,10 +57,15 @@ class UserInfoProvider with ChangeNotifier {
           // 추가: mystore 필드가 있으면 불러오기
           userMyStore = data['mystore'] ?? '';
 
-          // ★ 수정: addressName, latitude, longitude 필드 읽기
+          // ★ 주소 관련 필드 불러오기
           addressName = data['addressName'] ?? '';
           latitude    = data['latitude'];
           longitude   = data['longitude'];
+
+          // 추가된 필드들
+          detailAddress = data['detailAddress'] ?? '';
+          directions = data['directions'] ?? '';
+          addressType = data['addressType'] ?? '기타';
         } else {
           userName = '문서가 존재하지 않습니다.';
         }
@@ -69,9 +78,14 @@ class UserInfoProvider with ChangeNotifier {
         userRole = '';
         userCreateAt = null;
         userMyStore = '';
+
+        // 주소 관련 필드 초기화
         addressName = '';
         latitude = null;
         longitude = null;
+        detailAddress = '';
+        directions = '';
+        addressType = '기타';
       }
     } catch (e) {
       debugPrint('loadUserInfo 실패: $e');
