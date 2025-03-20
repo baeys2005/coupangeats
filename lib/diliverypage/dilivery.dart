@@ -12,7 +12,7 @@ import '../providers/store_info_provider.dart';
 
 class Dilivery extends StatefulWidget {
   final String storeId;
-  const Dilivery({super.key,required this.storeId});
+  const Dilivery({super.key, required this.storeId});
 
   @override
   State<Dilivery> createState() => _DiliveryState();
@@ -24,24 +24,34 @@ class _DiliveryState extends State<Dilivery> {
   NaverMapController? _controller;
 
   NCameraPosition _mapPosition =
-      const NCameraPosition(target: NLatLng(37.5665, 126.9780), zoom: 15);
+  const NCameraPosition(target: NLatLng(37.5665, 126.9780), zoom: 15);
 
   NCameraPosition get mapPosition => _mapPosition;
-  bool _showAfterOrder = false; // 상태 변수 추가
+  bool _showAfterOrder = false;
 
   bool _isCameraUpdated = false;
-  // 팝업이 중복으로 뜨는 것을 방지하기 위한 플래그
-  bool _dialogShown = false; // [추가] 팝업 표시 여부 추적
+  bool _dialogShown = false;
+
   @override
   void initState() {
     super.initState();
 
-    final storeProv = Provider.of<StoreProvider>(context, listen: false);
-    storeProv.loadStoreData(widget.storeId);
+    // Provider 초기화를 Future.microtask로 래핑하여 빌드 과정에서 호출되지 않도록 함
+    Future.microtask(() {
+      final storeProv = Provider.of<StoreProvider>(context, listen: false);
+      storeProv.loadStoreData(widget.storeId);
+
+      // 사용자 정보 로드
+      final userInfo = Provider.of<UserInfoProvider>(context, listen: false);
+      userInfo.loadUserInfo();
+    });
+
     Future.delayed(const Duration(seconds: 10), () {
-      setState(() {
-        _showAfterOrder = true; // 10초 후에 상태 변경
-      });
+      if (mounted) {
+        setState(() {
+          _showAfterOrder = true;
+        });
+      }
     });
   }
 
@@ -57,16 +67,18 @@ class _DiliveryState extends State<Dilivery> {
     final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
     return earthRadius * c;
   }
+
   double _deg2rad(double deg) {
     return deg * (math.pi / 180);
   }
+
   int estimateDeliveryTime(double distanceKm) {
-    // 평균속도: 20km/h -> 분 단위: (distance / 20) * 60
     int minutes = ((distanceKm / 20) * 60).round();
     if (minutes < 30) minutes = 30;
     if (minutes > 60) minutes = 60;
     return minutes;
   }
+
   void _updateCameraToShowMarkers(double userLat, double userLon, double storeLat, double storeLon) {
     final swLat = math.min(userLat, storeLat);
     final swLon = math.min(userLon, storeLon);
@@ -96,110 +108,200 @@ class _DiliveryState extends State<Dilivery> {
       }
     });
   }
+
   void _updateMarkers(double userLat, double userLon, double storeLat, double storeLon) {
     if (_controller != null) {
+      // 사용자 마커 생성
       final userMarker = NMarker(
         id: "userMarker",
         position: NLatLng(userLat, userLon),
       );
+
+      // 가게 마커 생성
       final storeMarker = NMarker(
         id: "storeMarker",
         position: NLatLng(storeLat, storeLon),
       );
+
+      // 마커 이벤트 추가
+      userMarker.setOnTapListener((overlay) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('내 위치'),
+            content: Text('배달받을 주소입니다.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('확인'),
+              ),
+            ],
+          ),
+        );
+      });
+
+      storeMarker.setOnTapListener((overlay) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('가게 위치'),
+            content: Text('음식을 준비중인 가게 위치입니다.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('확인'),
+              ),
+            ],
+          ),
+        );
+      });
+
       _controller!.addOverlay(userMarker);
       _controller!.addOverlay(storeMarker);
-      debugPrint('[DEBUG] Markers updated: userMarker at ($userLat, $userLon), storeMarker at ($storeLat, $storeLon)');
+
+      // 경로선 추가 - 실제 API가 지원하는 경우 활성화
+      // 현재는 기본 경로만 추가
+      final pathOverlay = NPolylineOverlay(
+        id: 'deliveryPath',
+        coords: [
+          NLatLng(userLat, userLon),
+          NLatLng(storeLat, storeLon),
+        ],
+        width: 5,
+        color: Colors.blue.withOpacity(0.7),
+      );
+
+      _controller!.addOverlay(pathOverlay);
+
+      debugPrint('[DEBUG] Markers and path updated');
     }
   }
+
   @override
   Widget build(BuildContext context) {
-// 좌표가 null이면 기본값 대신 null을 반환
     final userInfo = Provider.of<UserInfoProvider>(context);
-    final double? userLat = userInfo.latitude;  // 기본값 제거
-    final double? userLon = userInfo.longitude; // 기본값 제거
+    final double? userLat = userInfo.latitude;
+    final double? userLon = userInfo.longitude;
+    // 사용자 주소 정보 가져오기
+    final String userAddress = userInfo.addressName;
+    final String userDetailAddress = userInfo.detailAddress.isNotEmpty
+        ? userInfo.detailAddress
+        : '';
+
     debugPrint('[DEBUG] User 좌표: latitude=$userLat, longitude=$userLon');
 
     final storeProv = Provider.of<StoreProvider>(context);
     double? storeLat = storeProv.latitude;
     double? storeLon = storeProv.longitude;
     String storeAddress = storeProv.storeAddress;
-    debugPrint('[DEBUG] Dilivery - storeLocation: latitude=$storeLat, longitude=$storeLon');;
+    debugPrint('[DEBUG] Dilivery - storeLocation: latitude=$storeLat, longitude=$storeLon');
 
-    // 3) 주소 유효성 검사
+    // 배달 주소 구성
+    String deliveryAddress = userAddress;
+    if (userDetailAddress.isNotEmpty) {
+      deliveryAddress += ", $userDetailAddress";
+    }
+
+    // 주소 오류 다이얼로그 표시 로직
     if (!_dialogShown) {
       if (userLat == null || userLon == null) {
-        // 내 주소가 설정되어 있지 않음 → 팝업 띄움
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _dialogShown = true;
-          showDialog(
-            context: context,
-            barrierDismissible: false, // 다이얼로그 밖 터치로 닫기 방지
-            builder: (ctx) {
-              return AlertDialog(
-                title: const Text('주소 오류'),
-                content: const Text('내 주소가 설정되어있지 않습니다.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      // 장바구니로 돌아가기
-                      Navigator.pop(ctx);    // 다이얼로그 닫기
-                      Navigator.pop(context); // Dilivery 페이지 pop
-                    },
-                    child: const Text('장바구니로 돌아가기'),
+          if (mounted) {
+            _dialogShown = true;
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) {
+                return AlertDialog(
+                  title: Text('주소 오류'),
+                  content: Text('내 주소가 설정되어있지 않습니다.'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      // 내 주소 설정 페이지로 이동
-                      Navigator.pop(ctx); // 다이얼로그 닫기
-                      Navigator.pop(context); // Dilivery 페이지 pop
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const MyaddressPage(),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.pop(context);
+                      },
+                      child: Text('장바구니로 돌아가기', style: TextStyle(color: Colors.blue)),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MyaddressPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      );
-                    },
-                    child: const Text('내 주소 설정하기'),
-                  ),
-                ],
-              );
-            },
-          );
+                      ),
+                      child: Text('내 주소 설정하기'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         });
       } else if (storeLat == null || storeLon == null) {
-        // 가게 주소가 설정되어 있지 않음 → 팝업 띄움
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _dialogShown = true;
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) {
-              return AlertDialog(
-                title: const Text('주소 오류'),
-                content: const Text('가게주소가 설정되어있지 않아 장바구니로 돌아갑니다'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);    // 다이얼로그 닫기
-                      Navigator.pop(context); // Dilivery 페이지 pop
-                    },
-                    child: const Text('확인'),
+          if (mounted) {
+            _dialogShown = true;
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (ctx) {
+                return AlertDialog(
+                  title: Text('주소 오류'),
+                  content: Text('가게주소가 설정되어있지 않아 장바구니로 돌아갑니다'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
-              );
-            },
-          );
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text('확인'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         });
       }
     }
 
-    // 만약 주소가 유효하지 않아서 팝업을 띄웠다면,
-    // 아래 지도가 그려지기 전에 build()가 끝나면서 pop될 것.
-    // 안전하게 실제 내용 빌드 전, 주소가 null이 아니어야 진행
+    // 주소가 유효하지 않은 경우 로딩 표시
     if (userLat == null || userLon == null || storeLat == null || storeLon == null) {
-      return const Scaffold(); // 임시
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+        ),
+      );
     }
-    // ↓ 여기부터는 주소가 모두 유효할 때의 로직 ↓
+
+    // 거리 및 배달 시간 계산
     int estimatedMinutes = 0;
     String distanceStr = "0.00";
     if (userLat != null && userLon != null && storeLat != null && storeLon != null) {
@@ -207,81 +309,145 @@ class _DiliveryState extends State<Dilivery> {
       estimatedMinutes = estimateDeliveryTime(distance);
       distanceStr = distance.toStringAsFixed(2);
       debugPrint('[DEBUG] 계산된 거리: $distance km, 예상 배달 시간: $estimatedMinutes분');
+
+      // 카메라 위치 업데이트
       if (!_isCameraUpdated) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _updateMarkers(userLat, userLon, storeLat, storeLon);
-          _updateCameraToShowMarkers(userLat, userLon, storeLat, storeLon);
+          if (mounted) {
+            _updateMarkers(userLat, userLon, storeLat, storeLon);
+            _updateCameraToShowMarkers(userLat, userLon, storeLat, storeLon);
+            _isCameraUpdated = true;
+          }
         });
-        _isCameraUpdated = true; // 업데이트 완료 후 플래그 설정
       }
     }
+
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
               child: NaverMap(
-            options: const NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(
-                target: NLatLng(37.5665, 126.9780), // 서울 시청 근처
-                zoom: 15,
+                options: const NaverMapViewOptions(
+                  initialCameraPosition: NCameraPosition(
+                    target: NLatLng(37.5665, 126.9780),
+                    zoom: 15,
+                  ),
+                  mapType: NMapType.basic,
+                  locationButtonEnable: true,
+                ),
+                forceGesture: true,
+                onMapReady: (controller) async {
+                  _controller = controller;
+
+                  if (storeLat != null && storeLon != null) {
+                    final storeMarker = NMarker(
+                      id: "storeMarker",
+                      position: NLatLng(storeLat, storeLon),
+                    );
+                    controller.addOverlay(storeMarker);
+                  }
+                  debugPrint('네이버 지도 로딩 완료: $controller');
+                },
+                onMapTapped: (point, latLng) {
+                  debugPrint('지도 탭: $latLng');
+                },
+                onCameraChange: (position, reason) {
+                  debugPrint('카메라 이동: $position, reason: $reason');
+                },
+                onCameraIdle: () async {
+                  NCameraPosition cameraPosition = await _controller!.getCameraPosition();
+                  debugPrint("카메라위치 " + cameraPosition.toString());
+                  setState(() {
+                    _mapPosition = cameraPosition;
+                    _centerLatLng = cameraPosition.target;
+                  });
+                },
+              )),
+
+          // 상태 표시바
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 0,
+            right: 0,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
-              mapType: NMapType.basic,
-              locationButtonEnable: true, // 우측 하단 내 위치 버튼
+              child: Row(
+                children: [
+                  Icon(Icons.local_shipping, color: Colors.blue),
+                  SizedBox(width: 10),
+                  Text(
+                    _showAfterOrder
+                        ? '배달이 시작되었습니다'
+                        : '매장에서 주문을 확인하고 있습니다',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
             ),
-
-            forceGesture: true,
-
-            onMapReady: (controller) async {
-              _controller = controller; // 이 줄 추가!
-              // 이 버전에서는 setMap() / moveCamera() 등이 없다면
-              if (storeLat != null && storeLon != null) {
-                final storeMarker = NMarker(
-                  id: "storeMarker",
-                  position: NLatLng(storeLat, storeLon),
-                );
-                controller.addOverlay(storeMarker);
-              }
-              debugPrint('네이버 지도 로딩 완료: $controller');
-            },
-
-            onMapTapped: (point, latLng) {
-              debugPrint('지도 탭: $latLng');
-            },
-            onCameraChange: (position, reason) {
-              debugPrint('카메라 이동: $position, reason: $reason');
-            },
-            onCameraIdle: () async {
-              NCameraPosition cameraPosition =
-                  await _controller!.getCameraPosition();
-              debugPrint("카메라위치 " + cameraPosition.toString());
-              setState(() {
-                _mapPosition =
-                    cameraPosition; // 수정: 현재 카메라 위치를 _mapPosition에 저장
-                _centerLatLng =
-                    cameraPosition.target; // 화면 중앙 좌표도 _centerLatLng에 저장
-              });
-            },
-          )),
+          ),
 
           DraggableScrollableSheet(
-            initialChildSize: 0.3, // 처음 표시되는 크기 (30%)
-            minChildSize: 0.2, // 최소 크기 (20%)
-            maxChildSize: 0.8, // 최대 크기 (80%)
+            initialChildSize: 0.35,
+            minChildSize: 0.2,
+            maxChildSize: 0.8,
             builder: (context, scrollController) {
               return Container(
-                padding: EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
-                  child: SingleChildScrollView(
-                      controller: scrollController, // 스크롤 컨트롤러 적용
-                    child: _showAfterOrder
-                        ? DiliveryAfterOrder(estimatedMinutes: estimatedMinutes,
-                      distanceString: distanceStr,deliveryAddress: storeAddress) // 10초 후 변경
-                        :  DiliveryBeforeOrder(deliveryAddress: storeAddress),
-                  )
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // 드래그 핸들
+                    Container(
+                      margin: EdgeInsets.only(top: 10, bottom: 10),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+                        child: _showAfterOrder
+                            ? DiliveryAfterOrder(
+                          estimatedMinutes: estimatedMinutes,
+                          distanceString: distanceStr,
+                          deliveryAddress: deliveryAddress,
+                        )
+                            : DiliveryBeforeOrder(deliveryAddress: deliveryAddress),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
