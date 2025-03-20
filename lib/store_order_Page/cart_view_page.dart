@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:coupangeats/providers/cart_provider.dart';
 import 'package:coupangeats/store_order_Page/delivery_method_selector.dart';
+import '../providers/user_info_provider.dart'; // 추가: UserInfoProvider import
+import 'package:coupangeats/mymappage/myaddress_page.dart'; // 추가: 주소 관리 페이지 import
+
 //카트 페이지
 class CartViewPage extends StatefulWidget {
   const CartViewPage({Key? key}) : super(key: key);
@@ -18,6 +21,11 @@ class _CartViewPageState extends State<CartViewPage> {
   void initState() {
     super.initState();
     CartOverlayManager.hideOverlay();
+
+    // 추가: 주소 정보 로드
+    Future.microtask(() {
+      Provider.of<UserInfoProvider>(context, listen: false).loadUserInfo();
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -31,6 +39,9 @@ class _CartViewPageState extends State<CartViewPage> {
     // 장바구니 Provider 사용
     final cartProvider = Provider.of<CartProvider>(context);
     final cartItems = cartProvider.items;
+
+    // 추가: UserInfoProvider 접근
+    final userInfo = Provider.of<UserInfoProvider>(context);
 
     return WillPopScope(
       onWillPop: () async {
@@ -80,7 +91,7 @@ class _CartViewPageState extends State<CartViewPage> {
         ),
         body: cartItems.isEmpty
             ? _buildEmptyCart() // 장바구니가 비어있을 때
-            : _buildCartList(cartItems, cartProvider), // 장바구니에 아이템이 있을 때
+            : _buildCartList(cartItems, cartProvider, userInfo), // 장바구니에 아이템이 있을 때 - userInfo 추가
         bottomNavigationBar: cartItems.isEmpty
             ? null
             : _buildOrderButton(context, cartProvider), // 주문하기 버튼
@@ -134,8 +145,8 @@ class _CartViewPageState extends State<CartViewPage> {
     }
   }
 
-  // 장바구니 리스트 위젯
-  Widget _buildCartList(List<CartItem> cartItems, CartProvider cartProvider) {
+  // 장바구니 리스트 위젯 - UserInfoProvider 파라미터 추가
+  Widget _buildCartList(List<CartItem> cartItems, CartProvider cartProvider, UserInfoProvider userInfo) {
     // 배달비 계산
     final deliveryFee = _getDeliveryFee(cartProvider);
     // 최종 결제 금액 계산 (주문 금액 + 배달비)
@@ -157,22 +168,82 @@ class _CartViewPageState extends State<CartViewPage> {
                 ),
               ),
               SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.location_on_outlined, size: 18, color: Colors.grey[600]),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '배달 주소를 입력해주세요',
-                      style: TextStyle(color: Colors.grey[600]),
-                      overflow: TextOverflow.ellipsis,
+              InkWell(
+                onTap: () {
+                  // 주소 설정 페이지로 이동
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyaddressPage()),
+                  ).then((_) {
+                    // 주소 페이지에서 돌아올 때 주소 정보 다시 로드
+                    Provider.of<UserInfoProvider>(context, listen: false).loadUserInfo();
+                  });
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_on_outlined, size: 18, color: Colors.grey[600]),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        userInfo.addressName.isNotEmpty
+                            ? userInfo.addressName  // 저장된 주소가 있으면 표시
+                            : '배달 주소를 입력해주세요',
+                        style: TextStyle(
+                          color: userInfo.addressName.isNotEmpty
+                              ? Colors.black
+                              : Colors.grey[600],
+                          fontWeight: userInfo.addressName.isNotEmpty
+                              ? FontWeight.w500
+                              : FontWeight.normal,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 4), // 아이콘과 텍스트 사이 간격 추가
-                  Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[600]),
-                ],
+                    SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[600]),
+                  ],
+                ),
               ),
+
+              // 저장된 주소가 있을 경우 WOW 배달 가능 지역 표시
+              if (userInfo.addressName.isNotEmpty)
+                Container(
+                  margin: EdgeInsets.only(top: 8, left: 26),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'WOW',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        '무료배달 가능 지역',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),
@@ -391,9 +462,34 @@ class _CartViewPageState extends State<CartViewPage> {
     // 최종 결제 금액 계산 (주문 금액 + 배달비)
     final finalAmount = cartProvider.totalAmount + deliveryFee;
 
+    // UserInfoProvider에서 배달 주소 가져오기
+    final userInfo = Provider.of<UserInfoProvider>(context);
+    final hasAddress = userInfo.addressName.isNotEmpty;
+
     return SafeArea(  // SafeArea 추가
       child: GestureDetector(
         onTap: () {
+          // 주소가 없으면 주소 설정 요청
+          if (!hasAddress) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('배달 주소를 먼저 설정해주세요.'),
+                action: SnackBarAction(
+                  label: '주소 설정',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyaddressPage()),
+                    ).then((_) {
+                      Provider.of<UserInfoProvider>(context, listen: false).loadUserInfo();
+                    });
+                  },
+                ),
+              ),
+            );
+            return;
+          }
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('주문이 완료되었습니다.'),
@@ -418,7 +514,7 @@ class _CartViewPageState extends State<CartViewPage> {
           height: 60,
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.blue,
+            color: hasAddress ? Colors.blue : Colors.grey,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -430,7 +526,7 @@ class _CartViewPageState extends State<CartViewPage> {
           ),
           child: Center(
             child: Text(
-              '${finalAmount}원 결제하기',
+              hasAddress ? '${finalAmount}원 결제하기' : '배달 주소를 입력해주세요',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
